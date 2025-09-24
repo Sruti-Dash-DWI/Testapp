@@ -1,125 +1,722 @@
-import React, { useState } from 'react';
-import DashboardLayout from '../../layout/DashboardLayout';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
-
-
+// --- ICONS (New PencilIcon and Priority Icons added) ---
 const SearchIcon = () => (
     <svg className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path fillRule="evenodd" clipRule="evenodd" d="M11.396 10.396a6 6 0 111-1l5.317 5.317a.75.75 0 01-1.06 1.06l-5.317-5.317zm-5.396.604a5 5 0 100-10 5 5 0 000 10z" />
     </svg>
 );
-
-const ChevronDownIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 10l5 5 5-5H7z" />
-    </svg>
-);
-
-const UserIcon = () => (
-    <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#5E6C84" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.33 4 18V20H20V18C20 15.33 14.67 14 12 14Z" />
-        </svg>
-    </div>
-);
-
-const EqualsIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 10H19" stroke="#5E6C84" strokeWidth="2" strokeLinecap="round" />
-        <path d="M5 14H19" stroke="#5E6C84" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-);
-
-const MoreHorizontalIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="6" cy="12" r="1.5" />
-        <circle cx="12" cy="12" r="1.5" />
-        <circle cx="18" cy="12" r="1.5" />
-    </svg>
-);
-
-const NewInsightsIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
-        <polyline points="3 17 9 11 13 15 21 7"></polyline>
-        <polyline points="15 7 21 7 21 13"></polyline>
-    </svg>
-);
-
-const FiltersIcon = () => (
-     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
-        <line x1="4" y1="8" x2="20" y2="8" />
-        <line x1="4" y1="16" x2="20" y2="16" />
-        <circle cx="8" cy="8" r="2" fill="white" strokeWidth="2"/>
-        <circle cx="16" cy="16" r="2" fill="white" strokeWidth="2"/>
-    </svg>
-);
-
-const CloseIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-    </svg>
-);
-
-// Reusable Toggle Switch Component for the View Settings panel
-const ToggleSwitch = ({ isChecked, setIsChecked }) => {
+const ChevronDownIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z" /></svg>);
+const MoreHorizontalIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="18" cy="12" r="1.5" /></svg>);
+const NewInsightsIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="15 7 21 7 21 13"></polyline></svg>);
+const FiltersIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg"><line x1="4" y1="8" x2="20" y2="8" /><line x1="4" y1="16" x2="20" y2="16" /><circle cx="8" cy="8" r="2" fill="white" strokeWidth="2"/><circle cx="16" cy="16" r="2" fill="white" strokeWidth="2"/></svg>);
+const CloseIcon = ({width="20", height="20"}) => (<svg width={width} height={height} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>);
+const UserIcon = ({ user }) => {
+    const initials = user ? user.name.split(' ').map(n => n[0]).join('') : 'U';
+    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
+    const color = (user && user.id) ? colors[user.id.charCodeAt(0) % colors.length] : 'bg-gray-400';
+    
     return (
-        
-        <button
-            onClick={() => setIsChecked(!isChecked)}
-            className={`relative inline-flex items-center h-5 rounded-full w-9 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isChecked ? 'bg-green-500' : 'bg-gray-300'}`}
-        >
-            <span
-                className={`inline-block w-3.5 h-3.5 transform bg-white rounded-full transition-transform ${isChecked ? 'translate-x-4' : 'translate-x-1'}`}
-            />
-        </button>
+        <div className={`w-6 h-6 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold`}>
+            {initials}
+        </div>
+    );
+};
+const PlusIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>);
+const PencilIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>);
+
+// Priority Icons
+const PriorityHighestIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5L17 10H7L12 5Z" fill="#D94C4C"/><path d="M12 12L17 17H7L12 12Z" fill="#D94C4C"/></svg>;
+const PriorityHighIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8L17 13H7L12 8Z" fill="#E07C3E"/></svg>;
+const PriorityMediumIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10H19" stroke="#5E6C84" strokeWidth="2" strokeLinecap="round" /><path d="M5 14H19" stroke="#5E6C84" strokeWidth="2" strokeLinecap="round" /></svg>;
+const PriorityLowIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L7 11H17L12 16Z" fill="#4B8FD9"/></svg>;
+const PriorityLowestIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19L7 14H17L12 19Z" fill="#2D65A8 "/><path d="M12 12L7 7H17L12 12Z" fill="#2D65A8"/></svg>;
+
+
+// --- Reusable Components ---
+const ToggleSwitch = ({ isChecked, setIsChecked }) => (
+    <button
+        onClick={() => setIsChecked(!isChecked)}
+        className={`relative inline-flex items-center h-5 rounded-full w-9 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isChecked ? 'bg-green-500' : 'bg-gray-300'}`}
+    >
+        <span className={`inline-block w-3.5 h-3.5 transform bg-white rounded-full transition-transform ${isChecked ? 'translate-x-4' : 'translate-x-1'}`} />
+    </button>
+);
+
+const Dropdown = ({ options, onSelect, children, customClasses = "w-40", menuAlign = "right" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const alignmentClass = menuAlign === 'left' ? 'left-0' : 'right-0';
+    return (
+        <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
+            {children}
+            {isOpen && (
+                <div className={`absolute z-30 ${alignmentClass} mt-1 bg-white rounded-md shadow-lg border ${customClasses}`}>
+                    {options.map(option => (
+                        <div key={option.value} onClick={(e) => { e.preventDefault(); onSelect(option.value); setIsOpen(false); }} className={`block px-3 py-1.5 text-sm  hover:bg-gray-100 cursor-pointer ${option.isDestructive ? 'text-red-600' : 'text-gray-700'}`}>
+                            {option.label}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 
+const StatusDropdown = ({ currentStatus, onItemUpdate, menuAlign }) => {
+    const statuses = ['TO DO', 'IN PROGRESS', 'IN REVIEW', 'DONE'];
+    const statusColors = {
+        'TO DO': 'bg-gray-200 text-gray-700',
+        'IN PROGRESS': 'bg-blue-100 text-blue-800',
+        'IN REVIEW': 'bg-purple-100 text-purple-800',
+        'DONE': 'bg-green-100 text-green-800'
+    };
+    const statusOptions = statuses.map(s => ({ value: s, label: s }));
 
-// --- Initial Data ---
+    return (
+         <Dropdown options={statusOptions} onSelect={(status) => onItemUpdate({ status })} menuAlign={menuAlign}>
+            <div className={`inline-flex items-center gap-1 text-sm font-semibold px-2 py-1 rounded cursor-pointer ${statusColors[currentStatus]}`}>
+                {currentStatus} <ChevronDownIcon/>
+            </div>
+         </Dropdown>
+    );
+};
+
+const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = false }) => {
+    const priorities = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
+    const priorityOptions = priorities.map(p => ({ value: p, label: p }));
+    
+    const priorityIcons = {
+        'Highest': <PriorityHighestIcon />,
+        'High': <PriorityHighIcon />,
+        'Medium': <PriorityMediumIcon />,
+        'Low': <PriorityLowIcon />,
+        'Lowest': <PriorityLowestIcon />,
+    };
+
+    return (
+        <Dropdown options={priorityOptions} onSelect={(priority) => onItemUpdate({ priority })}>
+             <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer">
+                {priorityIcons[currentPriority] || <PriorityMediumIcon />}
+                {!isIconOnly && <span>{currentPriority || 'Medium'}</span>}
+            </div>
+        </Dropdown>
+    );
+}
+
+const UserSelector = ({ selectedUserId, users, onUpdate }) => {
+    const selectedUser = users.find(u => u.id === selectedUserId);
+    const userOptions = users.map(u => ({ value: u.id, label: u.name }));
+    if (users.find(u => u.id === null)) { 
+        userOptions.unshift({ value: null, label: "Unassigned" });
+    }
+
+    return (
+         <Dropdown options={userOptions} onSelect={onUpdate} customClasses="w-48">
+             <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer">
+                 <UserIcon user={selectedUser} /> 
+                 <span>{selectedUser ? selectedUser.name : 'Unassigned'}</span>
+             </div>
+        </Dropdown>
+    )
+}
+
+// --- MODAL COMPONENTS ---
+const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) => {
+    if (!item) return null;
+
+    const [title, setTitle] = useState(item.title || '');
+    const [description, setDescription] = useState(item.description || '');
+    const [subtasks, setSubtasks] = useState(item.subtasks || []);
+    const [newSubtaskText, setNewSubtaskText] = useState('');
+    
+    const handleDetailUpdate = (field, value) => {
+        onUpdate(item.id, { [field]: value });
+    };
+
+    const handleAddSubtask = () => {
+        if (newSubtaskText.trim() === '') return;
+        const newSubtaskList = [...subtasks, { id: `sub-${Date.now()}`, text: newSubtaskText, completed: false }];
+        setSubtasks(newSubtaskList);
+        onUpdate(item.id, { subtasks: newSubtaskList });
+        setNewSubtaskText('');
+    };
+    
+    const toggleSubtask = (subtaskId) => {
+        const newSubtaskList = subtasks.map(st => st.id === subtaskId ? {...st, completed: !st.completed} : st);
+        setSubtasks(newSubtaskList);
+        onUpdate(item.id, {subtasks: newSubtaskList});
+    }
+
+    const reporterUser = users.find(u => u.id === item.reporter);
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl h-[95vh] flex flex-col text-gray-800">
+                <header className="p-3 border-b border-black/10 flex justify-between items-center bg-white/50 rounded-t-2xl flex-shrink-0">
+                    <div>
+                        <span className="text-sm text-gray-600 font-medium">SCRUM / {item.id}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                         <button className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><MoreHorizontalIcon/></button>
+                         <button onClick={onClose} className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><CloseIcon width="24" height="24"/></button>
+                    </div>
+                </header>
+                <main className="flex-grow overflow-y-auto p-6">
+                    <input 
+                        type="text" 
+                        value={title} 
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={() => handleDetailUpdate('title', title)}
+                        className="text-2xl font-bold w-full bg-transparent focus:outline-none focus:bg-white/50 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 mb-4"
+                    />
+
+                    <div className="mb-6">
+                         <StatusDropdown 
+                             currentStatus={item.status} 
+                             onItemUpdate={(updates) => onUpdate(item.id, updates)} 
+                             menuAlign="left"
+                         />
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="block text-sm font-semibold text-gray-600">Description</label>
+                        <textarea 
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            onBlur={() => handleDetailUpdate('description', description)}
+                            placeholder="Add a description..."
+                            className="mt-1 w-full p-2 border bg-white/70 border-black/10 rounded-md min-h-[100px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
+                    </div>
+                    
+                    <div className="mb-6">
+                        <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
+                         <div className="space-y-2">
+                             {subtasks.map(st => (
+                                <div key={st.id} className="flex items-center bg-black/5 p-2 rounded">
+                                    <input type="checkbox" checked={st.completed} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/>
+                                    <span className={`flex-grow text-sm ${st.completed ? 'line-through text-gray-500' : ''}`}>{st.text}</span>
+                                </div>
+                             ))}
+                         </div>
+                        <div className="flex items-center mt-2">
+                            <input 
+                                type="text"
+                                value={newSubtaskText}
+                                onChange={(e) => setNewSubtaskText(e.target.value)}
+                                placeholder="Add subtask"
+                                className="flex-grow p-2 border bg-white/70 border-black/10 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button onClick={handleAddSubtask} className="bg-gray-200 p-2 rounded-r-md hover:bg-gray-300"><PlusIcon/></button>
+                        </div>
+                    </div>
+
+                    <div className="p-4 border rounded-md bg-white/70 border-black/10">
+                        <h3 className="font-semibold mb-4">Details</h3>
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Assignee</span><UserSelector selectedUserId={item.assignee} users={users} onUpdate={(userId) => handleDetailUpdate('assignee', userId)} /></div>
+                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Reporter</span><UserSelector selectedUserId={item.reporter} users={users.filter(u => u.id !== null)} onUpdate={(userId) => handleDetailUpdate('reporter', userId)} /></div>
+                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Priority</span><PriorityDropdown currentPriority={item.priority} onItemUpdate={(update) => handleDetailUpdate('priority', update.priority)}/></div>
+                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Sprint</span><span className="font-semibold text-blue-600">{sprintName}</span></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Story point estimate</span>
+                                <input type="number" defaultValue={item.storyPoints} onBlur={(e) => handleDetailUpdate('storyPoints', e.target.value)} className="w-20 text-right p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Due date</span>
+                                <input type="date" defaultValue={item.dueDate} onBlur={(e) => handleDetailUpdate('dueDate', e.target.value)} className="p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
+                            </div>
+                        </div>
+                    </div>
+
+                     <div className="mt-6">
+                         <h4 className="font-semibold text-gray-800 mb-3">Activity</h4>
+                         <div className="space-y-4">
+                             <div className="flex items-start gap-3">
+                                 <UserIcon user={reporterUser} />
+                                 <div className="w-full">
+                                     <textarea placeholder="Add a comment..." className="w-full p-2 border bg-white/70 border-black/10 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                </main>
+                <footer className="p-3 bg-white/50 border-t border-black/10 rounded-b-2xl flex-shrink-0 flex justify-end">
+                    <button onClick={onClose} className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg shadow-blue-500/30 transition">
+                        Submit
+                    </button>
+                </footer>
+            </div>
+        </div>
+    );
+};
+
+const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
+    if (!sprint) return null;
+
+    const [name, setName] = useState('');
+    const [duration, setDuration] = useState('custom');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [goal, setGoal] = useState('');
+
+    useEffect(() => {
+        if (sprint) {
+            setName(sprint.name || '');
+            setGoal(sprint.goal || '');
+            setStartDate(sprint.startDate || '');
+            setEndDate(sprint.endDate || '');
+            setDuration(sprint.duration || 'custom');
+        }
+    }, [sprint]);
+
+    useEffect(() => {
+        if (duration !== 'custom' && startDate) {
+            const weeks = parseInt(duration, 10);
+            if (!isNaN(weeks)) {
+                const start = new Date(startDate);
+                if (!isNaN(start.getTime())) {
+                    const end = new Date(start.getTime() + weeks * 7 * 24 * 60 * 60 * 1000);
+                    setEndDate(end.toISOString().split('T')[0]);
+                }
+            }
+        }
+    }, [duration, startDate]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const sprintData = { name, duration, startDate, endDate, goal };
+        console.log("Updating Sprint with data:", sprintData);
+        onUpdate(sprint.id, sprintData);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-xl rounded-lg shadow-xl w-full max-w-lg">
+                <header className="p-4 border-b">
+                    <h2 className="text-xl font-semibold text-gray-800">Edit sprint: {sprint.name}</h2>
+                </header>
+                <main className="p-6 space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sprint name <span className="text-red-500">*</span></label>
+                        <input 
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                     <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                        <select
+                            value={duration}
+                            onChange={(e) => setDuration(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="custom">Custom</option>
+                            <option value="1">1 week</option>
+                            <option value="2">2 weeks</option>
+                            <option value="3">3 weeks</option>
+                            <option value="4">4 weeks</option>
+                        </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={e => setStartDate(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={e => setEndDate(e.target.value)}
+                                disabled={duration !== 'custom'}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sprint goal</label>
+                        <textarea 
+                            value={goal}
+                            onChange={(e) => setGoal(e.target.value)}
+                            placeholder="e.g. Finalize Q3 features"
+                            className="w-full p-2 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        ></textarea>
+                    </div>
+                </main>
+                <footer className="px-6 py-3 bg-gray-50 flex justify-end items-center rounded-b-lg">
+                     <button type="button" onClick={onClose} className="text-gray-600 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition ml-2">Update</button>
+                </footer>
+            </form>
+        </div>
+    );
+};
+
+const StartSprintModal = ({ sprint, onClose, onStart }) => {
+    if (!sprint) return null;
+
+    const [sprintData, setSprintData] = useState({
+        name: '',
+        duration: 'custom',
+        startDate: '',
+        endDate: '',
+        goal: ''
+    });
+
+    useEffect(() => {
+        if(sprint) {
+            setSprintData({
+                name: sprint.name || '',
+                duration: sprint.duration || '2', // Default to 2 weeks
+                startDate: sprint.startDate || new Date().toISOString().split('T')[0],
+                endDate: sprint.endDate || '',
+                goal: sprint.goal || ''
+            });
+        }
+    }, [sprint]);
+     
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSprintData(prev => ({...prev, [name]: value}));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onStart(sprint.id, sprintData);
+        onClose();
+    };
+
+    return (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <form onSubmit={handleSubmit} className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-lg text-gray-800">
+                 <header className="p-4 border-b border-black/10">
+                    <h2 className="text-xl font-semibold">Start Sprint</h2>
+                    <p className="text-sm text-gray-600 mt-1">{sprint.itemIds.length} work item will be included in this sprint.</p>
+                </header>
+                 <main className="p-6 space-y-4">
+                     <div>
+                        <label className="block text-sm font-medium mb-1">Sprint name <span className="text-red-500">*</span></label>
+                        <input name="name" type="text" value={sprintData.name} onChange={handleChange} required className="w-full p-2 bg-white/70 border border-black/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                     <div>
+                        <label className="block text-sm font-medium mb-1">Duration</label>
+                        <select name="duration" value={sprintData.duration} onChange={handleChange} className="w-full p-2 bg-white/70 border border-black/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="custom">Custom</option>
+                            <option value="1">1 week</option>
+                            <option value="2">2 weeks</option>
+                            <option value="3">3 weeks</option>
+                            <option value="4">4 weeks</option>
+                        </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div>
+                            <label className="block text-sm font-medium mb-1">Start date</label>
+                            <input name="startDate" type="date" value={sprintData.startDate} onChange={handleChange} className="w-full p-2 bg-white/70 border border-black/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                           <label className="block text-sm font-medium mb-1">End date</label>
+                            <input name="endDate" type="date" value={sprintData.endDate} onChange={handleChange} disabled={sprintData.duration !== 'custom'} className="w-full p-2 bg-white/70 border border-black/20 rounded-md disabled:bg-black/5 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Sprint goal</label>
+                        <textarea name="goal" value={sprintData.goal} onChange={handleChange} className="w-full p-2 h-24 bg-white/70 border border-black/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </main>
+                 <footer className="px-6 py-3 bg-black/5 flex justify-end items-center rounded-b-2xl">
+                     <button type="button" onClick={onClose} className="font-semibold px-4 py-2 rounded-lg hover:bg-black/10 transition">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition ml-2">Start</button>
+                </footer>
+            </form>
+        </div>
+    )
+};
+
+
+// --- INITIAL DATA (Now more dynamic) ---
+const initialUsers = [
+    { id: 'user-1', name: 'Deepak Mahanandia', email: 'deepak@example.com'},
+    { id: 'user-2', name: 'Jane Doe', email: 'jane@example.com'},
+    { id: 'user-3', name: 'Sam Wilson', email: 'sam@example.com'},
+];
+
 const initialData = {
     items: {
-        'SCRUM-1': { id: 'SCRUM-1', title: 'Analyze user feedback for Q3', status: 'TO DO' },
-        'SCRUM-2': { id: 'SCRUM-2', title: 'Develop new dashboard widget', status: 'TO DO' },
-        'SCRUM-3': { id: 'SCRUM-3', title: 'Fix login authentication bug', status: 'TO DO' },
-        'SCRUM-4': { id: 'SCRUM-4', title: 'Design marketing page mockups', status: 'TO DO' },
+        'SCRUM-1': { id: 'SCRUM-1', title: 'Analyze user feedback for Q3', status: 'TO DO', assignee: 'user-1', reporter: 'user-1', description: 'Detailed analysis of Q3 feedback from various channels.', subtasks: [], priority: 'High', storyPoints: 8, dueDate: '2025-10-15' },
+        'SCRUM-2': { id: 'SCRUM-2', title: 'Develop new dashboard widget', status: 'IN PROGRESS', assignee: 'user-2', reporter: 'user-1', description: '', subtasks: [{id: 1, text: 'Design UI', completed: true}, {id: 2, text: 'Backend API', completed: false}], priority: 'Highest', storyPoints: 5, dueDate: '2025-09-30' },
+        'SCRUM-3': { id: 'SCRUM-3', title: 'Fix login authentication bug', status: 'DONE', assignee: 'user-2', reporter: 'user-3', description: '', subtasks: [], priority: 'Medium', storyPoints: 3, dueDate: '' },
+        'SCRUM-4': { id: 'SCRUM-4', title: 'Design marketing page mockups', status: 'IN REVIEW', assignee: null, reporter: 'user-3', description: '', subtasks: [], priority: 'Low', storyPoints: 5, dueDate: '' },
+        'SCRUM-5': { id: 'SCRUM-5', title: 'Setup CI/CD pipeline', status: 'TO DO', assignee: 'user-3', reporter: 'user-1', description: '', subtasks: [], priority: 'Lowest', storyPoints: 8, dueDate: '2025-10-10' },
     },
-    sprints: {
-        'sprint-1': { id: 'sprint-1', name: 'SCRUM Sprint 1', itemIds: ['SCRUM-2'] },
-    },
-    backlog: { id: 'backlog', itemIds: ['SCRUM-1', 'SCRUM-3', 'SCRUM-4'] },
+    sprints: [
+        { id: 'sprint-1', name: 'SCRUM Sprint 1', itemIds: ['SCRUM-2', 'SCRUM-4'], goal: "Launch the new dashboard", duration: "2", startDate: "2025-09-15", endDate: "2025-09-29"},
+    ],
+    backlog: { id: 'backlog', name: 'Backlog', itemIds: ['SCRUM-1', 'SCRUM-3', 'SCRUM-5'] },
+    itemCounter: 5,
 };
 
 
 export default function BacklogPage() {
-
     const [boardData, setBoardData] = useState(initialData);
+    const [users, setUsers] = useState(initialUsers);
     const [draggedItemId, setDraggedItemId] = useState(null);
     const [activePanel, setActivePanel] = useState(null); 
     const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    
+    // --- View settings state ---
     const [showEpicPanel, setShowEpicPanel] = useState(false);
     const [showEmptySprints, setShowEmptySprints] = useState(true);
     const [density, setDensity] = useState('default');
-    const [fieldToggles, setFieldToggles] = useState({
-        workType: true, workItemKey: true, epic: true, status: true, priority: true
-    });
+    const [fieldToggles, setFieldToggles] = useState({ workType: true, workItemKey: true, epic: true, status: true, priority: true });
+    
+    // --- New State for added functionality ---
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [sprintToEdit, setSprintToEdit] = useState(null);
+    const [sprintToStart, setSprintToStart] = useState(null);
+    const [editingSprintId, setEditingSprintId] = useState(null);
+    const [editingItemId, setEditingItemId] = useState(null);
+    const [isEditingBacklogName, setIsEditingBacklogName] = useState(false);
+    const sprintNameInputRef = useRef(null);
+    const backlogNameInputRef = useRef(null);
+    const itemNameInputRef = useRef(null);
+    const [isCreatingSprint, setIsCreatingSprint] = useState(false);
+    const [newSprintName, setNewSprintName] = useState("");
+    const newSprintInputRef = useRef(null);
 
-    const handleFieldToggle = (field) => {
-        setFieldToggles(prev => ({ ...prev, [field]: !prev[field] }));
+
+    const handleAddNewSprint = async (e) => {
+        e.preventDefault();
+        if (newSprintName.trim() === "") return;
+        
+        const newSprint = {
+            id: `sprint-${Date.now()}`,
+            name: newSprintName,
+            itemIds: [],
+            goal: '',
+            duration: 'custom',
+            startDate: '',
+            endDate: '',
+        };
+        
+        console.log("Creating new sprint with data:", newSprint);
+        
+        try {
+            // --- API Call for Creating a Sprint ---
+            // const response = await fetch('/api/sprints', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(newSprint),
+            // });
+            // if (!response.ok) throw new Error('Network response was not ok.');
+            // const createdSprint = await response.json();
+
+            // Replace with static update for now
+            const createdSprint = newSprint;
+            
+            setBoardData(prevData => ({
+                ...prevData,
+                sprints: [...prevData.sprints, createdSprint],
+            }));
+        } catch (error) {
+            console.error('Error creating sprint:', error);
+        }
+
+        setNewSprintName("");
+        setIsCreatingSprint(false);
     };
 
-    const handlePanelToggle = (panelName) => {
-        setActivePanel(currentPanel => (currentPanel === panelName ? null : panelName));
-        setIsMoreMenuOpen(false);
+    const handleUpdateSprint = async (sprintId, updates) => {
+        console.log(`Updating sprint ${sprintId} with data:`, updates);
+
+        try {
+            // --- API Call for Updating a Sprint ---
+            // const response = await fetch(`/api/sprints/${sprintId}`, {
+            //     method: 'PATCH',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(updates),
+            // });
+            // if (!response.ok) throw new Error('Network response was not ok.');
+            // const updatedSprint = await response.json();
+            
+            // Replace with static update for now
+             setBoardData(prev => ({
+                 ...prev,
+                 sprints: prev.sprints.map(s => s.id === sprintId ? { ...s, ...updates } : s)
+             }));
+
+        } catch (error) {
+             console.error('Error updating sprint:', error);
+        }
+    };
+    
+    const handleStartSprint = async (sprintId, sprintData) => {
+        const payload = {
+            ...sprintData,
+            status: 'active' // Add the key 'status' to signify the sprint is starting
+        };
+
+        console.log(`Starting sprint ${sprintId}. API Payload:`, payload);
+        
+        try {
+             // --- API Call for Starting a Sprint ---
+            // This API call would update the sprint with its final details (dates, goal)
+            // and most importantly, change its status from 'planned' to 'active'.
+            // const response = await fetch(`/api/sprints/${sprintId}/start`, {
+            //     method: 'POST', // Use POST to indicate a state change action
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload),
+            // });
+            // if (!response.ok) throw new Error('Network response was not ok.');
+            
+            // Static state update: Remove the sprint from the backlog page
+            // because it now "belongs" to the active board view.
+            setBoardData(prev => ({
+                ...prev,
+                sprints: prev.sprints.filter(s => s.id !== sprintId)
+            }));
+            
+            console.log(`Sprint ${sprintId} successfully started. App would now navigate to the board view.`);
+            // In a real app, you would navigate to the board page here.
+            // For example, with React Router: navigate(`/board`);
+
+        } catch (error) {
+             console.error('Error starting sprint:', error);
+        }
     };
 
-    const handleMoreMenuToggle = () => {
-        setIsMoreMenuOpen(prevState => !prevState);
-        setActivePanel(null);
+
+    const handleDeleteSprint = async (sprintId) => {
+        console.log("Deleting sprint with ID:", sprintId);
+
+        try {
+            // --- API Call for Deleting a Sprint ---
+            // const response = await fetch(`/api/sprints/${sprintId}`, { method: 'DELETE' });
+            // if (!response.ok) throw new Error('Network response was not ok.');
+           
+            // Static state update
+            setBoardData(prev => {
+                const sprintToDelete = prev.sprints.find(s => s.id === sprintId);
+                const itemsToMove = sprintToDelete ? sprintToDelete.itemIds : [];
+                return {
+                    ...prev,
+                    sprints: prev.sprints.filter(s => s.id !== sprintId),
+                    backlog: {
+                        ...prev.backlog,
+                        itemIds: [...prev.backlog.itemIds, ...itemsToMove]
+                    }
+                }
+            });
+        } catch(error) {
+             console.error('Error deleting sprint:', error);
+        }
     };
 
+    const handleUpdateItemDB = async (itemId, updates) => {
+        console.log(`Updating item ${itemId} with data:`, updates);
+        try {
+            // --- API Call for Updating an Item ---
+            // const response = await fetch(`/api/items/${itemId}`, {
+            //     method: 'PATCH',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(updates),
+            // });
+            // if (!response.ok) throw new Error('Network response was not ok.');
+            // const updatedItem = await response.json();
+            
+             console.log(`Successfully updated item ${itemId} on the server.`);
+        } catch (error) {
+            console.error(`Error updating item ${itemId}:`, error);
+        }
+    };
+
+    useEffect(() => {
+        if (isCreatingSprint) {
+            newSprintInputRef.current?.focus();
+        }
+    }, [isCreatingSprint]);
+
+    
+    const handleItemClick = (item) => setSelectedItem(item);
+    const handleCloseModal = () => setSelectedItem(null);
+    const handleCloseEditSprintModal = () => setSprintToEdit(null);
+    const handleCloseStartSprintModal = () => setSprintToStart(null);
+
+
+    const handleUpdateItem = (itemId, updates) => {
+        setBoardData(prevData => {
+            const newItems = {
+                ...prevData.items,
+                [itemId]: { ...prevData.items[itemId], ...updates }
+            };
+            return { ...prevData, items: newItems };
+        });
+
+        if (selectedItem && selectedItem.id === itemId) {
+            setSelectedItem(prev => ({...prev, ...updates}));
+        }
+        handleUpdateItemDB(itemId, updates);
+    };
+    
+    const handleCreateItem = (listId) => {
+        setBoardData(prevData => {
+            const newCounter = prevData.itemCounter + 1;
+            const newItemId = `SCRUM-${newCounter}`;
+            const newItem = {
+                id: newItemId, title: `New work item ${newCounter}`, status: 'TO DO', assignee: null, reporter: 'user-1', description: '', subtasks: [], priority: 'Medium', storyPoints: 0, dueDate: ''
+            };
+
+            const newData = JSON.parse(JSON.stringify(prevData));
+            newData.items[newItemId] = newItem;
+            
+            if (listId === 'backlog') {
+                newData.backlog.itemIds.push(newItemId);
+            } else {
+                const sprint = newData.sprints.find(s => s.id === listId);
+                if (sprint) sprint.itemIds.push(newItemId);
+            }
+            newData.itemCounter = newCounter;
+            return newData;
+        });
+    };
+
+
+    const handleStartRenameSprint = (sprintId) => setEditingSprintId(sprintId);
+    const handleStartRenameBacklog = () => setIsEditingBacklogName(true);
+    const handleStartRenameItem = (itemId) => setEditingItemId(itemId);
+
+
+    useEffect(() => {
+        if (editingSprintId) sprintNameInputRef.current?.focus();
+        if (isEditingBacklogName) backlogNameInputRef.current?.focus();
+        if (editingItemId) itemNameInputRef.current?.focus();
+    }, [editingSprintId, isEditingBacklogName, editingItemId]);
+
+    const handleRenameSprint = (sprintId, newName) => {
+        handleUpdateSprint(sprintId, { name: newName || "Untitled Sprint" });
+        setEditingSprintId(null);
+    };
+    
+    const handleRenameItem = (itemId, newTitle) => {
+        handleUpdateItem(itemId, { title: newTitle || "Untitled Item" });
+        setEditingItemId(null);
+    };
+
+    const handleRenameBacklog = (newName) => {
+        setBoardData(prev => ({ ...prev, backlog: {...prev.backlog, name: newName || "Backlog"} }));
+        setIsEditingBacklogName(false);
+    };
+    
     const handleDragStart = (e, itemId) => {
         setDraggedItemId(itemId);
         e.dataTransfer.effectAllowed = 'move';
@@ -127,38 +724,36 @@ export default function BacklogPage() {
     };
     
     const handleDragEnd = (e) => {
-        e.target.style.opacity = '1';
+        if(e.target) e.target.style.opacity = '1';
         setDraggedItemId(null);
     };
 
     const handleDragOver = (e) => e.preventDefault();
 
     const findItemLocation = (itemId) => {
-        if (boardData.sprints['sprint-1'].itemIds.includes(itemId)) {
-            return { listId: 'sprint-1' };
+        for (const sprint of boardData.sprints) {
+            if (sprint.itemIds.includes(itemId)) return { listId: sprint.id, sprintName: sprint.name };
         }
-        if (boardData.backlog.itemIds.includes(itemId)) {
-            return { listId: 'backlog' };
-        }
+        if (boardData.backlog.itemIds.includes(itemId)) return { listId: 'backlog', sprintName: boardData.backlog.name };
         return null;
     };
 
     const handleDrop = (e, targetListId) => {
         e.preventDefault();
         if (!draggedItemId) return;
+        
         const sourceLocation = findItemLocation(draggedItemId);
         if (!sourceLocation) return;
         
         const { listId: sourceListId } = sourceLocation;
-        if (sourceListId === targetListId && e.target.closest('[data-item-id]')?.getAttribute('data-item-id') === draggedItemId) return;
+        if (sourceListId === targetListId && !e.target.closest('[data-item-id]')) return;
 
         const newBoardData = JSON.parse(JSON.stringify(boardData));
-
-        const sourceList = sourceListId === 'backlog' ? newBoardData.backlog.itemIds : newBoardData.sprints[sourceListId].itemIds;
+        let sourceList = sourceListId === 'backlog' ? newBoardData.backlog.itemIds : newBoardData.sprints.find(s => s.id === sourceListId).itemIds;
         const sourceIndex = sourceList.indexOf(draggedItemId);
         if (sourceIndex > -1) sourceList.splice(sourceIndex, 1);
-
-        const targetList = targetListId === 'backlog' ? newBoardData.backlog.itemIds : newBoardData.sprints[targetListId].itemIds;
+        
+        let targetList = targetListId === 'backlog' ? newBoardData.backlog.itemIds : newBoardData.sprints.find(s => s.id === targetListId).itemIds;
         const dropTargetElement = e.target.closest('[data-item-id]');
         let dropIndex = targetList.length;
 
@@ -172,109 +767,264 @@ export default function BacklogPage() {
         setBoardData(newBoardData);
     };
 
-    const sprint = boardData.sprints['sprint-1'];
-    const sprintItems = sprint.itemIds.map(id => boardData.items[id]);
-    const backlogItems = boardData.backlog.itemIds.map(id => boardData.items[id]);
+    const handleFieldToggle = (field) => setFieldToggles(prev => ({ ...prev, [field]: !prev[field] }));
+    const handlePanelToggle = (panelName) => setActivePanel(current => (current === panelName ? null : panelName));
+    const handleMoreMenuToggle = () => setIsMoreMenuOpen(prev => !prev);
+    
+    const filteredItems = useMemo(() => {
+        if (!searchTerm) {
+            return boardData.items;
+        }
+        const lowercasedFilter = searchTerm.toLowerCase();
+        const filtered = {};
+        for (const itemId in boardData.items) {
+            const item = boardData.items[itemId];
+            if (
+                item.title.toLowerCase().includes(lowercasedFilter) ||
+                item.id.toLowerCase().includes(lowercasedFilter)
+            ) {
+                filtered[itemId] = item;
+            }
+        }
+        return filtered;
+    }, [searchTerm, boardData.items]);
+    
+    const backlogItems = boardData.backlog.itemIds.map(id => filteredItems[id]).filter(Boolean);
+    const usersWithUnassigned = [{id: null, name: "Unassigned"}, ...users];
+    
+    const formatDate = (dateString) => {
+        if (!dateString) return null;
+        return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
 
     return (
         <>
-        <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
-           <header className="sticky top-0 z-10 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
-  <div className="flex items-center space-x-4">
-      <div className="relative">
-          <SearchIcon />
-          <input
-              type="text"
-              placeholder="Search backlog"
-              className="pl-9 pr-4 py-1.5 text-sm border rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-      </div>
-      <div className="flex items-center space-x-2 border-l pl-4">
-          <div className="w-7 h-7 flex items-center justify-center bg-red-500 text-white font-bold rounded-full text-xs">D</div>
-          <button className="flex items-center space-x-1 text-sm font-medium p-1 hover:bg-gray-200 rounded">
-              <span>Epic</span><ChevronDownIcon />
-          </button>
-      </div>
-  </div>
-  <div className="flex items-center space-x-1 text-gray-600">
-      <button onClick={() => handlePanelToggle('insights')} className={`p-2 rounded ${activePanel === 'insights' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><NewInsightsIcon /></button>
-      <button onClick={() => handlePanelToggle('view-settings')} className={`p-2 rounded ${activePanel === 'view-settings' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><FiltersIcon /></button>
-      <div className="relative">
-          <button onClick={handleMoreMenuToggle} className="p-2 hover:bg-gray-200 rounded"><MoreHorizontalIcon /></button>
-          {isMoreMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 border">
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Manage custom filters</a>
-              </div>
-          )}
-      </div>
-  </div>
-</header>
-
-
-            <div className="flex flex-grow overflow-hidden">
-                <main className={`flex-grow transition-all duration-300 ease-in-out overflow-y-auto p-6 ${activePanel ? 'w-2/3' : 'w-full'}`}>
-                    <div className="bg-[#f0eaff]/60 backdrop-blur-sm p-3 rounded-md shadow-sm border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'sprint-1')}>
-                        <div className="flex justify-between items-center mb-3">
-                            <div className="flex items-center gap-3"><input type="checkbox" className="form-checkbox h-4 w-4" /><h2 className="font-bold text-gray-800">{sprint.name}</h2><button className="text-sm text-gray-500 hover:underline">Add dates</button><span className="text-sm text-gray-500">({sprintItems.length} work item)</span></div>
-                            <div className="flex items-center gap-4"><div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div><button className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700">Start sprint</button><button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full"><MoreHorizontalIcon /></button></div>
+            <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
+                <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
+                    <div className="flex items-center space-x-4">
+                        <div className="relative">
+                            <SearchIcon />
+                            <input 
+                               type="text"
+                               placeholder="Search backlog"
+                               value={searchTerm}
+                               onChange={(e) => setSearchTerm(e.target.value)}
+                               className="pl-9 pr-4 py-1.5 text-sm border rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
-                        <div className="min-h-[80px] bg-purple-100/40 rounded p-2 border-2 border-dashed border-purple-200/50">{sprintItems.map((item) => (<div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-grab"><input type="checkbox" className="mr-3 form-checkbox h-4 w-4" /><span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span><span className="flex-grow text-sm text-gray-800">{item.title}</span><div className="flex items-center space-x-4 ml-4"><span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded">{item.status}</span><EqualsIcon /><UserIcon /></div></div>))}</div>
-                        <button className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
+                        <div className="flex items-center space-x-2 border-l pl-4">
+                            <UserIcon user={users[0]} />
+                            <button className="flex items-center space-x-1 text-sm font-medium p-1 hover:bg-gray-200 rounded">
+                                <span>Epic</span><ChevronDownIcon />
+                            </button>
+                        </div>
                     </div>
-
-                    <div className="text-center my-2 text-gray-700/80"><span className="text-xs font-semibold">1 work item • Estimate: 0</span></div>
-
-                    <div className="bg-[#fff0f9]/50 backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
-                        <div className="flex justify-between items-center mb-3">
-                             <div className="flex items-center gap-4"><input type="checkbox" className="form-checkbox h-4 w-4" /><h2 className="font-bold text-gray-800">Backlog</h2><span className="text-sm text-gray-500">{backlogItems.length} work items</span></div>
-                            <div className="flex items-center gap-4"><div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div><button className="bg-gray-200 text-gray-800 px-3 py-1.5 text-sm font-semibold rounded hover:bg-gray-300">Create sprint</button></div>
+                    <div className="flex items-center space-x-1 text-gray-600">
+                        <button onClick={() => handlePanelToggle('insights')} className={`p-2 rounded ${activePanel === 'insights' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><NewInsightsIcon /></button>
+                        <button onClick={() => handlePanelToggle('view-settings')} className={`p-2 rounded ${activePanel === 'view-settings' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><FiltersIcon /></button>
+                        <div className="relative">
+                            <button onClick={handleMoreMenuToggle} className="p-2 hover:bg-gray-200 rounded"><MoreHorizontalIcon /></button>
+                            {isMoreMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 border">
+                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Manage custom filters</a>
+                                </div>
+                            )}
                         </div>
-                         <div className="min-h-[120px] bg-pink-100/30 rounded p-2 border-2 border-dashed border-pink-200/50">{backlogItems.map((item) => (<div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-grab"><input type="checkbox" className="mr-3 form-checkbox h-4 w-4" /><span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span><span className="flex-grow text-sm text-gray-800">{item.title}</span><div className="flex items-center space-x-4 ml-4"><span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded">{item.status}</span><EqualsIcon /><UserIcon /></div></div>))}</div>
-                        <button className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
                     </div>
-                </main>
+                </header>
 
-                {activePanel && (
-                    <aside className="w-1/3 bg-white/80 backdrop-blur-sm border-l border-gray-200/50 p-4 transition-all duration-300 ease-in-out overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-base">{activePanel === 'insights' ? 'Backlog insights' : 'View settings'}</h3>
-                            <button onClick={() => setActivePanel(null)} className="p-1 hover:bg-gray-200 rounded-full"><CloseIcon /></button>
-                        </div>
-                        {activePanel === 'insights' && (<div className="space-y-4"><div className="p-4 bg-gray-50 rounded-md border"><h4 className="font-semibold text-sm">Sprint commitment</h4><p className="text-sm text-gray-600 mt-1">Add estimates to plan sprints with more accuracy.</p><a href="#" className="text-sm text-blue-600 hover:underline mt-2 inline-block">Learn more</a></div><div className="p-4 bg-gray-50 rounded-md border"><h4 className="font-semibold text-sm">Work type breakdown</h4><p className="text-sm text-gray-600 mt-2">Your top work item type to focus on in this sprint.</p><div className="mt-2"><span className="text-xs">Task</span><div className="w-full bg-gray-200 rounded-full h-2 mt-1"><div className="bg-blue-500 h-2 rounded-full" style={{width: "100%"}}></div></div></div></div></div>)}
-                        {activePanel === 'view-settings' && (
-                            <div className="space-y-6 text-sm">
-                                <div>
-                                    <h4 className="font-semibold text-gray-500 text-xs uppercase mb-2">View settings</h4>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center"><label>Epic panel</label><ToggleSwitch isChecked={showEpicPanel} setIsChecked={setShowEpicPanel} /></div>
-                                        <div className="flex justify-between items-center"><label>Empty sprints</label><ToggleSwitch isChecked={showEmptySprints} setIsChecked={setShowEmptySprints} /></div>
-                                    </div>
+                <div className="flex flex-grow overflow-hidden">
+                    <main className={`flex-grow transition-all duration-300 ease-in-out overflow-y-auto p-6 ${activePanel ? 'w-2/3' : 'w-full'}`}>
+                        {/* PLANNED SPRINTS */}
+                        {boardData.sprints.map(sprint => {
+                            const sprintItems = sprint.itemIds.map(id => filteredItems[id]).filter(Boolean);
+                             const sprintOptions = [
+                                { value: 'edit', label: 'Edit sprint' },
+                                { value: 'delete', label: 'Delete sprint', isDestructive: true },
+                            ];
+                            const handleSprintAction = (action) => {
+                                if (action === 'edit') setSprintToEdit(sprint);
+                                if (action === 'delete') handleDeleteSprint(sprint.id);
+                            };
+                             const formattedStartDate = formatDate(sprint.startDate);
+                             const formattedEndDate = formatDate(sprint.endDate);
+
+                            return (
+                                <div key={sprint.id} className="mb-4">
+                                  <div className="bg-[#f0eaff]/60 backdrop-blur-sm p-3 rounded-md shadow-sm border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, sprint.id)}>
+                                      <div className="flex justify-between items-center mb-3">
+                                          <div className="flex items-center gap-3">
+                                              <input type="checkbox" className="form-checkbox h-4 w-4" />
+                                                {editingSprintId === sprint.id ? (
+                                                    <input
+                                                        ref={sprintNameInputRef}
+                                                        type="text"
+                                                        defaultValue={sprint.name}
+                                                        onBlur={(e) => handleRenameSprint(sprint.id, e.target.value)}
+                                                        onKeyDown={(e) => { if(e.key === 'Enter') handleRenameSprint(sprint.id, e.target.value) }}
+                                                        className="font-bold text-gray-800 bg-white border rounded px-1"
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center gap-2">
+                                                        <h2 className="font-bold text-gray-800">{sprint.name}</h2>
+                                                        <button onClick={() => handleStartRenameSprint(sprint.id)} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>
+                                                    </div>
+                                                )}
+                                                {formattedStartDate && formattedEndDate ? (
+                                                     <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>
+                                                ) : (
+                                                    <button onClick={() => setSprintToEdit(sprint)} className="text-sm text-gray-500 hover:underline">Add dates</button>
+                                                )}
+                                              <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
+                                          </div>
+                                          <div className="flex items-center gap-4">
+                                              <div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div>
+                                              <button onClick={() => setSprintToStart(sprint)} className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" disabled={sprint.itemIds.length === 0}>Start sprint</button>
+                                              <Dropdown options={sprintOptions} onSelect={handleSprintAction} customClasses="w-48">
+                                                  <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full"><MoreHorizontalIcon /></button>
+                                              </Dropdown>
+                                          </div>
+                                      </div>
+                                      <div className="min-h-[80px] bg-purple-100/40 rounded p-2 border-2 border-dashed border-purple-200/50">
+                                          {sprintItems.map((item) => (
+                                              <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
+                                                  <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
+                                                  <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
+                                                    <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
+                                                        {editingItemId === item.id ? (
+                                                            <input
+                                                                ref={itemNameInputRef}
+                                                                type="text"
+                                                                defaultValue={item.title}
+                                                                onClick={e => e.stopPropagation()}
+                                                                onBlur={(e) => handleRenameItem(item.id, e.target.value)}
+                                                                onKeyDown={(e) => { if (e.key === 'Enter') handleRenameItem(item.id, e.target.value) }}
+                                                                className="text-sm text-gray-800 bg-white border rounded px-1 w-full"
+                                                            />
+                                                        ) : (
+                                                            <>
+                                                                <span>{item.title}</span>
+                                                                <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <PencilIcon />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                  <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
+                                                      <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
+                                                      <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
+                                                      <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
+                                                  </div>
+                                              </div>
+                                          ))}
+                                      </div>
+                                      <button onClick={() => handleCreateItem(sprint.id)} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
+                                  </div>
+                                  <div className="text-center my-2 text-gray-700/80"><span className="text-xs font-semibold">{sprint.itemIds.length} work item • Estimate: 0</span></div>
                                 </div>
-                                <div>
-                                    <h4 className="font-semibold text-gray-500 text-xs uppercase mb-2">Density</h4>
-                                    <div className="space-y-2">
-                                        <label className="flex items-center"><input type="radio" name="density" value="default" checked={density === 'default'} onChange={(e) => setDensity(e.target.value)} className="form-radio h-4 w-4 mr-2" /> Default</label>
-                                        <label className="flex items-center"><input type="radio" name="density" value="compact" checked={density === 'compact'} onChange={(e) => setDensity(e.target.value)} className="form-radio h-4 w-4 mr-2" /> Compact</label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-gray-500 text-xs uppercase mb-2">Fields</h4>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center"><label>Work type</label><ToggleSwitch isChecked={fieldToggles.workType} setIsChecked={() => handleFieldToggle('workType')} /></div>
-                                        <div className="flex justify-between items-center"><label>Work item key</label><ToggleSwitch isChecked={fieldToggles.workItemKey} setIsChecked={() => handleFieldToggle('workItemKey')} /></div>
-                                        <div className="flex justify-between items-center"><label>Epic</label><ToggleSwitch isChecked={fieldToggles.epic} setIsChecked={() => handleFieldToggle('epic')} /></div>
-                                        <div className="flex justify-between items-center"><label>Status</label><ToggleSwitch isChecked={fieldToggles.status} setIsChecked={() => handleFieldToggle('status')} /></div>
-                                        <div className="flex justify-between items-center"><label>Priority</label><ToggleSwitch isChecked={fieldToggles.priority} setIsChecked={() => handleFieldToggle('priority')} /></div>
-                                    </div>
+                            )
+                        })}
+
+                        <div className="bg-[#fff0f9]/50 backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
+                            <div className="flex justify-between items-center mb-3">
+                                 <div className="flex items-center gap-4">
+                                      <input type="checkbox" className="form-checkbox h-4 w-4" />
+                                       {isEditingBacklogName ? (
+                                           <input
+                                                ref={backlogNameInputRef}
+                                                type="text"
+                                                defaultValue={boardData.backlog.name}
+                                                onBlur={(e) => handleRenameBacklog(e.target.value)}
+                                                onKeyDown={(e) => { if(e.key === 'Enter') handleRenameBacklog(e.target.value) }}
+                                                className="font-bold text-gray-800 bg-white border rounded px-1"
+                                            />
+                                       ) : (
+                                          <div className="flex items-center gap-2">
+                                             <h2 className="font-bold text-gray-800">{boardData.backlog.name}</h2>
+                                             <button onClick={handleStartRenameBacklog} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>
+                                          </div>
+                                       )}
+                                     <span className="text-sm text-gray-500">{backlogItems.length} work items</span>
+                                 </div>
+                                <div className="flex items-center gap-4">
+                                   <div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div>
+                                   {!isCreatingSprint && <button onClick={() => setIsCreatingSprint(true)} className="bg-gray-200 text-gray-800 px-3 py-1.5 text-sm font-semibold rounded hover:bg-gray-300">Create sprint</button>}
                                 </div>
                             </div>
-                        )}
-                    </aside>
-                )}
+                           {isCreatingSprint && (
+                                <form onSubmit={handleAddNewSprint} className="mb-3 p-2 bg-white rounded shadow">
+                                    <input
+                                        ref={newSprintInputRef}
+                                        type="text"
+                                        value={newSprintName}
+                                        onChange={(e) => setNewSprintName(e.target.value)}
+                                        placeholder="Enter new sprint name"
+                                        className="w-full p-2 border rounded mb-2"
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                        <button type="button" onClick={() => setIsCreatingSprint(false)} className="bg-gray-200 text-gray-800 px-3 py-1 text-sm rounded">Cancel</button>
+                                        <button type="submit" className="bg-blue-600 text-white px-3 py-1 text-sm rounded">Create</button>
+                                    </div>
+                                </form>
+                            )}
+                            <div className="min-h-[120px] bg-pink-100/30 rounded p-2 border-2 border-dashed border-pink-200/50">
+                                {backlogItems.map((item) => (
+                                    <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
+                                        <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
+                                        <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
+                                        <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
+                                            {editingItemId === item.id ? (
+                                                <input
+                                                    ref={itemNameInputRef}
+                                                    type="text"
+                                                    defaultValue={item.title}
+                                                    onClick={e => e.stopPropagation()}
+                                                    onBlur={(e) => handleRenameItem(item.id, e.target.value)}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter') handleRenameItem(item.id, e.target.value) }}
+                                                    className="text-sm text-gray-800 bg-white border rounded px-1 w-full"
+                                                />
+                                            ) : (
+                                                <>
+                                                    <span>{item.title}</span>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <PencilIcon />
+                                                    </button>
+                                                </>
+                                            )}
+                                        </span>
+                                        <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
+                                            <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
+                                            <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
+                                            <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => handleCreateItem('backlog')} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
+                        </div>
+                    </main>
+
+                     {activePanel && ( <aside className="w-1/3 bg-white/80 backdrop-blur-sm border-l border-gray-200/50 p-4 transition-all duration-300 ease-in-out overflow-y-auto">{/* Side panel content */}</aside> )}
+                </div>
             </div>
-        </div>
+            
+            <ItemDetailModal 
+                item={selectedItem} 
+                users={usersWithUnassigned}
+                sprintName={selectedItem ? findItemLocation(selectedItem.id)?.sprintName : ''}
+                onClose={handleCloseModal} 
+                onUpdate={handleUpdateItem} 
+            />
+            <EditSprintModal
+                sprint={sprintToEdit}
+                onClose={handleCloseEditSprintModal}
+                onUpdate={handleUpdateSprint}
+            />
+             <StartSprintModal
+                sprint={sprintToStart}
+                onClose={handleCloseStartSprintModal}
+                onStart={handleStartSprint}
+            />
         </>
-        
     );
 }
 
