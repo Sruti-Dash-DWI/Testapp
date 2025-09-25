@@ -50,8 +50,10 @@ const Dropdown = ({ button, children, align = 'right' }) => {
 const Board = () => {
   // All your existing state and logic remains the same...
   const [tasks, setTasks] = useState([]);
+  const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [columnError, setColumnError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTerm, setFilterTerm] = useState('all');
   const [sortTerm, setSortTerm] = useState('default');
@@ -61,17 +63,35 @@ const Board = () => {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [draggingTaskId, setDraggingTaskId] = useState(null);
-  const [columns, setColumns] = useState([
-    { id: 'todo', title: 'To Do', status: 'todo' },
-    { id: 'inprogress', title: 'In Progress', status: 'inprogress' },
-    { id: 'done', title: 'Done', status: 'done' },
-  ]);
   const [editingTask, setEditingTask] = useState(null);
 
+  const fetchColumns = async () => {
+    setColumnError(null);
+    try {
+      const authToken = localStorage.getItem('authToken'); // Ensure you have auth token logic
+      const response = await fetch('http://localhost:8000/api/tasks/statuses/', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch columns from server.');
+      }
+      const data = await response.json();
+      setColumns(data); // Update state with fetched columns
+    } catch (err) {
+      console.error(err);
+      setColumnError('Could not load board columns. Please try again.');
+    }
+  };
+
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchData = async () => {
+      setLoading(true);
+      await fetchColumns();
+
       try {
-        setLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 500));
         setTasks(initialTasks);
       } catch (err) {
@@ -81,7 +101,7 @@ const Board = () => {
         setLoading(false);
       }
     };
-    fetchTasks();
+    fetchData();
   }, []);
 
   const handleOpenAddTaskModal = (status) => {
@@ -103,18 +123,40 @@ const Board = () => {
     }
   };
 
-  const handleSaveNewColumn = () => {
-    if (newColumnTitle.trim()) {
-      const newColumn = {
-        id: newColumnTitle.trim().toLowerCase().replace(/\s+/g, '-'),
-        title: newColumnTitle.trim(),
-        status: newColumnTitle.trim().toLowerCase().replace(/\s+/g, ''),
-      };
-      setColumns(prevColumns => [...prevColumns, newColumn]);
+  const handleSaveNewColumn = async () => {
+    const trimmedTitle = newColumnTitle.trim();
+    if (!trimmedTitle) {
+      setIsAddingColumn(false);
+      return;
     }
-    setNewColumnTitle("");
-    setIsAddingColumn(false);
-  };
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:8000/api/tasks/create-status/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ title: trimmedTitle }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create the column on the server.');
+      }
+      
+      // After successful creation, refetch all columns to get the latest list
+      await fetchColumns();
+
+      } catch (err) {
+        console.error('Failed to save new column:', err);
+        setColumnError('Failed to create the new column. Please try again.');
+      } finally {
+        // Reset the input form regardless of outcome
+        setNewColumnTitle("");
+        setIsAddingColumn(false);
+      }
+    };
 
   const handleUpdateTask = (taskId, updatedData) => {
     setTasks(prevTasks =>
