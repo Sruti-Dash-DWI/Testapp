@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Outlet } from "react-router-dom"; // Import Outlet
+import { useLocation, Outlet } from "react-router-dom"; 
 import SideNav from "../components/SideNav";
 import Dashbordinnav from "../components/Dashboardinnav";
 import Dashboardheader from "../components/Dashboardheader";
 import Uppernavbar from "../components/Dashboardpages/Uppernavbar";
-
 
 const pathsWithInnerNav = [
   '/projects', '/backlog', '/summary', '/list', '/board', '/timeline',
@@ -16,8 +15,9 @@ const DashboardLayout = () => {
   const [isNavOpen, setIsNavOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
 
-
-  const showinner = pathsWithInnerNav.includes(location.pathname);
+  const showinner = pathsWithInnerNav.some((path) =>
+    location.pathname.startsWith(path)
+  );
 
   useEffect(() => {
     if (window.innerWidth < 768) setIsNavOpen(false);
@@ -33,7 +33,6 @@ const DashboardLayout = () => {
   }, []);
 
   const toggleNav = () => setIsNavOpen((prev) => !prev);
-
 
   const initialNavItems = [
     { id: "1", text: "Backlog", default: true, description: "View and manage your product backlog." },
@@ -58,16 +57,21 @@ const DashboardLayout = () => {
     { id: "17", text: "Shortcuts", description: "Create shortcuts to important links and resources." },
   ];
   const allPossibleOptions = [...initialNavItems, ...otherAvailableOptions];
-  const [navItems, setNavItems] = useState(() => JSON.parse(localStorage.getItem("dashboardNavItems")) || initialNavItems);
+  const [navItems, setNavItems] = useState(
+    () => JSON.parse(localStorage.getItem("dashboardNavItems")) || initialNavItems
+  );
+
   useEffect(() => {
     localStorage.setItem("dashboardNavItems", JSON.stringify(navItems));
   }, [navItems]);
-  const availableOptions = allPossibleOptions.filter((p) => !navItems.some((n) => n.id === p.id));
 
+  const availableOptions = allPossibleOptions.filter(
+    (p) => !navItems.some((n) => n.id === p.id)
+  );
 
   return (
     <div
-      className="h-screen font-sans flex flex-col" // Use flexbox to stack elements vertically
+      className="h-screen font-sans flex flex-col"
       style={{
         background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)",
         backgroundAttachment: "fixed",
@@ -81,12 +85,12 @@ const DashboardLayout = () => {
         ></div>
       )}
       
-      {/* The Navbar will now sit cleanly at the top */}
+      {/* Top navbar */}
       <div className="px-4 pt-4 md:px-6 md:pt-6">
         <Uppernavbar />
       </div>
 
-      {/* This container will fill the REMAINING vertical space */}
+      {/* Main layout */}
       <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
         
         {/* Side Nav */}
@@ -98,7 +102,7 @@ const DashboardLayout = () => {
           <SideNav isOpen={isNavOpen} />
         </div>
 
-        {/* Main content area */}
+        {/* Content area */}
         <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
           {showinner && (
             <>
@@ -111,9 +115,9 @@ const DashboardLayout = () => {
             </>
           )}
 
-          {/* This div will now scroll correctly if its content overflows */}
+          {/* Outlet for nested routes */}
           <div className="flex-1 overflow-y-auto mt-4">
-             <Outlet />
+            <Outlet />
           </div>
         </div>
       </div>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
+import { Link } from "react-router-dom";
+
 
 const Projects = () => {
   const [show, setShow] = useState(false);
@@ -154,6 +156,7 @@ const Projects = () => {
           {projects.length > 0 ? (
             projects.map((project) => (
               <div key={project.id} className="col-md-4 mb-3">
+              <Link to={`/backlog/${project.id}`} className="text-decoration-none text-dark">
                 <div className="card" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
                   <div className="card-body">
                     <h5 className="card-title">{project.name}</h5>
@@ -172,6 +175,7 @@ const Projects = () => {
                     </p>
                   </div>
                 </div>
+                </Link>
               </div>
             ))
           ) : (

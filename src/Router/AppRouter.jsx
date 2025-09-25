@@ -46,6 +46,7 @@ const AppRouter = () => {
 
           
           <Route path='/projects' element={<Projects />} />
+          <Route path='/backlog/:projectId' element={<BacklogPage />} />
           <Route path='/backlog' element={<BacklogPage />} />
           <Route path='/summary'element={<Summary />} />
           <Route path='/list' element={<List />} />

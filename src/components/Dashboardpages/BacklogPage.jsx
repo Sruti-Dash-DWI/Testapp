@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-// --- ICONS (New PencilIcon and Priority Icons added) ---
+// --- ICONS (Added TrashIcon) ---
 const SearchIcon = () => (
     <svg className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path fillRule="evenodd" clipRule="evenodd" d="M11.396 10.396a6 6 0 111-1l5.317 5.317a.75.75 0 01-1.06 1.06l-5.317-5.317zm-5.396.604a5 5 0 100-10 5 5 0 000 10z" />
@@ -14,7 +15,7 @@ const CloseIcon = ({width="20", height="20"}) => (<svg width={width} height={hei
 const UserIcon = ({ user }) => {
     const initials = user ? user.name.split(' ').map(n => n[0]).join('') : 'U';
     const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
-    const color = (user && user.id) ? colors[user.id.charCodeAt(0) % colors.length] : 'bg-gray-400';
+    const color = (user && user.id) ? colors[user.id.toString().charCodeAt(0) % colors.length] : 'bg-gray-400';
     
     return (
         <div className={`w-6 h-6 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold`}>
@@ -24,6 +25,8 @@ const UserIcon = ({ user }) => {
 };
 const PlusIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>);
 const PencilIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>);
+const TrashIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>);
+
 
 // Priority Icons
 const PriorityHighestIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5L17 10H7L12 5Z" fill="#D94C4C"/><path d="M12 12L17 17H7L12 12Z" fill="#D94C4C"/></svg>;
@@ -63,12 +66,13 @@ const Dropdown = ({ options, onSelect, children, customClasses = "w-40", menuAli
 };
 
 const StatusDropdown = ({ currentStatus, onItemUpdate, menuAlign }) => {
-    const statuses = ['TO DO', 'IN PROGRESS', 'IN REVIEW', 'DONE'];
+    const statuses = ['TO DO', 'IN PROGRESS', 'IN REVIEW', 'DONE', 'Testing'];
     const statusColors = {
         'TO DO': 'bg-gray-200 text-gray-700',
         'IN PROGRESS': 'bg-blue-100 text-blue-800',
         'IN REVIEW': 'bg-purple-100 text-purple-800',
-        'DONE': 'bg-green-100 text-green-800'
+        'DONE': 'bg-green-100 text-green-800',
+        'Testing': 'bg-yellow-100 text-yellow-800',
     };
     const statusOptions = statuses.map(s => ({ value: s, label: s }));
 
@@ -154,7 +158,7 @@ const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) => {
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl h-[95vh] flex flex-col text-gray-800">
                 <header className="p-3 border-b border-black/10 flex justify-between items-center bg-white/50 rounded-t-2xl flex-shrink-0">
                     <div>
-                        <span className="text-sm text-gray-600 font-medium">SCRUM / {item.id}</span>
+                        <span className="text-sm text-gray-600 font-medium">TASK / {item.id}</span>
                     </div>
                     <div className="flex items-center gap-2">
                          <button className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><MoreHorizontalIcon/></button>
@@ -192,7 +196,7 @@ const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) => {
                     <div className="mb-6">
                         <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
                          <div className="space-y-2">
-                             {subtasks.map(st => (
+                             {subtasks && subtasks.map(st => (
                                 <div key={st.id} className="flex items-center bg-black/5 p-2 rounded">
                                     <input type="checkbox" checked={st.completed} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/>
                                     <span className={`flex-grow text-sm ${st.completed ? 'line-through text-gray-500' : ''}`}>{st.text}</span>
@@ -220,11 +224,11 @@ const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) => {
                             <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Sprint</span><span className="font-semibold text-blue-600">{sprintName}</span></div>
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Story point estimate</span>
-                                <input type="number" defaultValue={item.storyPoints} onBlur={(e) => handleDetailUpdate('storyPoints', e.target.value)} className="w-20 text-right p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
+                                <input type="number" defaultValue={item.story_points} onBlur={(e) => handleDetailUpdate('story_points', e.target.value)} className="w-20 text-right p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Due date</span>
-                                <input type="date" defaultValue={item.dueDate} onBlur={(e) => handleDetailUpdate('dueDate', e.target.value)} className="p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
+                                <input type="date" defaultValue={item.due_date} onBlur={(e) => handleDetailUpdate('due_date', e.target.value)} className="p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
                             </div>
                         </div>
                     </div>
@@ -286,7 +290,6 @@ const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         const sprintData = { name, duration, startDate, endDate, goal };
-        console.log("Updating Sprint with data:", sprintData);
         onUpdate(sprint.id, sprintData);
         onClose();
     };
@@ -442,94 +445,245 @@ const StartSprintModal = ({ sprint, onClose, onStart }) => {
     )
 };
 
+const CreateEpicModal = ({ onClose, onCreate }) => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
 
-// --- INITIAL DATA (Now more dynamic) ---
-const initialUsers = [
-    { id: 'user-1', name: 'Deepak Mahanandia', email: 'deepak@example.com'},
-    { id: 'user-2', name: 'Jane Doe', email: 'jane@example.com'},
-    { id: 'user-3', name: 'Sam Wilson', email: 'sam@example.com'},
-];
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!title) return;
+        onCreate({ title, description });
+    };
 
-const initialData = {
-    items: {
-        'SCRUM-1': { id: 'SCRUM-1', title: 'Analyze user feedback for Q3', status: 'TO DO', assignee: 'user-1', reporter: 'user-1', description: 'Detailed analysis of Q3 feedback from various channels.', subtasks: [], priority: 'High', storyPoints: 8, dueDate: '2025-10-15' },
-        'SCRUM-2': { id: 'SCRUM-2', title: 'Develop new dashboard widget', status: 'IN PROGRESS', assignee: 'user-2', reporter: 'user-1', description: '', subtasks: [{id: 1, text: 'Design UI', completed: true}, {id: 2, text: 'Backend API', completed: false}], priority: 'Highest', storyPoints: 5, dueDate: '2025-09-30' },
-        'SCRUM-3': { id: 'SCRUM-3', title: 'Fix login authentication bug', status: 'DONE', assignee: 'user-2', reporter: 'user-3', description: '', subtasks: [], priority: 'Medium', storyPoints: 3, dueDate: '' },
-        'SCRUM-4': { id: 'SCRUM-4', title: 'Design marketing page mockups', status: 'IN REVIEW', assignee: null, reporter: 'user-3', description: '', subtasks: [], priority: 'Low', storyPoints: 5, dueDate: '' },
-        'SCRUM-5': { id: 'SCRUM-5', title: 'Setup CI/CD pipeline', status: 'TO DO', assignee: 'user-3', reporter: 'user-1', description: '', subtasks: [], priority: 'Lowest', storyPoints: 8, dueDate: '2025-10-10' },
-    },
-    sprints: [
-        { id: 'sprint-1', name: 'SCRUM Sprint 1', itemIds: ['SCRUM-2', 'SCRUM-4'], goal: "Launch the new dashboard", duration: "2", startDate: "2025-09-15", endDate: "2025-09-29"},
-    ],
-    backlog: { id: 'backlog', name: 'Backlog', itemIds: ['SCRUM-1', 'SCRUM-3', 'SCRUM-5'] },
-    itemCounter: 5,
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-xl rounded-lg shadow-xl w-full max-w-lg">
+                <header className="p-4 border-b">
+                    <h2 className="text-xl font-semibold text-gray-800">Create Epic</h2>
+                </header>
+                <main className="p-6 space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Epic Title <span className="text-red-500">*</span></label>
+                        <input 
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea 
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="What is this epic about?"
+                            className="w-full p-2 border border-gray-300 rounded-md h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        ></textarea>
+                    </div>
+                </main>
+                <footer className="px-6 py-3 bg-gray-50 flex justify-end items-center rounded-b-lg">
+                     <button type="button" onClick={onClose} className="text-gray-600 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition ml-2">Create</button>
+                </footer>
+            </form>
+        </div>
+    );
 };
 
 
 export default function BacklogPage() {
-    const [boardData, setBoardData] = useState(initialData);
-    const [users, setUsers] = useState(initialUsers);
+    // --- DYNAMIC ROUTE PARAMS & NAVIGATION ---
+    const { projectId } = useParams(); 
+    const navigate = useNavigate();
+
+    // --- STATE MANAGEMENT ---
+    const [boardData, setBoardData] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [projectMembers, setProjectMembers] = useState([]);
+    const [epics, setEpics] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const [draggedItemId, setDraggedItemId] = useState(null);
     const [activePanel, setActivePanel] = useState(null); 
     const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // --- View settings state ---
-    const [showEpicPanel, setShowEpicPanel] = useState(false);
-    const [showEmptySprints, setShowEmptySprints] = useState(true);
-    const [density, setDensity] = useState('default');
-    const [fieldToggles, setFieldToggles] = useState({ workType: true, workItemKey: true, epic: true, status: true, priority: true });
-    
-    // --- New State for added functionality ---
     const [selectedItem, setSelectedItem] = useState(null);
     const [sprintToEdit, setSprintToEdit] = useState(null);
     const [sprintToStart, setSprintToStart] = useState(null);
     const [editingSprintId, setEditingSprintId] = useState(null);
     const [editingItemId, setEditingItemId] = useState(null);
     const [isEditingBacklogName, setIsEditingBacklogName] = useState(false);
+    const [isCreatingSprint, setIsCreatingSprint] = useState(false);
+    const [isCreatingEpic, setIsCreatingEpic] = useState(false);
+    const [newSprintName, setNewSprintName] = useState("");
+
     const sprintNameInputRef = useRef(null);
     const backlogNameInputRef = useRef(null);
     const itemNameInputRef = useRef(null);
-    const [isCreatingSprint, setIsCreatingSprint] = useState(false);
-    const [newSprintName, setNewSprintName] = useState("");
     const newSprintInputRef = useRef(null);
 
+    // --- DATA FETCHING ---
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            if (!projectId) {
+                setError("Project ID is missing from the URL. Please ensure your route is configured correctly (e.g., /backlog/:projectId).");
+                setIsLoading(false);
+                return;
+            }
 
+            setIsLoading(true);
+            const authToken = localStorage.getItem('authToken'); 
+            if (!authToken) {
+                setError("Authentication token not found. Please log in.");
+                setIsLoading(false);
+                navigate('/login'); // Redirect to login if no token
+                return;
+            }
+
+            try {
+                const fullUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
+                console.log(`[API CALL] GET ${fullUrl}`);
+
+                const response = await fetch(fullUrl, {
+                     headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userId');
+                    setError("Your session has expired. Please log in again.");
+                    navigate('/login');
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch project data. Status: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log("Full API Response Received:", data);
+
+                // --- DATA TRANSFORMATION ---
+                const formattedBoardData = {
+                    items: {},
+                    sprints: [],
+                    backlog: { id: 'backlog', name: 'Backlog', itemIds: [] },
+                    itemCounter: data.tasks.length,
+                };
+
+                const transformedUsers = data.members.map(member => ({
+                    id: member.user.id,
+                    membershipId: member.id, // Store the membership ID
+                    name: (member.user.first_name && member.user.last_name) 
+                          ? `${member.user.first_name} ${member.user.last_name}`.trim()
+                          : member.user.email,
+                    email: member.user.email
+                }));
+
+                data.tasks.forEach(task => {
+                    formattedBoardData.items[task.id] = {
+                        ...task,
+                        status: task.status ? task.status.title : 'TO DO',
+                        assignee: task.assignees.length > 0 ? task.assignees[0].user.id : null 
+                    };
+                });
+
+                formattedBoardData.sprints = data.sprints.map(sprint => {
+                    const sprintItems = data.tasks.filter(task => task.sprint === sprint.id);
+                    return {
+                        id: sprint.id,
+                        name: sprint.name,
+                        goal: sprint.goal,
+                        startDate: sprint.start_date,
+                        endDate: sprint.end_date,
+                        isActive: sprint.is_active,
+                        itemIds: sprintItems.map(item => item.id),
+                    };
+                });
+                
+                const backlogItems = data.tasks.filter(task => task.sprint === null);
+                formattedBoardData.backlog.itemIds = backlogItems.map(item => item.id);
+                
+                setBoardData(formattedBoardData);
+                setUsers(transformedUsers);
+                setEpics(data.epics);
+                setProjectMembers(data.members); 
+
+                console.log("Data fetching and transformation successful.");
+
+
+            } catch (err) {
+                setError(err.message);
+                console.error("Failed to fetch initial data:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchInitialData();
+
+    }, [projectId, navigate]); 
+
+    // --- API HANDLERS ---
     const handleAddNewSprint = async (e) => {
         e.preventDefault();
         if (newSprintName.trim() === "") return;
         
-        const newSprint = {
-            id: `sprint-${Date.now()}`,
+        if (!epics || epics.length === 0) {
+            console.error("Cannot create a sprint because no epics were found for this project.");
+            setError("This project has no epics. Please create an epic before adding a sprint.");
+            return;
+        }
+
+        const today = new Date();
+        const twoWeeksFromNow = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+        
+        const formatDateForAPI = (date) => {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const newSprintPayload = {
             name: newSprintName,
-            itemIds: [],
-            goal: '',
-            duration: 'custom',
-            startDate: '',
-            endDate: '',
+            goal: "",
+            project: parseInt(projectId, 10),
+            epic: parseInt(epics[0].id, 10),
+            start_date: formatDateForAPI(today), 
+            end_date: formatDateForAPI(twoWeeksFromNow)
         };
         
-        console.log("Creating new sprint with data:", newSprint);
-        
-        try {
-            // --- API Call for Creating a Sprint ---
-            // const response = await fetch('/api/sprints', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(newSprint),
-            // });
-            // if (!response.ok) throw new Error('Network response was not ok.');
-            // const createdSprint = await response.json();
+        const fullUrl = `http://127.0.0.1:8000/api/sprints/`;
+        const authToken = localStorage.getItem('authToken');
 
-            // Replace with static update for now
-            const createdSprint = newSprint;
+        try {
+            console.log(`[API CALL] POST ${fullUrl}`, newSprintPayload);
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(newSprintPayload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+            }
+            
+            const createdSprint = await response.json();
+            console.log("API Success: Sprint Created. Received:", createdSprint);
             
             setBoardData(prevData => ({
                 ...prevData,
-                sprints: [...prevData.sprints, createdSprint],
+                sprints: [...prevData.sprints, { ...createdSprint, itemIds: [] }],
             }));
+
         } catch (error) {
             console.error('Error creating sprint:', error);
+            setError("Failed to create the sprint. Please try again.");
         }
 
         setNewSprintName("");
@@ -537,74 +691,106 @@ export default function BacklogPage() {
     };
 
     const handleUpdateSprint = async (sprintId, updates) => {
-        console.log(`Updating sprint ${sprintId} with data:`, updates);
+        const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
+        const authToken = localStorage.getItem('authToken');
+
+        
+        const originalSprint = boardData.sprints.find(s => s.id === sprintId);
+        if (!originalSprint) {
+            console.error("Could not find sprint to update in the current state.");
+            return;
+        }
+
+       
+        const payload = {
+            name: updates.name || originalSprint.name,
+            goal: updates.goal || originalSprint.goal,
+            start_date: updates.startDate || originalSprint.startDate,
+            end_date: updates.endDate || originalSprint.endDate,
+            duration: updates.duration || originalSprint.duration,
+            is_active: originalSprint.isActive || false,
+            is_ended: false, // Default is_ended to false for an update
+            project: parseInt(projectId, 10),
+            epic: originalSprint.epic || (epics.length > 0 ? epics[0].id : null)
+        };
 
         try {
-            // --- API Call for Updating a Sprint ---
-            // const response = await fetch(`/api/sprints/${sprintId}`, {
-            //     method: 'PATCH',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(updates),
-            // });
-            // if (!response.ok) throw new Error('Network response was not ok.');
-            // const updatedSprint = await response.json();
+            console.log(`[API CALL] PUT ${fullUrl}`, payload);
+            const response = await fetch(fullUrl, {
+                method: 'PUT', 
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${authToken}` 
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Backend validation error:", errorData);
+                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+            }
             
-            // Replace with static update for now
+            const updatedSprintFromServer = await response.json();
+            console.log("API Success: Sprint Updated. Received:", updatedSprintFromServer);
+            
+            
              setBoardData(prev => ({
                  ...prev,
-                 sprints: prev.sprints.map(s => s.id === sprintId ? { ...s, ...updates } : s)
+                 sprints: prev.sprints.map(s => 
+                     s.id === sprintId 
+                     ? { ...s, ...updates, id: updatedSprintFromServer.id } 
+                     : s
+                 )
              }));
 
         } catch (error) {
              console.error('Error updating sprint:', error);
+             setError("Failed to update sprint. Check console for details.");
         }
     };
+
+
     
     const handleStartSprint = async (sprintId, sprintData) => {
-        const payload = {
-            ...sprintData,
-            status: 'active' // Add the key 'status' to signify the sprint is starting
-        };
-
-        console.log(`Starting sprint ${sprintId}. API Payload:`, payload);
+        const payload = { ...sprintData, status: 'active' };
+        const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
+        const authToken = localStorage.getItem('authToken');
         
         try {
-             // --- API Call for Starting a Sprint ---
-            // This API call would update the sprint with its final details (dates, goal)
-            // and most importantly, change its status from 'planned' to 'active'.
-            // const response = await fetch(`/api/sprints/${sprintId}/start`, {
-            //     method: 'POST', // Use POST to indicate a state change action
-            //     headers: { 'Content-Type': 'application/json' },
+            console.log(`[API CALL] POST ${fullUrl}`, payload);
+            // const response = await fetch(fullUrl, {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
             //     body: JSON.stringify(payload),
             // });
             // if (!response.ok) throw new Error('Network response was not ok.');
+            // console.log(`API Success: Sprint Started. Sent POST to ${fullUrl}`);
             
-            // Static state update: Remove the sprint from the backlog page
-            // because it now "belongs" to the active board view.
             setBoardData(prev => ({
                 ...prev,
                 sprints: prev.sprints.filter(s => s.id !== sprintId)
             }));
             
-            console.log(`Sprint ${sprintId} successfully started. App would now navigate to the board view.`);
-            // In a real app, you would navigate to the board page here.
-            // For example, with React Router: navigate(`/board`);
+            navigate('/board');
 
         } catch (error) {
              console.error('Error starting sprint:', error);
         }
     };
 
-
     const handleDeleteSprint = async (sprintId) => {
-        console.log("Deleting sprint with ID:", sprintId);
-
+        const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
+        const authToken = localStorage.getItem('authToken');
+        
         try {
-            // --- API Call for Deleting a Sprint ---
-            // const response = await fetch(`/api/sprints/${sprintId}`, { method: 'DELETE' });
-            // if (!response.ok) throw new Error('Network response was not ok.');
+            const response = await fetch(fullUrl, { 
+                 method: 'DELETE',
+                 headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!response.ok) throw new Error('Network response was not ok.');
+            console.log(`API Success: Sprint Deleted. Sent DELETE to ${fullUrl}`);
            
-            // Static state update
             setBoardData(prev => {
                 const sprintToDelete = prev.sprints.find(s => s.id === sprintId);
                 const itemsToMove = sprintToDelete ? sprintToDelete.itemIds : [];
@@ -623,35 +809,215 @@ export default function BacklogPage() {
     };
 
     const handleUpdateItemDB = async (itemId, updates) => {
-        console.log(`Updating item ${itemId} with data:`, updates);
-        try {
-            // --- API Call for Updating an Item ---
-            // const response = await fetch(`/api/items/${itemId}`, {
-            //     method: 'PATCH',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(updates),
-            // });
-            // if (!response.ok) throw new Error('Network response was not ok.');
-            // const updatedItem = await response.json();
+        const authToken = localStorage.getItem('authToken');
+        let fullUrl;
+        let payload;
+
+        if (updates.status) {
+            fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/status/`;
             
-             console.log(`Successfully updated item ${itemId} on the server.`);
+            const statuses = [
+                { id: 1, title: 'TO DO' },
+                { id: 2, title: 'IN PROGRESS' },
+                { id: 3, title: 'IN REVIEW' },
+                { id: 4, title: 'DONE' },
+                { id: 5, title: 'Testing' }
+            ];
+            
+            const statusObject = statuses.find(s => s.title === updates.status);
+            if (statusObject) {
+                payload = { status_id: statusObject.id }; 
+            } else {
+                console.error(`Unknown status: ${updates.status}`);
+                return; 
+            }
+        } else {
+            fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+            payload = { ...updates };
+
+            if (updates.priority) {
+                payload.priority = updates.priority.toUpperCase();
+            }
+        }
+        
+        try {
+            console.log(`[API CALL] PATCH ${fullUrl}`, payload);
+            const response = await fetch(fullUrl, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                 const errorData = await response.json();
+                console.error("Backend validation error:", errorData);
+                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+            }
+
+            console.log(`API Success: Item Updated. Sent PATCH to ${fullUrl}`);
+
         } catch (error) {
             console.error(`Error updating item ${itemId}:`, error);
         }
     };
+    
+    const handleCreateItem = async (listId) => {
+        const currentUserId = parseInt(localStorage.getItem('userId'), 10);
 
-    useEffect(() => {
-        if (isCreatingSprint) {
-            newSprintInputRef.current?.focus();
+        if (!currentUserId) {
+            setError("Could not find user ID. Please log in again.");
+            return;
         }
-    }, [isCreatingSprint]);
 
+        const currentUserMembership = projectMembers.find(member => member.user.id === currentUserId);
+
+        if (!currentUserMembership) {
+            setError("Your user is not a member of this project. Cannot create task.");
+            console.error("Current user (id: ", currentUserId, ") not found in project members list:", projectMembers);
+            return;
+        }
+
+        const reporterMembershipId = currentUserMembership.id; 
+
+        // --- FIX: Ensure projectId is sent as a number, not a string ---
+        const payload = {
+            title: `New Task ${boardData.itemCounter + 1}`,
+            description: "", 
+            project: parseInt(projectId, 10), // Convert string from URL to number
+            sprint: listId === 'backlog' ? null : listId,
+            epic: epics.length > 0 ? epics[0].id : null,
+            status_id: 1, 
+            priority: "MEDIUM", 
+            task_type: "FEATURE",
+            assignees: [],
+            reporter: reporterMembershipId, 
+            tags: []
+        };
+
+        const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
+        const authToken = localStorage.getItem('authToken');
+
+        try {
+            console.log(`[API CALL] POST ${fullUrl}`, payload);
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Backend validation error:", errorData);
+                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+            }
+            
+            const createdItem = await response.json();
+            console.log("API Success: Item Created. Received:", createdItem);
+
+            setBoardData(prev => {
+                const newItems = { ...prev.items, [createdItem.id]: { ...createdItem, status: createdItem.status.title || 'TO DO' }};
+                const sprints = prev.sprints.map(s => 
+                    s.id === listId ? { ...s, itemIds: [...s.itemIds, createdItem.id] } : s
+                );
+                const backlog = listId === 'backlog'
+                    ? { ...prev.backlog, itemIds: [...prev.backlog.itemIds, createdItem.id] }
+                    : prev.backlog;
+
+                return {
+                    ...prev,
+                    items: newItems,
+                    sprints,
+                    backlog,
+                    itemCounter: prev.itemCounter + 1
+                };
+            });
+
+        } catch (error) {
+            console.error('Error creating task:', error);
+            setError("Failed to create task. Check console for details from the server.");
+        }
+    };
+
+
+    const handleDeleteItem = async (itemId) => {
+        const fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+        const authToken = localStorage.getItem('authToken');
+
+        try {
+            const response = await fetch(fullUrl, { 
+                 method: 'DELETE',
+                 headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!response.ok) throw new Error('Network response was not ok.');
+            console.log(`API Success: Item Deleted. Sent DELETE to ${fullUrl}`);
+            
+            setBoardData(prev => {
+                const newItems = { ...prev.items };
+                delete newItems[itemId];
+                
+                const sprints = prev.sprints.map(s => ({
+                    ...s,
+                    itemIds: s.itemIds.filter(id => id !== itemId)
+                }));
+                const backlog = {
+                    ...prev.backlog,
+                    itemIds: prev.backlog.itemIds.filter(id => id !== itemId)
+                };
+
+                return { ...prev, items: newItems, sprints, backlog };
+            });
+
+        } catch (error) {
+            console.error('Error deleting item:', error);
+        }
+    }
+    
+    const handleAddNewEpic = async ({ title, description }) => {
+        const payload = {
+            title,
+            description,
+            project: parseInt(projectId, 10),
+        };
+        const fullUrl = `http://127.0.0.1:8000/api/epics/`;
+        const authToken = localStorage.getItem('authToken');
+
+        try {
+            console.log(`[API CALL] POST ${fullUrl}`, payload);
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+            }
+            const createdEpic = await response.json();
+            console.log("API Success: Epic Created. Received:", createdEpic);
+
+            setEpics(prev => [...prev, createdEpic]);
+            setIsCreatingEpic(false);
+
+        } catch (error) {
+            console.error('Error creating epic:', error);
+            setError("Failed to create epic. Please try again.");
+        }
+    };
+
+
+    // --- UI HANDLERS (No API calls in these) ---
+    useEffect(() => {
+        if (isCreatingSprint) newSprintInputRef.current?.focus();
+        if (editingSprintId) sprintNameInputRef.current?.focus();
+        if (isEditingBacklogName) backlogNameInputRef.current?.focus();
+        if (editingItemId) itemNameInputRef.current?.focus();
+    }, [isCreatingSprint, editingSprintId, isEditingBacklogName, editingItemId]);
     
     const handleItemClick = (item) => setSelectedItem(item);
     const handleCloseModal = () => setSelectedItem(null);
     const handleCloseEditSprintModal = () => setSprintToEdit(null);
     const handleCloseStartSprintModal = () => setSprintToStart(null);
-
+    const handleCloseCreateEpicModal = () => setIsCreatingEpic(false);
 
     const handleUpdateItem = (itemId, updates) => {
         setBoardData(prevData => {
@@ -667,40 +1033,10 @@ export default function BacklogPage() {
         }
         handleUpdateItemDB(itemId, updates);
     };
-    
-    const handleCreateItem = (listId) => {
-        setBoardData(prevData => {
-            const newCounter = prevData.itemCounter + 1;
-            const newItemId = `SCRUM-${newCounter}`;
-            const newItem = {
-                id: newItemId, title: `New work item ${newCounter}`, status: 'TO DO', assignee: null, reporter: 'user-1', description: '', subtasks: [], priority: 'Medium', storyPoints: 0, dueDate: ''
-            };
-
-            const newData = JSON.parse(JSON.stringify(prevData));
-            newData.items[newItemId] = newItem;
-            
-            if (listId === 'backlog') {
-                newData.backlog.itemIds.push(newItemId);
-            } else {
-                const sprint = newData.sprints.find(s => s.id === listId);
-                if (sprint) sprint.itemIds.push(newItemId);
-            }
-            newData.itemCounter = newCounter;
-            return newData;
-        });
-    };
-
 
     const handleStartRenameSprint = (sprintId) => setEditingSprintId(sprintId);
     const handleStartRenameBacklog = () => setIsEditingBacklogName(true);
     const handleStartRenameItem = (itemId) => setEditingItemId(itemId);
-
-
-    useEffect(() => {
-        if (editingSprintId) sprintNameInputRef.current?.focus();
-        if (isEditingBacklogName) backlogNameInputRef.current?.focus();
-        if (editingItemId) itemNameInputRef.current?.focus();
-    }, [editingSprintId, isEditingBacklogName, editingItemId]);
 
     const handleRenameSprint = (sprintId, newName) => {
         handleUpdateSprint(sprintId, { name: newName || "Untitled Sprint" });
@@ -731,6 +1067,7 @@ export default function BacklogPage() {
     const handleDragOver = (e) => e.preventDefault();
 
     const findItemLocation = (itemId) => {
+        if (!boardData) return null;
         for (const sprint of boardData.sprints) {
             if (sprint.itemIds.includes(itemId)) return { listId: sprint.id, sprintName: sprint.name };
         }
@@ -747,6 +1084,9 @@ export default function BacklogPage() {
         
         const { listId: sourceListId } = sourceLocation;
         if (sourceListId === targetListId && !e.target.closest('[data-item-id]')) return;
+
+        const sprintId = targetListId === 'backlog' ? null : targetListId;
+        handleUpdateItemDB(draggedItemId, { sprint: sprintId });
 
         const newBoardData = JSON.parse(JSON.stringify(boardData));
         let sourceList = sourceListId === 'backlog' ? newBoardData.backlog.itemIds : newBoardData.sprints.find(s => s.id === sourceListId).itemIds;
@@ -767,35 +1107,51 @@ export default function BacklogPage() {
         setBoardData(newBoardData);
     };
 
-    const handleFieldToggle = (field) => setFieldToggles(prev => ({ ...prev, [field]: !prev[field] }));
     const handlePanelToggle = (panelName) => setActivePanel(current => (current === panelName ? null : panelName));
     const handleMoreMenuToggle = () => setIsMoreMenuOpen(prev => !prev);
     
     const filteredItems = useMemo(() => {
-        if (!searchTerm) {
-            return boardData.items;
-        }
+        if (!boardData || !boardData.items) return {};
+        if (!searchTerm) return boardData.items;
+
         const lowercasedFilter = searchTerm.toLowerCase();
         const filtered = {};
         for (const itemId in boardData.items) {
             const item = boardData.items[itemId];
-            if (
-                item.title.toLowerCase().includes(lowercasedFilter) ||
-                item.id.toLowerCase().includes(lowercasedFilter)
-            ) {
+            if (item.title.toLowerCase().includes(lowercasedFilter) || item.id.toString().toLowerCase().includes(lowercasedFilter)) {
                 filtered[itemId] = item;
             }
         }
         return filtered;
-    }, [searchTerm, boardData.items]);
+    }, [searchTerm, boardData]);
     
-    const backlogItems = boardData.backlog.itemIds.map(id => filteredItems[id]).filter(Boolean);
-    const usersWithUnassigned = [{id: null, name: "Unassigned"}, ...users];
+    const backlogItems = useMemo(() => {
+        if (!boardData || !boardData.backlog) return [];
+        return boardData.backlog.itemIds.map(id => filteredItems[id]).filter(Boolean);
+    }, [boardData, filteredItems]);
+
+    const usersWithUnassigned = useMemo(() => [{id: null, name: "Unassigned"}, ...users], [users]);
     
     const formatDate = (dateString) => {
         if (!dateString) return null;
         return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
+
+    const epicOptions = useMemo(() => {
+        if (!epics) return [];
+        const options = epics.map(epic => ({ value: epic.id, label: epic.title }));
+        options.push({ value: 'create', label: '+ Create Epic' });
+        return options;
+    }, [epics]);
+
+    // --- RENDER LOGIC ---
+    if (isLoading) {
+        return <div className="flex items-center justify-center h-full text-lg font-semibold" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>Loading backlog for project {projectId}...</div>;
+    }
+    
+    if (error) {
+        return <div className="flex items-center justify-center h-full text-red-600">Error: {error}</div>;
+    }
 
     return (
         <>
@@ -813,9 +1169,11 @@ export default function BacklogPage() {
                         </div>
                         <div className="flex items-center space-x-2 border-l pl-4">
                             <UserIcon user={users[0]} />
-                            <button className="flex items-center space-x-1 text-sm font-medium p-1 hover:bg-gray-200 rounded">
-                                <span>Epic</span><ChevronDownIcon />
-                            </button>
+                            <Dropdown options={epicOptions} onSelect={(value) => { if(value === 'create') setIsCreatingEpic(true)}}>
+                                <button className="flex items-center space-x-1 text-sm font-medium p-1 hover:bg-gray-200 rounded">
+                                    <span>Epic</span><ChevronDownIcon />
+                                </button>
+                            </Dropdown>
                         </div>
                     </div>
                     <div className="flex items-center space-x-1 text-gray-600">
@@ -913,6 +1271,9 @@ export default function BacklogPage() {
                                                       <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
                                                       <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
                                                       <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
+                                                       <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                          <TrashIcon />
+                                                      </button>
                                                   </div>
                                               </div>
                                           ))}
@@ -995,6 +1356,9 @@ export default function BacklogPage() {
                                             <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
                                             <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
                                             <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
+                                             <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <TrashIcon />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -1010,7 +1374,7 @@ export default function BacklogPage() {
             <ItemDetailModal 
                 item={selectedItem} 
                 users={usersWithUnassigned}
-                sprintName={selectedItem ? findItemLocation(selectedItem.id)?.sprintName : ''}
+                sprintName={selectedItem && boardData ? findItemLocation(selectedItem.id)?.sprintName : ''}
                 onClose={handleCloseModal} 
                 onUpdate={handleUpdateItem} 
             />
@@ -1024,6 +1388,12 @@ export default function BacklogPage() {
                 onClose={handleCloseStartSprintModal}
                 onStart={handleStartSprint}
             />
+             {isCreatingEpic && (
+                <CreateEpicModal 
+                    onClose={handleCloseCreateEpicModal}
+                    onCreate={handleAddNewEpic}
+                />
+             )}
         </>
     );
 }

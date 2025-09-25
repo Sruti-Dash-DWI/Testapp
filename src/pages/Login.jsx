@@ -7,8 +7,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import PrimaryBackground from "../components/PrimaryBackground";
 
-function Login() {
+// A helper function to decode the JWT token from the backend
+function parseJwt (token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return null;
+  }
+}
 
+function Login() {
   const navigate = useNavigate();
 
   const LoginSchema = Yup.object({
@@ -17,7 +25,6 @@ function Login() {
       .matches(/@gmail.com$/, "Email must contain @gmail.com")
       .required("Email is required"),
     password: Yup.string()
-      
       .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
   });
@@ -39,12 +46,20 @@ function Login() {
 
         const data = await response.json();
         
-        localStorage.setItem('authToken', data.key); 
-        
-        alert(`Welcome! You are now logged in.`);
-        
-        
-        navigate('/projects'); 
+        // --- FIX: Save the token AND decode it to get the user ID ---
+        if (data.key) {
+            localStorage.setItem('authToken', data.key);
+            const decodedToken = parseJwt(data.key);
+            if (decodedToken && decodedToken.user_id) {
+                localStorage.setItem('userId', decodedToken.user_id);
+                alert(`Welcome! You are now logged in.`);
+                navigate('/projects'); 
+            } else {
+                throw new Error("Invalid token received from server after Google login.");
+            }
+        } else {
+             throw new Error("Auth token not found in server response after Google login.");
+        }
 
       } catch (error) {
         alert("Error during Google login: " + error.message);
@@ -85,17 +100,26 @@ function Login() {
 
                 const data = await response.json();
                 
-                localStorage.setItem('authToken', data.access);
-
-                alert("Login successful!");
-                resetForm();
-              
-                navigate('/projects');
+                // --- FIX: Save the token AND decode it to get the user ID ---
+                if (data.access) {
+                    localStorage.setItem('authToken', data.access);
+                    const decodedToken = parseJwt(data.access);
+                    if (decodedToken && decodedToken.user_id) {
+                        localStorage.setItem('userId', decodedToken.user_id);
+                        alert("Login successful!");
+                        resetForm();
+                        navigate('/projects');
+                    } else {
+                        throw new Error("Invalid token received from server.");
+                    }
+                } else {
+                    throw new Error("Auth token not found in server response.");
+                }
 
               }catch(error) {
                 console.error("Login Error:", error);
+                // The setFieldError above will display the error message in the form
               }
-              
             }}
           >
             {({ isSubmitting }) => (
@@ -187,3 +211,4 @@ function Login() {
 }
 
 export default Login;
+
