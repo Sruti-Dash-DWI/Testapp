@@ -48,7 +48,11 @@ const Dropdown = ({ button, children, align = 'right' }) => {
 
 
 const Board = () => {
-  // All your existing state and logic remains the same...
+  // const [columns, setColumns] = useState([
+  //   { id: 'todo', title: 'To Do', status: 'todo' },
+  //   { id: 'inprogress', title: 'In Progress', status: 'inprogress' },
+  //   { id: 'done', title: 'Done', status: 'done' },
+  // ]);
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,8 +72,8 @@ const Board = () => {
   const fetchColumns = async () => {
     setColumnError(null);
     try {
-      const authToken = localStorage.getItem('authToken'); // Ensure you have auth token logic
-      const response = await fetch('http://localhost:8000/api/tasks/statuses/', {
+      const authToken = localStorage.getItem('authToken'); 
+      const response = await fetch('http://localhost:8000/api/statuses/', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`,
@@ -79,7 +83,7 @@ const Board = () => {
         throw new Error('Failed to fetch columns from server.');
       }
       const data = await response.json();
-      setColumns(data); // Update state with fetched columns
+      setColumns(data); 
     } catch (err) {
       console.error(err);
       setColumnError('Could not load board columns. Please try again.');
@@ -152,7 +156,6 @@ const Board = () => {
         console.error('Failed to save new column:', err);
         setColumnError('Failed to create the new column. Please try again.');
       } finally {
-        // Reset the input form regardless of outcome
         setNewColumnTitle("");
         setIsAddingColumn(false);
       }
