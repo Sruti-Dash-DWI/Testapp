@@ -12,8 +12,7 @@ const TaskColumn = ({
   onMoveColumn,
   columnIndex,
   totalColumns,
-//   draggingTaskId,
-//   setDraggingTaskId
+  onEditTask
 }) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -130,7 +129,15 @@ const TaskColumn = ({
 
         
             <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 scrollbar-hide">
-                {tasks.map(task => <TaskCard key={task.id} task={task} onUpdateTask={onUpdateTask} />)}
+                {tasks.map(task => (
+                  <div 
+                    key={task.id} 
+                    onClick={() => onEditTask(task)}
+                    className="cursor-pointer hover:bg-white/10 transition-colors"
+                  >
+                    <TaskCard task={task} onUpdateTask={onUpdateTask} />
+                  </div>
+                ))}
             </div>
             {onAddTaskClick && isHovered && (
                 <button 

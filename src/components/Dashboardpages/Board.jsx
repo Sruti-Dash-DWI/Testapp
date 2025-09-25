@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { initialTasks } from '../../data/initial-data';
 import AddTaskModal from '../AddTaskModal';
+import EditTaskModal from '../EditTaskModal';
 import TaskColumn from '../TaskColumn';
 import {
   MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
@@ -65,6 +66,7 @@ const Board = () => {
     { id: 'inprogress', title: 'In Progress', status: 'inprogress' },
     { id: 'done', title: 'Done', status: 'done' },
   ]);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -175,6 +177,12 @@ const Board = () => {
         columns={columns}
         initialStatus={newTaskStatus}
       />
+      <EditTaskModal
+        show={!!editingTask}
+        onHide={() => setEditingTask(null)}
+        onUpdateTask={handleUpdateTask}
+        task={editingTask}
+      />
       <header className="flex-shrink-0 flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <button className="text-gray-200 p-2 rounded-lg hover:bg-black/20">
@@ -267,6 +275,7 @@ const Board = () => {
               setTasks(tasks.filter(task => task.status !== status));
               setColumns(columns.filter(col => col.status !== status));
             }}
+            onEditTask={setEditingTask}
             columnIndex={columns.findIndex(col => col.status === column.status)}
             totalColumns={columns.length}
             draggingTaskId={draggingTaskId}

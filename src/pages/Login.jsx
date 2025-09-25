@@ -85,7 +85,7 @@ function Login() {
 
                 const data = await response.json();
                 
-                localStorage.setItem('authToken', data.key);
+                localStorage.setItem('authToken', data.access);
 
                 alert("Login successful!");
                 resetForm();

@@ -91,7 +91,7 @@ const DashboardLayout = () => {
         
         {/* Side Nav */}
         <div
-          className={`fixed top-0 left-0 h-full p-4 md:p-6 md:relative md:h-full z-40 transition-transform duration-300 ${
+          className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${
             isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
         >

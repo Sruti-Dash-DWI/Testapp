@@ -16,7 +16,7 @@ const SideNav = ({ isOpen }) => {
         { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
     return (
-        <div className={`transition-all duration-300 bg-black/20 backdrop-blur-md rounded-3xl shadow-lg border border-white/20 h-full flex flex-col p-4 text-white ${isOpen ? 'w-64' : 'w-20 items-center'}`}>
+        <div className={`transition-all duration-300 bg-black/20 backdrop-blur-md rounded-3xl shadow-lg border border-white/20 h-full flex flex-col p-5 text-white ${isOpen ? 'w-70' : 'w-20 items-center'}`}>
             {isOpen && (
                 <div className="mb-10">
                     {/* <h1 className="font-bold text-2xl text-white/90">Test App</h1> */}

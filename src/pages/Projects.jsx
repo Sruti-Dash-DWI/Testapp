@@ -10,7 +10,7 @@ const Projects = () => {
     name: '',
     description: '',
     owner: '',
-    status: 'not_started'
+    status: 'PLANNED'
   });
 
   
@@ -19,24 +19,46 @@ const Projects = () => {
   }, []);
 
   const fetchProjects = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch('http://localhost:8000/api/projects/projects/', {
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        setError('Please login to view projects');
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/projects/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}` 
         },
       });
+
+      if (response.status === 401) {
+        setError('Session expired. Please login again');
+        // Optionally redirect to login page or handle expired token
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      console.log('Fetched projects:', data);
-      setProjects(data);
+
+      const groupedData = await response.json();              
+      const allProjects = Object.values(groupedData).flat(); 
+      setProjects(allProjects);
+
     } catch (error) {
       console.error('Error fetching projects:', error);
-      setError('Server connection failed. Please ensure the backend server is running.');
+      setError('Failed to fetch projects. Please try again.');
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -56,35 +78,35 @@ const Projects = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      const projectData = {
-        name: formData.name,
-        description: formData.description,
-        owner: formData.owner,
-        status: formData.status
-      };
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      setError('You must be logged in to create a project.');
+      setLoading(false);
+      return;
+    }
 
-      const response = await fetch('http://localhost:8000/api/projects/projects/', {
+    try {
+      const response = await fetch('http://localhost:8000/api/projects/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify(projectData)
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
         throw new Error('Failed to create project');
       }
 
-      const newProject = await response.json();
-      setProjects(prevProjects => [...prevProjects, newProject]);
+      fetchProjects(); // Refresh the project list
       handleClose();
       setFormData({
         name: '',
         description: '',
         owner: '',
-        status: 'not_started'
+        status: 'PLANNED'
       });
     } catch (error) {
       console.error('Error creating project:', error);
@@ -136,12 +158,14 @@ const Projects = () => {
                   <div className="card-body">
                     <h5 className="card-title">{project.name}</h5>
                     <p className="card-text">{project.description}</p>
-                    <p className="card-text"><small className="text-muted">Owner: {project.owner}</small></p>
+                    <p className="card-text"><small className="text-muted">Owner: {project.owner.username}</small></p>
                     <p className="card-text">
                       <span className={`badge ${
-                        project.status === 'completed' ? 'bg-success' :
-                        project.status === 'in_progress' ? 'bg-primary' :
-                        project.status === 'on_hold' ? 'bg-warning' : 'bg-secondary'
+                        project.status === 'COMPLETED' ? 'bg-success' :
+                        project.status === 'ONGOING' ? 'bg-primary' :
+                        project.status === 'ARCHIVED' ? 'bg-secondary' :
+                        project.status === 'DELAYED' ? 'bg-danger' :
+                        project.status === 'PLANNED' ? 'bg-info text-dark' : 'bg-secondary'
                       }`}>
                         {project.status.replace('_', ' ').toUpperCase()}
                       </span>
@@ -292,6 +316,7 @@ const Projects = () => {
                   Description
                 </label>
                 <textarea
+                  type="text"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
@@ -406,10 +431,11 @@ const Projects = () => {
                     e.target.style.boxShadow = 'none';
                   }}
                 >
-                  <option value="not_started">Not Started</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="on_hold">On Hold</option>
+                  <option value="PLANNED">Planned</option>
+                  <option value="ONGOING">On going</option>
+                  <option value="DELAYED">Delayed</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="ARCHIVED">Archived</option>
                 </select>
               </div>
 
