@@ -21,6 +21,8 @@ import Notifications from "../pages/sidenav_pages/Notification.jsx";
 import Wallet from "../pages/sidenav_pages/Wallet.jsx";
 import Settings from "../pages/sidenav_pages/Settings.jsx";
 import Board from "../components/Dashboardpages/Board.jsx";
+import Calendar from "../components/Dashboardpages/Calendar.jsx";
+import Timeline from "../components/Dashboardpages/Timeline.jsx";
 
 const AppRouter = () => {
   return (
@@ -51,11 +53,11 @@ const AppRouter = () => {
           <Route path='/summary'element={<Summary />} />
           <Route path='/list' element={<List />} />
           <Route path="/board" element={<Board />} />
-          <Route path="/timeline" element={<PageContent page={{ text: 'Timeline', description: 'Plan projects, track deadlines, and manage your roadmap.' }} />} />
+          <Route path="/timeline" element={<Timeline />} />
           <Route path="/pages" element={<PageContent page={{ text: 'Pages', description: 'Create, edit, and collaborate on project documentation.' }} />} />
           <Route path="/code" element={<PageContent page={{ text: 'Code', description: 'Browse your repositories and connect your work.' }} />} />
           <Route path="/forms" element={<PageContent page={{ text: 'Forms', description: 'Create forms to collect information for your project.' }} />} />
-          <Route path="/calendar" element={<PageContent page={{ text: 'Calendar', description: 'View project timelines and important dates.' }} />} />
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/all-work" element={<PageContent page={{ text: 'All work', description: 'View all the work items in your project.' }} />} />
           <Route path="/archived-work-items" element={<PageContent page={{ text: 'Archived work items', description: 'Access work items that have been archived.' }} />} />
           <Route path="/deployments" element={<PageContent page={{ text: 'Deployments', description: 'Track your deployment pipeline and releases.' }} />} />
