@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons"; 
 
 const AddTaskModal = ({ show, onHide, onAddTask }) => {
@@ -6,11 +6,72 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("todo");
   const [badges, setBadges] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (show) {
+      fetchTasks();
+    }
+  }, [show]);
+
+  const fetchTasks = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        setError('Please login to view tasks');
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/tasks/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}` 
+        },
+      });
+
+      if (response.status === 401) {
+        setError('Session expired. Please login again');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const tasksData = await response.json();              
+      setTasks(tasksData);
+
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      setError('Failed to fetch tasks. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title) return;
-    onAddTask({
+    
+    setLoading(true);
+    setError(null);
+
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      setError('You must be logged in to create a task.');
+      setLoading(false);
+      return;
+    }
+
+    const taskData = {
       title,
       description,
       status,
@@ -18,8 +79,46 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
         .split(",")
         .map((b) => b.trim())
         .filter((b) => b),
-    });
-    onHide();
+    };
+
+    try {
+      const response = await fetch('http://localhost:8000/api/tasks/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(taskData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      const newTask = await response.json();
+      
+      // Call the parent component's onAddTask if provided
+      if (onAddTask) {
+        onAddTask(newTask);
+      }
+      
+      // Refresh the task list
+      fetchTasks();
+      
+      // Reset form and close modal
+      setTitle("");
+      setDescription("");
+      setStatus("todo");
+      setBadges("");
+      onHide();
+      
+    } catch (error) {
+      console.error('Error creating task:', error);
+      setError('Failed to create task. Please check server connection.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!show) return null;
@@ -44,6 +143,12 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
           id="add-task-form"
           className="px-6 py-6 space-y-6"
         >
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-red-200 text-sm">
+              {error}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold text-gray-200 mb-1">
               Title
@@ -62,12 +167,13 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
             <label className="block text-sm font-semibold text-gray-200 mb-1">
               Description
             </label>
-            <textarea
+            <input
+              text="textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Write task details..."
               className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            ></textarea>
+            ></input>
           </div>
 
           <div>
@@ -109,16 +215,18 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
             <button
               type="button"
               onClick={onHide}
-              className="px-4 py-2 text-gray-300 font-semibold rounded-lg hover:text-white transition"
+              disabled={loading}
+              className="px-4 py-2 text-gray-300 font-semibold rounded-lg hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
               form="add-task-form"
-              className="px-5 py-2 bg-blue-500/80 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/30 transition"
+              disabled={loading}
+              className="px-5 py-2 bg-blue-500/80 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add Task
+              {loading ? 'Adding...' : 'Add Task'}
             </button>
           </div>
         </form>

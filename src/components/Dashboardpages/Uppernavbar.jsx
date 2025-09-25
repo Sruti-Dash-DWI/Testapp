@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -67,9 +68,31 @@ const HelpIcon = () => (
 
 export default function UpperNavbar() {
   const [userInitial, setUserInitial] = useState('A');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/'); 
+  };
 
   return (
-    <nav className="flex items-center justify-between py-3 px-6 bg-white/70 backdrop-blur-md border-b border-gray-200/30 rounded-xl shadow-lg text-gray-700">
+    <nav className="flex items-center justify-between py-3 px-6 bg-white/70 backdrop-blur-md border-b border-gray-200/30 rounded-xl shadow-lg text-gray-700 relative z-10">
     
       <div className="flex items-center gap-3">
         <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="App switcher">
@@ -110,11 +133,35 @@ export default function UpperNavbar() {
         <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="Help">
           <HelpIcon />
         </button>
-        <div className="relative cursor-pointer">
-           <div className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-base border-2 border-white ring-1 ring-red-500" aria-label="User account">
-              {userInitial}
-           </div>
-           <span className="absolute top-0 -right-0.5 block w-2.5 h-2.5 bg-red-600 rounded-full border border-white"></span>
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-base border-2 border-white ring-1 ring-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" 
+            aria-label="User account"
+            aria-expanded={isDropdownOpen}
+            aria-haspopup="true"
+          >
+            {userInitial}
+          </button>
+          
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform translate-y-1 overflow-hidden">
+              <div role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                <div className="px-1.5 py-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center justify-center w-full px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors duration-150 rounded hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+                    role="menuitem"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>

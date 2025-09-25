@@ -117,69 +117,99 @@ const Projects = () => {
   };
 
   return (
-    
-    <div className="min-h-screen position-relative border-radius rounded-10">
+    <div className="min-h-screen bg-gradient-to-br p-6 md:p-8">
       {/* Header Section */}
-      <div className="px-6 py-4">
-        <h1 className="text-white fw-bold mb-0" style={{ fontSize: '2rem' }}>Projects</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
+        <button 
+          onClick={handleShow}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Create Project
+        </button>
       </div>
-      <button 
-        className="btn btn-primary px-5 py-3 rounded-4 border-radius fw-semibold"
-        onClick={handleShow}
-        style={{
-          position: 'absolute',
-          color: 'white',
-          top: '15.5rem',
-          right: '2.7rem',
-          backgroundColor: '#007bff',
-          border: 'none',
-          borderRadius: '10px',
-          boxShadow: '0 4px 12px rgba(0, 123, 255, 0.3)'
-        }}
-      >
-        Create Project
-      </button>
 
       {/* Content Section */}
-      <div className="container-fluid px-4 pb-4">
+      <div className="container mx-auto">
         {/* Error Message */}
         {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
+          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded" role="alert">
+            <p className="font-bold">Error</p>
+            <p>{error}</p>
           </div>
         )}
 
         {/* Display Projects */}
-        <div className="row">
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <div key={project.id} className="col-md-4 mb-3">
-                <div className="card" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
-                  <div className="card-body">
-                    <h5 className="card-title">{project.name}</h5>
-                    <p className="card-text">{project.description}</p>
-                    <p className="card-text"><small className="text-muted">Owner: {project.owner.username}</small></p>
-                    <p className="card-text">
-                      <span className={`badge ${
-                        project.status === 'COMPLETED' ? 'bg-success' :
-                        project.status === 'ONGOING' ? 'bg-primary' :
-                        project.status === 'ARCHIVED' ? 'bg-secondary' :
-                        project.status === 'DELAYED' ? 'bg-danger' :
-                        project.status === 'PLANNED' ? 'bg-info text-dark' : 'bg-secondary'
-                      }`}>
-                        {project.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </p>
+        {projects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <div 
+                key={project.id} 
+                className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 truncate pr-2">{project.name}</h3>
+                    <span 
+                      className={`px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
+                        project.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                        project.status === 'ONGOING' ? 'bg-blue-100 text-blue-800' :
+                        project.status === 'ARCHIVED' ? 'bg-gray-200 text-gray-800' :
+                        project.status === 'DELAYED' ? 'bg-red-100 text-red-800' :
+                        project.status === 'PLANNED' ? 'bg-cyan-100 text-cyan-800' : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {project.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-5 line-clamp-3">
+                    {project.description || 'No description provided'}
+                  </p>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full font-medium">
+                        {project.owner?.username?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">
+                          {project.owner?.username || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-gray-500">Project Owner</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {project.created_at ? new Date(project.created_at).toLocaleDateString() : ''}
+                    </span>
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="col-12 text-center mt-5 text-white">
-            <p>No projects found</p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-white/5 rounded-2xl backdrop-blur-sm">
+            <svg 
+              className="w-16 h-16 mb-4 text-gray-400" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={1.5} 
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+            <h3 className="text-xl font-medium text-white mb-2">No projects yet</h3>
+            <p className="text-gray-400 max-w-md">Get started by creating your first project. Click the button above to begin.</p>
+          </div>
+        )}
       </div>
 
       {/* Custom Modal */}
@@ -193,7 +223,7 @@ const Projects = () => {
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(15px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -236,7 +266,7 @@ const Projects = () => {
               >
                 Create New Project
               </h2>
-              <button
+              <button 
                 onClick={handleClose}
                 style={{
                   background: 'none',
@@ -416,7 +446,7 @@ const Projects = () => {
                     border: '1px solid rgba(255, 255, 255, 0.3)',
                     borderRadius: '8px',
                     fontSize: '14px',
-                    color: 'white',
+                    color: 'black',
                     outline: 'none',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
