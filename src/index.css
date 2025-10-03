@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+
+:root {
+  --bg-image-url: url('/background.jpg');
+}
+
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.flex-1::-webkit-scrollbar {
+  width: 8px; 
+}
+
+.flex-1::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05); /* subtle transparent track */
+  border-radius: 9999px;
+}
+
+.flex-1::-webkit-scrollbar-thumb {
+  background: rgba(107, 208, 193, 0.6); /* your theme color #6bd0c1 */
+  border-radius: 9999px;
+}
+
+.flex-1::-webkit-scrollbar-thumb:hover {
+  background: rgba(231, 33, 246, 0.9); /* brighter on hover */
+}
+
+.flex-1 {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 176, 251, 0.6) rgba(255, 255, 255, 0.05);
+}
