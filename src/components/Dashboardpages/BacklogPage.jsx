@@ -102,13 +102,22 @@ export default function BacklogPage() {
                     email: member.user.email
                 }));
 
-                data.tasks.forEach(task => {
-                    formattedBoardData.items[task.id] = {
-                        ...task,
-                        status: task.status,
-                        assignee: task.assignees.length > 0 ? task.assignees[0].user.id : null
-                    };
-                });
+                // Inside the useEffect in BacklogPage.jsx
+
+data.tasks.forEach(task => {
+    // ✅ NEW: Normalize the priority string on initial load
+    if (task.priority && typeof task.priority === 'string') {
+        const priorityStr = task.priority;
+        // Converts "HIGHEST" to "Highest"
+        task.priority = priorityStr.charAt(0).toUpperCase() + priorityStr.slice(1).toLowerCase();
+    }
+
+    formattedBoardData.items[task.id] = {
+        ...task, // 'task' now contains the corrected priority
+        status: task.status,
+        assignee: task.assignees.length > 0 ? task.assignees[0].user.id : null
+    };
+});
 
                 formattedBoardData.sprints = data.sprints.map(sprint => ({
                     id: sprint.id,
@@ -346,6 +355,97 @@ const handleStartSprint = async (sprintId, sprintData) => {
         }
     };
     
+    // In BacklogPage.jsx
+//New functions!!!!!!!!!!
+// This is a reusable helper function to create any new task on the backend
+const createTaskOnBackend = async (taskPayload) => {
+    const authToken = localStorage.getItem('authToken');
+    const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
+
+    try {
+        const response = await fetch(fullUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify(taskPayload),
+        });
+
+        const createdTask = await response.json();
+        if (!response.ok) {
+            console.error("Backend error response:", createdTask);
+            throw new Error(JSON.stringify(createdTask));
+        }
+        
+        console.log("✅ SUCCESS: Task created on backend:", createdTask);
+        return createdTask;
+
+    } catch (error) {
+        console.error("❌ FAILURE: Could not create task on backend.", "Error:", error.message);
+        setError("Failed to create the task. Please check the console.");
+        return null;
+    }
+};
+
+// This function specifically handles the two-step subtask creation process
+const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
+    const authToken = localStorage.getItem('authToken');
+    const currentUserMembership = projectMembers.find(member => member.user.id === parseInt(localStorage.getItem('userId'), 10));
+
+    if (!currentUserMembership) {
+        setError("Cannot create subtask: User is not a project member.");
+        return;
+    }
+    
+    // 1. Prepare payload and create the subtask using the reusable function
+    const subtaskPayload = {
+        title: subtaskTitle,
+        project: parseInt(projectId, 10),
+        status_id: 1, // Use status_id for creation
+        priority: "MEDIUM",
+        task_type: "FEATURE",
+        reporter: currentUserMembership.id,
+    };
+    
+    const newSubtask = await createTaskOnBackend(subtaskPayload);
+
+    if (newSubtask) {
+        // 2. If creation succeeded, link it to the parent
+        try {
+            const linkPayload = { parent_task: parentItemId };
+            const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
+            
+            const linkResponse = await fetch(linkUrl, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(linkPayload),
+            });
+
+            if (!linkResponse.ok) throw new Error('Failed to link subtask to parent.');
+
+            console.log("✅ SUCCESS: Subtask linked to parent.");
+
+            // 3. Update the UI state to show the new subtask
+            setBoardData(prevData => {
+                const parentItem = prevData.items[parentItemId];
+                // Ensure the subtasks array exists before adding to it
+                const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
+
+                return {
+                    ...prevData,
+                    items: {
+                        ...prevData.items,
+                        // Add the new subtask to the main items list so it can be looked up
+                        [newSubtask.id]: { ...newSubtask, parent: parentItemId },
+                        // Update the parent item to include the new subtask in its subtasks array
+                        [parentItemId]: { ...parentItem, subtasks: updatedSubtasks }
+                    }
+                };
+            });
+
+        } catch (error) {
+            console.error("❌ FAILURE: Could not link subtask.", error);
+        }
+    }
+};
 
 
 const handleUpdateItemDB = async (itemId, updates) => {
@@ -368,7 +468,7 @@ const handleUpdateItemDB = async (itemId, updates) => {
         case 'status_id':
             fullUrl += 'status/';
             payload = {
-                status_id: updates.status_id,
+                status: updates.status_id,
                 project: projectIdInt
             };
             break;
@@ -408,6 +508,7 @@ const handleUpdateItemDB = async (itemId, updates) => {
             break;
 
         // Default case for fields that use the main task endpoint, like 'priority' and 'title'
+        case 'sprint': 
         case 'priority':
         case 'title':
             // These updates use the base URL: /api/tasks/{itemId}/
@@ -441,72 +542,76 @@ const handleUpdateItemDB = async (itemId, updates) => {
             throw new Error(JSON.stringify(responseData) || `Request failed with status ${response.status}`);
         }
 
-        console.log(`✅ SUCCESS: Item ${itemId} updated. Field: '${updateKey}'.`, "Response:", responseData);
+        console.log(`✅ SUCCESS: Item ${itemId} updated.`, "Response:", responseData);
+        return responseData; 
 
     } catch (error) {
-        console.error(`❌ FAILURE: Could not update item ${itemId} for field '${updateKey}'.`, "Error:", error.message);
-        // Here you might want to add logic to revert the UI change if the API call fails
+        console.error(`❌ FAILURE: Could not update item ${itemId}.`, "Error:", error.message);
+    return null; // ✅ RETURN NULL ON FAILURE
     }
 };
     
-    const handleCreateItem = async (listId) => {
-        const currentUserId = parseInt(localStorage.getItem('userId'), 10);
-        if (!currentUserId) {
-            setError("Could not find user ID. Please log in again.");
-            return;
-        }
+  const handleCreateItem = async (listId) => {
+    const currentUserId = parseInt(localStorage.getItem('userId'), 10);
+    if (!currentUserId) {
+        setError("Could not find user ID. Please log in again.");
+        return;
+    }
 
-        const currentUserMembership = projectMembers.find(member => member.user.id === currentUserId);
-        if (!currentUserMembership) {
-            setError("Your user is not a member of this project. Cannot create task.");
-            return;
-        }
+    const currentUserMembership = projectMembers.find(member => member.user.id === currentUserId);
+    if (!currentUserMembership) {
+        setError("Your user is not a member of this project. Cannot create task.");
+        return;
+    }
 
-        const reporterMembershipId = currentUserMembership.id;
+    const reporterMembershipId = currentUserMembership.id;
 
-        const payload = {
-            title: `New Task ${boardData.itemCounter + 1}`,
-            description: "",
-            project: parseInt(projectId, 10),
-            sprint: listId === 'backlog' ? null : listId,
-            epic: epics.length > 0 ? epics[0].id : null,
-            status_id: 1,
-            priority: "MEDIUM",
-            task_type: "FEATURE",
-            assignees: [],
-            reporter: reporterMembershipId,
-            tags: [],
-        };
-
-        const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
-        const authToken = localStorage.getItem('authToken');
-
-        try {
-            const response = await fetch(fullUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
-            }
-
-            const createdItem = await response.json();
-            setBoardData(prev => {
-                const newItems = { ...prev.items, [createdItem.id]: { ...createdItem, status: createdItem.status.title || 'TO DO' }};
-                const sprints = prev.sprints.map(s =>
-                    s.id === listId ? { ...s, itemIds: [...s.itemIds, createdItem.id] } : s
-                );
-                const backlog = listId === 'backlog' ? { ...prev.backlog, itemIds: [...prev.backlog.itemIds, createdItem.id] } : prev.backlog;
-
-                return { ...prev, items: newItems, sprints, backlog, itemCounter: prev.itemCounter + 1 };
-            });
-        } catch (error) {
-            setError("Failed to create task. Check console for details from the server.");
-        }
+    const payload = {
+        title: `New Task ${boardData.itemCounter + 1}`,
+        description: "",
+        project: parseInt(projectId, 10),
+        sprint: listId === 'backlog' ? null : listId,
+        epic: epics.length > 0 ? epics[0].id : null,
+        status_id: 1,
+        priority: "MEDIUM",
+        task_type: "FEATURE",
+        assignees: [],
+        reporter: reporterMembershipId,
+        tags: [],
     };
+
+    const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
+    const authToken = localStorage.getItem('authToken');
+
+    try {
+        const response = await fetch(fullUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(JSON.stringify(errorData) || 'Network response was not ok.');
+        }
+
+        const createdItem = await response.json();
+        
+        setBoardData(prev => {
+          
+            const newItems = { ...prev.items, [createdItem.id]: createdItem };
+            
+            const sprints = prev.sprints.map(s =>
+                s.id === listId ? { ...s, itemIds: [...s.itemIds, createdItem.id] } : s
+            );
+            const backlog = listId === 'backlog' ? { ...prev.backlog, itemIds: [...prev.backlog.itemIds, createdItem.id] } : prev.backlog;
+
+            return { ...prev, items: newItems, sprints, backlog, itemCounter: prev.itemCounter + 1 };
+        });
+    } catch (error) {
+        setError("Failed to create task. Check console for details from the server.");
+    }
+};
     
     const handleDeleteItem = async (itemId) => {
         const fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
@@ -674,20 +779,38 @@ const handleUpdateItemDB = async (itemId, updates) => {
     const handleCloseStartSprintModal = () => setSprintToStart(null);
     const handleCloseCreateEpicModal = () => setIsCreatingEpic(false);
      const handleCloseCompleteSprintModal = () => setSprintToComplete(null);
-    const handleUpdateItem = (itemId, updates) => {
+   
+
+// In BacklogPage.jsx (replace the existing handleUpdateItem)
+
+const handleUpdateItem = async (itemId, updates) => {
+    const updatedItemFromServer = await handleUpdateItemDB(itemId, updates);
+
+    if (updatedItemFromServer) {
+        // ✅ NEW: Normalize the priority string format from the server
+        if (updatedItemFromServer.priority && typeof updatedItemFromServer.priority === 'string') {
+            const priorityStr = updatedItemFromServer.priority;
+            // Converts "LOWEST" or "lowest" to "Lowest"
+            updatedItemFromServer.priority = priorityStr.charAt(0).toUpperCase() + priorityStr.slice(1).toLowerCase();
+        }
+
+        // Update local state with the definitive, corrected data from the server
         setBoardData(prevData => {
             const newItems = {
                 ...prevData.items,
-                [itemId]: { ...prevData.items[itemId], ...updates }
+                [itemId]: {
+                    ...prevData.items[itemId],
+                    ...updatedItemFromServer 
+                }
             };
             return { ...prevData, items: newItems };
         });
 
         if (selectedItem && selectedItem.id === itemId) {
-            setSelectedItem(prev => ({...prev, ...updates}));
+            setSelectedItem(prev => ({ ...prev, ...updatedItemFromServer }));
         }
-        handleUpdateItemDB(itemId, updates);
-    };
+    }
+};
 
     const handleStartRenameSprint = (sprintId) => setEditingSprintId(sprintId);
     const handleStartRenameBacklog = () => setIsEditingBacklogName(true);
@@ -859,6 +982,7 @@ const handleUpdateItemDB = async (itemId, updates) => {
                 sprintName={selectedItem && boardData ? findItemLocation(selectedItem.id)?.sprintName : ''}
                 onClose={handleCloseModal}
                 onUpdate={handleUpdateItem}
+                onCreateSubtask={handleCreateSubtask}
             />
             <EditSprintModal
                 sprint={sprintToEdit}

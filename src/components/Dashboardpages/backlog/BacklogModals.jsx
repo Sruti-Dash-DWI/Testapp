@@ -35,33 +35,40 @@ const UserAvatar = ({ user }) => {
     );
 };
 
-export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) => {
+// In BacklogModals.jsx
+
+export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, onCreateSubtask }) => {
     if (!item) return null;
 
     const [title, setTitle] = useState(item.title || '');
     const [description, setDescription] = useState(item.description || '');
-    const [subtasks, setSubtasks] = useState(item.subtasks || []);
+    const [subtasks, setSubtasks] = useState([]);
     const [newSubtaskText, setNewSubtaskText] = useState('');
 
+   
+    useEffect(() => {
+        setSubtasks(item.subtasks || []);
+    }, [item]);
+
+    
+    const reporterUser = users.find(u => u.id === item.reporter);
+
+    // --- Handlers ---
     const handleDetailUpdate = (field, value) => {
         onUpdate(item.id, { [field]: value });
     };
 
+    // This now calls the powerful handler in the parent component
     const handleAddSubtask = () => {
         if (newSubtaskText.trim() === '') return;
-        const newSubtaskList = [...subtasks, { id: `sub-${Date.now()}`, text: newSubtaskText, completed: false }];
-        setSubtasks(newSubtaskList);
-        onUpdate(item.id, { subtasks: newSubtaskList });
+        onCreateSubtask(item.id, newSubtaskText);
         setNewSubtaskText('');
     };
-
+    
     const toggleSubtask = (subtaskId) => {
-        const newSubtaskList = subtasks.map(st => st.id === subtaskId ? {...st, completed: !st.completed} : st);
-        setSubtasks(newSubtaskList);
-        onUpdate(item.id, {subtasks: newSubtaskList});
-    }
-
-    const reporterUser = users.find(u => u.id === item.reporter);
+        console.log("Toggling subtask completion needs a dedicated API call.", subtaskId);
+        // You would call a function like onUpdate(subtaskId, { is_completed: true }) here
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -71,10 +78,11 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) 
                         <span className="text-sm text-gray-600 font-medium">TASK / {item.id}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                          <button className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><MoreHorizontalIcon/></button>
-                          <button onClick={onClose} className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><CloseIcon width="24" height="24"/></button>
+                        <button className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><MoreHorizontalIcon/></button>
+                        <button onClick={onClose} className="p-1.5 text-gray-600 hover:bg-black/10 rounded"><CloseIcon width="24" height="24"/></button>
                     </div>
                 </header>
+
                 <main className="flex-grow overflow-y-auto p-6">
                     <input
                         type="text"
@@ -105,14 +113,14 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) 
 
                     <div className="mb-6">
                         <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
-                          <div className="space-y-2">
-                              {subtasks && subtasks.map(st => (
-                                  <div key={st.id} className="flex items-center bg-black/5 p-2 rounded">
-                                      <input type="checkbox" checked={st.completed} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/>
-                                      <span className={`flex-grow text-sm ${st.completed ? 'line-through text-gray-500' : ''}`}>{st.text}</span>
-                                  </div>
-                              ))}
-                          </div>
+                        <div className="space-y-2">
+                            {subtasks.map(st => (
+                                <div key={st.id} className="flex items-center bg-black/5 p-2 rounded">
+                                    <input type="checkbox" checked={st.completed || false} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/>
+                                    <span className={`flex-grow text-sm ${st.completed ? 'line-through text-gray-500' : ''}`}>{st.title}</span>
+                                </div>
+                            ))}
+                        </div>
                         <div className="flex items-center mt-2">
                             <input
                                 type="text"
@@ -128,10 +136,32 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) 
                     <div className="p-4 border rounded-md bg-white/70 border-black/10">
                         <h3 className="font-semibold mb-4">Details</h3>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Assignee</span><UserSelector selectedUserId={item.assignee} users={users} onUpdate={(userId) => handleDetailUpdate('assignee', userId)} /></div>
-                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Reporter</span><UserSelector selectedUserId={item.reporter} users={users.filter(u => u.id !== null)} onUpdate={(userId) => handleDetailUpdate('reporter', userId)} /></div>
-                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Priority</span><PriorityDropdown currentPriority={item.priority} onItemUpdate={(update) => handleDetailUpdate('priority', update.priority)}/></div>
-                            <div className="flex justify-between items-center"><span className="text-gray-600 font-medium">Sprint</span><span className="font-semibold text-blue-600">{sprintName}</span></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Assignee</span>
+                                <UserSelector selectedUserId={item.assignee} users={users} onUpdate={(userId) => handleDetailUpdate('assignee', userId)} />
+                            </div>
+
+                            {/* ✅ NEW: Static Reporter Field */}
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Reporter</span>
+                                {reporterUser ? (
+                                    <div className="flex items-center gap-2 p-1">
+                                        <UserAvatar user={reporterUser} />
+                                        <span>{reporterUser.name}</span>
+                                    </div>
+                                ) : (
+                                    <span>-</span>
+                                )}
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Priority</span>
+                                <PriorityDropdown currentPriority={item.priority} onItemUpdate={(update) => handleDetailUpdate('priority', update.priority)}/>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 font-medium">Sprint</span>
+                                <span className="font-semibold text-blue-600">{sprintName}</span>
+                            </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Story point estimate</span>
                                 <input type="number" defaultValue={item.story_points} onBlur={(e) => handleDetailUpdate('story_points', e.target.value)} className="w-20 text-right p-1 rounded border bg-white/50 border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-400"/>
@@ -142,19 +172,8 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate }) 
                             </div>
                         </div>
                     </div>
-
-                     <div className="mt-6">
-                          <h4 className="font-semibold text-gray-800 mb-3">Activity</h4>
-                          <div className="space-y-4">
-                              <div className="flex items-start gap-3">
-                                  <UserAvatar user={reporterUser} />
-                                  <div className="w-full">
-                                      <textarea placeholder="Add a comment..." className="w-full p-2 border bg-white/70 border-black/10 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                                  </div>
-                              </div>
-                          </div>
-                     </div>
                 </main>
+                
                 <footer className="p-3 bg-white/50 border-t border-black/10 rounded-b-2xl flex-shrink-0 flex justify-end">
                     <button onClick={onClose} className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg shadow-blue-500/30 transition">
                         Submit
