@@ -174,11 +174,11 @@ const Projects = () => {
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center">
                       <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full font-medium">
-                        {project.owner?.username?.charAt(0).toUpperCase() || 'U'}
+                        {project.owner?.first_name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900">
-                          {project.owner?.username || 'Unknown'}
+                          {project.owner?.first_name || 'Unknown'}
                         </p>
                         <p className="text-xs text-gray-500">Project Owner</p>
                       </div>
@@ -367,49 +367,6 @@ const Projects = () => {
                     outline: 'none',
                     resize: 'vertical',
                     minHeight: '100px',
-                    transition: 'all 0.2s',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-
-              {/* Owner */}
-              <div style={{ marginBottom: '20px' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: 'rgba(255, 255, 255, 0.9)'
-                  }}
-                >
-                  Owner
-                </label>
-                <input
-                  type="text"
-                  name="owner"
-                  value={formData.owner}
-                  onChange={handleInputChange}
-                  placeholder="Enter owner name"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    color: 'white',
-                    outline: 'none',
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}

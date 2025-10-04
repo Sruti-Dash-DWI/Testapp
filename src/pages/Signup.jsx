@@ -5,6 +5,8 @@ import { IoPersonOutline, IoMailOutline } from "react-icons/io5";
 import { CiLock } from "react-icons/ci";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom"; 
+import { Link } from "react-router-dom";
+
 import PrimaryBackground from "../components/PrimaryBackground";
 function Signup() {
   const navigate = useNavigate(); 
@@ -281,7 +283,14 @@ function Signup() {
                   >
                     Terms of Service
                   </a>
-                </p>
+                {/* </p>
+                <p className="text-center text-sm text-black"> */}
+                <br></br>
+                  Already have an account?{' '}
+                  <Link to="/login" className="font-medium text-indigo-600 hover:underline hover:text-indigo-800">
+                    Log in
+                  </Link>
+                </p> 
               </Form>
             )}
           </Formik>
