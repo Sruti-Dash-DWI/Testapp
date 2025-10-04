@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
-// --- ICONS (adjust path if needed) ---
+
 import {
   DropdownChevronIcon,
   UserAvatar,
@@ -13,18 +13,7 @@ import {
   PriorityLowestIcon,
 } from '../../Icons';
 
-/**
- * Dropdown (Portal + smart positioning)
- *
- * Props:
- * - options: [{ value, label, isDestructive? }]
- * - onSelect: (value) => {}
- * - children: trigger element
- * - customClasses: tailwind width or other classes (e.g. 'w-48')
- * - menuAlign: 'right' | 'left' (preferred default alignment)
- * - closeDelay: ms delayed close on mouseleave
- * - maxHeight: CSS max-height for menu (string, e.g. '18rem')
- */
+
 export const Dropdown = ({
   options = [],
   onSelect = () => {},
@@ -60,7 +49,7 @@ export const Dropdown = ({
     setIsOpen(true);
   }, []);
 
-  // Calculate & set menu position (called when menu opens and on resize/scroll)
+  
   const calculatePosition = useCallback(() => {
     const trigger = containerRef.current;
     const menu = menuRef.current;
@@ -71,31 +60,30 @@ export const Dropdown = ({
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // Initial left: prefer aligning left edge of menu to trigger left
+    
     let left = triggerRect.left;
     if (menuAlign === 'right') {
-      // align menu right edge to trigger right edge
+      
       left = triggerRect.right - menuRect.width;
     }
 
-    // Prevent horizontal overflow
+   
     if (left + menuRect.width > vw - 8) left = Math.max(8, vw - menuRect.width - 8);
     if (left < 8) left = 8;
 
-    // Vertical: pref bottom unless it would overflow
+   
     let top = triggerRect.bottom;
     let vertical = 'bottom';
     if (triggerRect.bottom + menuRect.height > vh - 8) {
-      // not enough space below -> drop up
+   
       top = triggerRect.top - menuRect.height;
       vertical = 'top';
-      // if still off-screen, clamp
+     
       if (top < 8) top = 8;
     }
 
-    // If menuRect.height is larger than viewport, clamp top and allow menu to scroll
     if (menuRect.height > vh - 16) {
-      // prefer top at 8px
+    
       top = 8;
       vertical = 'overlay';
     }
@@ -104,14 +92,13 @@ export const Dropdown = ({
     setPlacement({ horizontal: left === 8 && menuAlign === 'right' ? 'left-checked' : menuAlign, vertical });
   }, [menuAlign]);
 
-  // Recalculate when menu opens or on scroll/resize
   useEffect(() => {
     if (!isOpen) return;
     calculatePosition();
 
     const handleResize = () => calculatePosition();
     window.addEventListener('resize', handleResize);
-    // capture scrolls on any scrollable ancestor
+  
     window.addEventListener('scroll', handleResize, true);
 
     return () => {
@@ -120,7 +107,7 @@ export const Dropdown = ({
     };
   }, [isOpen, calculatePosition]);
 
-  // Click outside & Esc to close
+
   useEffect(() => {
     if (!isOpen) return;
     const onDocClick = (e) => {
@@ -144,18 +131,18 @@ export const Dropdown = ({
     };
   }, [isOpen]);
 
-  // Select handler (use onMouseDown to avoid focus race)
+  
   const onOptionSelect = (option) => {
     const val = option && Object.prototype.hasOwnProperty.call(option, 'value') ? option.value : option;
     onSelect(val);
     setIsOpen(false);
   };
 
-  // Render menu into portal
+ 
   const menuNode = isOpen ? (
     <div
       ref={menuRef}
-      // fixed so it's not affected by ancestors
+     
       style={{
         position: 'fixed',
         left: `${position.left}px`,
@@ -181,7 +168,7 @@ export const Dropdown = ({
               role="menuitem"
               tabIndex={0}
               onMouseDown={(e) => {
-                e.preventDefault(); // avoid blur race
+                e.preventDefault(); 
                 onOptionSelect(option);
               }}
               onKeyDown={(e) => {
@@ -207,7 +194,7 @@ export const Dropdown = ({
         className="relative inline-block"
         onMouseEnter={openMenu}
         onMouseLeave={() => scheduleClose()}
-        // clicking toggles open (useful for touch)
+      
         onClick={() => setIsOpen((v) => !v)}
         aria-haspopup="true"
         aria-expanded={isOpen}
@@ -220,7 +207,6 @@ export const Dropdown = ({
   );
 };
 
-/** StatusDropdown */
 export const StatusDropdown = ({ currentStatus, onItemUpdate, menuAlign }) => {
   const statuses = [
     { id: 1, title: 'To Do' },
@@ -255,7 +241,7 @@ export const StatusDropdown = ({ currentStatus, onItemUpdate, menuAlign }) => {
   );
 };
 
-/** PriorityDropdown */
+
 export const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = false }) => {
   const priorities = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
   const priorityOptions = priorities.map((p) => ({ value: p, label: p }));
@@ -280,7 +266,7 @@ export const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = f
   );
 };
 
-/** UserSelector */
+
 export const UserSelector = ({ selectedUserId, users = [], onUpdate }) => {
   const selectedUser = users.find((u) => u && u.id === selectedUserId) || null;
   const userOptions = users.map((u) => ({ value: u.id, label: u.name || '—' }));

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// Import newly created components
+
 import BacklogView from "../Dashboardpages/backlog/BacklogView";
 import {
   ItemDetailModal,
@@ -12,11 +12,10 @@ import {
 } from "../Dashboardpages/backlog/BacklogModals";
 
 export default function BacklogPage() {
-  // --- DYNAMIC ROUTE PARAMS & NAVIGATION ---
+  
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  // --- STATE MANAGEMENT ---
   const [boardData, setBoardData] = useState(null);
   const [users, setUsers] = useState([]);
   const [projectMembers, setProjectMembers] = useState([]);
@@ -47,118 +46,115 @@ export default function BacklogPage() {
   const itemNameInputRef = useRef(null);
   const newSprintInputRef = useRef(null);
 
-  // --- DATA FETCHING ---
-  useEffect(() => {
+
+
+useEffect(() => {
     const fetchInitialData = async () => {
-      if (!projectId) {
-        setError(
-          "Project ID is missing from the URL. Please ensure your route is configured correctly (e.g., /backlog/:projectId)."
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      const authToken = localStorage.getItem("authToken");
-      if (!authToken) {
-        setError("Authentication token not found. Please log in.");
-        setIsLoading(false);
-        navigate("/login");
-        return;
-      }
-
-      try {
-        const fullUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
-        const response = await fetch(fullUrl, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
-
-        if (response.status === 401) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("userId");
-          setError("Your session has expired. Please log in again.");
-          navigate("/login");
-          return;
+        if (!projectId) {
+            setError("Project ID is missing from the URL.");
+            setIsLoading(false);
+            return;
         }
 
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch project data. Status: ${response.status} ${response.statusText}`
-          );
+        setIsLoading(true);
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+            navigate("/login");
+            return;
         }
 
-        const data = await response.json();
-        setProjectName(data.name);
+        try {
+          
+            const sprintDashboardUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
+            const projectDataUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
 
-        const formattedBoardData = {
-          items: {},
-          sprints: [],
-          backlog: { id: "backlog", name: "Backlog", itemIds: [] },
-          itemCounter: data.tasks.length,
-        };
+           
+            const [sprintResponse, projectResponse] = await Promise.all([
+                fetch(sprintDashboardUrl, { headers: { Authorization: `Bearer ${authToken}` } }),
+                fetch(projectDataUrl, { headers: { Authorization: `Bearer ${authToken}` } })
+            ]);
 
-        const transformedUsers = data.members.map((member) => ({
-          id: member.user.id,
-          membershipId: member.id,
-          name:
-            member.user.first_name && member.user.last_name
-              ? `${member.user.first_name} ${member.user.last_name}`.trim()
-              : member.user.email,
-          email: member.user.email,
-        }));
+            if (!sprintResponse.ok || !projectResponse.ok) {
+                throw new Error(`Failed to fetch all necessary data.`);
+            }
 
-        // Inside the useEffect in BacklogPage.jsx
+            const sprintData = await sprintResponse.json(); 
+            const projectData = await projectResponse.json(); 
 
-        data.tasks.forEach((task) => {
-          // ✅ NEW: Normalize the priority string on initial load
-          if (task.priority && typeof task.priority === "string") {
-            const priorityStr = task.priority;
-            // Converts "HIGHEST" to "Highest"
-            task.priority =
-              priorityStr.charAt(0).toUpperCase() +
-              priorityStr.slice(1).toLowerCase();
-          }
+           
+            const allSprintsFromNewAPI = [
+                ...(sprintData.active_sprints || []),
+                ...(sprintData.upcoming_sprints || []),
+                ...(sprintData.completed_sprints || [])
+            ];
+            const allTasksFromOldAPI = projectData.tasks || [];
 
-          formattedBoardData.items[task.id] = {
-            ...task, // 'task' now contains the corrected priority
-            status: task.status,
-            assignee:
-              task.assignees.length > 0 ? task.assignees[0].user.id : null,
-          };
-        });
+            const formattedBoardData = {
+                items: {},
+                sprints: [],
+                backlog: { id: "backlog", name: "Backlog", itemIds: [] },
+                itemCounter: allTasksFromOldAPI.length,
+            };
 
-        formattedBoardData.sprints = data.sprints.map((sprint) => ({
-          id: sprint.id,
-          name: sprint.name,
-          goal: sprint.goal,
-          startDate: sprint.start_date,
-          endDate: sprint.end_date,
-          isActive: sprint.is_active,
-          epic: sprint.epic,
-          itemIds: data.tasks
-            .filter((task) => task.sprint === sprint.id)
-            .map((item) => item.id),
-        }));
+          
+            allTasksFromOldAPI.forEach((task) => {
+                if (task.priority && typeof task.priority === "string") {
+                    const priorityStr = task.priority;
+                    task.priority = priorityStr.charAt(0).toUpperCase() + priorityStr.slice(1).toLowerCase();
+                }
+                formattedBoardData.items[task.id] = {
+                    ...task,
+                    assignee: task.assignees.length > 0 ? task.assignees[0].user.id : null
+                };
+            });
+            
+            
+            formattedBoardData.sprints = allSprintsFromNewAPI.map((sprint) => ({
+                id: sprint.id,
+                name: sprint.name,
+                goal: sprint.goal,
+                startDate: sprint.start_date,
+                endDate: sprint.end_date,
+                isActive: sprint.is_active,
+                is_ended: sprint.is_ended, 
+                epic: sprint.epic,
+          
+                itemIds: (sprint.tasks || []).map(task => task.id),
+            }));
 
-        formattedBoardData.backlog.itemIds = data.tasks
-          .filter((task) => task.sprint === null)
-          .map((item) => item.id);
+            
+            formattedBoardData.backlog.itemIds = allTasksFromOldAPI
+                .filter(task => task.sprint === null)
+                .map(task => task.id);
+            
+           
+            const transformedUsers = (projectData.members || []).map((member) => ({
+                id: member.user.id,
+                membershipId: member.id,
+                name:
+                    member.user.first_name && member.user.last_name
+                        ? `${member.user.first_name} ${member.user.last_name}`.trim()
+                        : member.user.email,
+                email: member.user.email,
+            }));
 
-        setBoardData(formattedBoardData);
-        setUsers(transformedUsers);
-        setEpics(data.epics);
-        setProjectMembers(data.members);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
+         
+            setProjectName(projectData.name || '');
+            setBoardData(formattedBoardData);
+            setUsers(transformedUsers);
+            setEpics(projectData.epics || []);
+            setProjectMembers(projectData.members || []);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     fetchInitialData();
-  }, [projectId, navigate]);
+}, [projectId, navigate]);
 
-  // --- API HANDLERS ---
 
   const handleAddNewSprint = async (e) => {
     e.preventDefault();
@@ -180,7 +176,7 @@ export default function BacklogPage() {
       name: newSprintName,
       goal: "",
       project: parseInt(projectId, 10),
-      epic: epics && epics.length > 0 ? parseInt(epics[0].id, 10) : null,
+      epic: selectedEpicId,
       start_date: formatDateForAPI(today),
       end_date: formatDateForAPI(twoWeeksFromNow),
     };
@@ -219,11 +215,10 @@ export default function BacklogPage() {
     setIsCreatingSprint(false);
   };
 
-  const handleUpdateSprint = async (sprintId, updates) => {
-    // --- Step 1: Store the original state for potential rollback ---
+  const handleUpdateSprint = async (sprintId, updates) => { 
     const originalBoardData = boardData;
 
-    // --- Step 2: Optimistically update the UI ---
+
     setBoardData((prev) => ({
       ...prev,
       sprints: prev.sprints.map((s) =>
@@ -240,7 +235,7 @@ export default function BacklogPage() {
       ),
     }));
 
-    // --- Step 3: Send the PATCH request in the background ---
+    
     const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
     const authToken = localStorage.getItem("authToken");
     const payload = { ...updates };
@@ -263,11 +258,11 @@ export default function BacklogPage() {
       });
 
       if (!response.ok) {
-        // If the server fails, an error is thrown and caught below
+        
         throw new Error("Server rejected the update.");
       }
 
-      // Optional: Re-sync with the exact data from the server for consistency
+      
       const updatedSprintFromServer = await response.json();
       setBoardData((prev) => ({
         ...prev,
@@ -276,12 +271,11 @@ export default function BacklogPage() {
         ),
       }));
 
-      console.log("✅ Sprint updated successfully:", updatedSprintFromServer);
+      console.log(" Sprint updated successfully:", updatedSprintFromServer);
     } catch (error) {
-      // --- Step 4: If the request fails, roll back the UI change ---
       console.error("❌ Update sprint error, rolling back UI:", error);
       setError("Failed to update sprint. Your changes have been reverted.");
-      setBoardData(originalBoardData); // Revert to the state before the optimistic update
+      setBoardData(originalBoardData); 
     }
   };
 
@@ -294,7 +288,6 @@ export default function BacklogPage() {
           return { ...s, isActive: false };
         }
         if (s.id === sprintId) {
-          // We assume the server will set isActive to true
           return { ...s, ...sprintData, isActive: true };
         }
         return s;
@@ -302,10 +295,10 @@ export default function BacklogPage() {
       return { ...prev, sprints: newSprints };
     });
 
-    // Close the modal immediately
+    
     setSprintToStart(null);
 
-    // --- Step 3: Send the PATCH request in the background ---
+    
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/activate/`;
     const payload = {
@@ -325,12 +318,11 @@ export default function BacklogPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        // If the server returns an error, it will be caught below
+      if (!response.ok){
         throw new Error("Server rejected the request.");
       }
 
-      // Optional: Re-sync with the exact data from the server for perfect consistency
+      
       const updatedSprintFromServer = await response.json();
       setBoardData((prev) => ({
         ...prev,
@@ -341,13 +333,13 @@ export default function BacklogPage() {
 
       console.log("✅ Sprint started and saved successfully.");
     } catch (error) {
-      // --- Step 4: If the request fails, roll back the UI and show an error ---
+
       console.error(
         "❌ Failed to start sprint, rolling back UI change:",
         error
       );
       setError("Failed to start the sprint. Please try again.");
-      setBoardData(originalBoardData); // Revert to the original state
+      setBoardData(originalBoardData);
     }
   };
 
@@ -379,9 +371,7 @@ export default function BacklogPage() {
     }
   };
 
-  // In BacklogPage.jsx
-  //New functions!!!!!!!!!!
-  // This is a reusable helper function to create any new task on the backend
+  
   const createTaskOnBackend = async (taskPayload) => {
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
@@ -415,7 +405,7 @@ export default function BacklogPage() {
     }
   };
 
-  // This function specifically handles the two-step subtask creation process
+
   const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     const authToken = localStorage.getItem("authToken");
     const currentUserMembership = projectMembers.find(
@@ -428,11 +418,11 @@ export default function BacklogPage() {
       return;
     }
 
-    // 1. Prepare payload and create the subtask using the reusable function
+  
     const subtaskPayload = {
       title: subtaskTitle,
       project: parseInt(projectId, 10),
-      status_id: 1, // Use status_id for creation
+      status_id: 1, 
       priority: "MEDIUM",
       task_type: "FEATURE",
       reporter: currentUserMembership.id,
@@ -441,7 +431,7 @@ export default function BacklogPage() {
     const newSubtask = await createTaskOnBackend(subtaskPayload);
 
     if (newSubtask) {
-      // 2. If creation succeeded, link it to the parent
+    
       try {
         const linkPayload = { parent_task: parentItemId };
         const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
@@ -460,19 +450,18 @@ export default function BacklogPage() {
 
         console.log("✅ SUCCESS: Subtask linked to parent.");
 
-        // 3. Update the UI state to show the new subtask
+        
         setBoardData((prevData) => {
           const parentItem = prevData.items[parentItemId];
-          // Ensure the subtasks array exists before adding to it
           const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
 
           return {
             ...prevData,
             items: {
               ...prevData.items,
-              // Add the new subtask to the main items list so it can be looked up
+              
               [newSubtask.id]: { ...newSubtask, parent: parentItemId },
-              // Update the parent item to include the new subtask in its subtasks array
+              
               [parentItemId]: { ...parentItem, subtasks: updatedSubtasks },
             },
           };
@@ -485,10 +474,10 @@ export default function BacklogPage() {
 
   const handleUpdateItemDB = async (itemId, updates) => {
     const authToken = localStorage.getItem("authToken");
-    // The projectId is available in the component's scope from useParams()
+   
     const projectIdInt = parseInt(projectId, 10);
 
-    // Determine which field is being updated
+    
     const updateKey = Object.keys(updates)[0];
     if (!updateKey) {
       console.error("Update function called with empty updates object.");
@@ -498,7 +487,7 @@ export default function BacklogPage() {
     let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
     let payload = {};
 
-    // This switch statement directs the request to the correct endpoint and builds the correct body
+    
     switch (updateKey) {
       case "status_id":
         fullUrl += "status/";
@@ -510,8 +499,7 @@ export default function BacklogPage() {
 
       case "assignee":
         fullUrl += "assignees/";
-        // The API expects an array of user IDs for assignees.
-        // If the assignee is null/undefined (Unassigned), we send an empty array.
+
         const assigneeId = updates.assignee;
         payload = {
           assignees: assigneeId ? [assigneeId] : [],
@@ -531,7 +519,7 @@ export default function BacklogPage() {
         fullUrl += "story-points/";
         const points = parseInt(updates.story_points, 10);
         payload = {
-          story_points: isNaN(points) ? null : points, // Send null if not a valid number
+          story_points: isNaN(points) ? null : points,
         };
         break;
 
@@ -542,11 +530,17 @@ export default function BacklogPage() {
         };
         break;
 
-      // Default case for fields that use the main task endpoint, like 'priority' and 'title'
-      case "sprint":
+      
+      case 'sprint':
+        fullUrl += 'sprint/'; 
+        payload = { 
+            sprint: updates.sprint 
+        };
+        break;
+
       case "priority":
       case "title":
-        // These updates use the base URL: /api/tasks/{itemId}/
+        
         payload = { ...updates };
         if (payload.priority) {
           payload.priority = payload.priority.toUpperCase();
@@ -557,7 +551,7 @@ export default function BacklogPage() {
         console.error(
           `❌ Unhandled update key: '${updateKey}'. No API endpoint is configured for this field.`
         );
-        return; // Stop execution if the field is not recognized
+        return; 
     }
 
     console.log(
@@ -578,7 +572,7 @@ export default function BacklogPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Throw an error to be caught by the catch block
+        
         throw new Error(
           JSON.stringify(responseData) ||
             `Request failed with status ${response.status}`
@@ -597,7 +591,7 @@ export default function BacklogPage() {
         "Error:",
         error.message
       );
-      return null; // ✅ RETURN NULL ON FAILURE
+      return null;
     }
   };
 
@@ -720,7 +714,7 @@ export default function BacklogPage() {
 
   const handleAddNewEpic = async (formData) => {
     const payload = {
-      title: formData.epicName,
+      title: formData.title, 
       description: formData.description,
       project: parseInt(projectId, 10),
     };
@@ -749,13 +743,12 @@ export default function BacklogPage() {
     }
   };
 
-  // In BacklogPage.jsx
+ 
 
 const handleOpenCompleteSprintModal = (sprintId) => {
     const sprint = boardData.sprints.find((s) => s.id === sprintId);
     if (!sprint || !sprint.isActive) return;
 
-    // ✅ CORRECTED LOGIC: Check the status title, not the object
     const completedIssues = sprint.itemIds.filter(
         (id) => boardData.items[id].status.title.toUpperCase() === 'DONE'
     );
@@ -776,8 +769,6 @@ const handleOpenCompleteSprintModal = (sprintId) => {
     });
 };
 
-  // In BacklogPage.jsx
-
 const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
     const authToken = localStorage.getItem("authToken");
 
@@ -785,9 +776,8 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
         const newSprintId =
             destination === "backlog" ? null : parseInt(destination, 10);
 
-        // This part that moves tasks on the backend is correct and remains the same
         const moveTasksPromises = openIssueIds.map((taskId) => {
-            const moveUrl = `http://127.0.0.1:8000/api/tasks/${taskId}/`;
+            const moveUrl = `http://127.0.0.1:8000/api/tasks/${taskId}/sprint/`;
             return fetch(moveUrl, {
                 method: "PATCH",
                 headers: {
@@ -798,49 +788,41 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
             });
         });
         await Promise.all(moveTasksPromises);
-
-        // This part that completes the sprint on the backend also remains the same
-        const completeSprintUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/end/`;
-        const completeSprintResponse = await fetch(completeSprintUrl, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
-            },
-            body: JSON.stringify({}),
-        });
+const completeSprintUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/end/`;
+const completeSprintResponse = await fetch(completeSprintUrl, {
+    method: 'PATCH',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+    },
+    
+    body: JSON.stringify({ "is_ended": true }), 
+});
 
         if (!completeSprintResponse.ok) {
             throw new Error("Tasks were moved, but failed to complete the sprint.");
         }
 
-        const updatedSprint = await completeSprintResponse.json();
-
-        // ✅ CORRECTED STATE UPDATE LOGIC
+       
         setBoardData((prevData) => {
-            // Create a new sprints array to ensure immutability
             const newSprints = prevData.sprints.map(sprint => {
-                // 1. Remove open issues from the sprint we just completed
                 if (sprint.id === sprintId) {
                     return {
                         ...sprint,
-                        isActive: updatedSprint.is_active,
-                        is_ended: updatedSprint.is_ended,
+                        isActive: false,
+                        is_ended: true,
                         itemIds: sprint.itemIds.filter(id => !openIssueIds.includes(id))
                     };
                 }
-                // 2. Add open issues to the destination sprint
                 if (sprint.id === newSprintId) {
                     return {
                         ...sprint,
                         itemIds: [...sprint.itemIds, ...openIssueIds]
                     };
                 }
-                // 3. Return all other sprints unchanged
                 return sprint;
             });
 
-            // Handle moving issues to the backlog separately
             const newBacklog = destination === 'backlog'
                 ? {
                     ...prevData.backlog,
@@ -862,7 +844,124 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
         setSprintToComplete(null);
     }
 };
-  // --- UI HANDLERS ---
+
+const handleFetchComments = async (taskId) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/activities/`, {
+            headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch comments.");
+        const activities = await response.json();
+
+        
+        setBoardData(prev => ({
+            ...prev,
+            items: {
+                ...prev.items,
+                [taskId]: { ...prev.items[taskId], activity_log: activities }
+            }
+        }));
+        if (selectedItem && selectedItem.id === taskId) {
+            setSelectedItem(prev => ({ ...prev, activity_log: activities }));
+        }
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+    }
+};
+
+
+const handleAddComment = async (taskId, commentBody) => {
+    if (!commentBody.trim()) return;
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify({ comment_body: commentBody }),
+        });
+        if (!response.ok) throw new Error("Failed to post comment.");
+        const newActivity = await response.json();
+
+        
+        setBoardData(prev => {
+            const task = prev.items[taskId];
+            return {
+                ...prev,
+                items: {
+                    ...prev.items,
+                    [taskId]: { ...task, activity_log: [...(task.activity_log || []), newActivity] }
+                }
+            };
+        });
+        if (selectedItem && selectedItem.id === taskId) {
+            setSelectedItem(prev => ({ ...prev, activity_log: [...(prev.activity_log || []), newActivity] }));
+        }
+    } catch (error) {
+        console.error("Error adding comment:", error);
+        setError("Could not post your comment.");
+    }
+};
+
+
+const handleUpdateComment = async (taskId, activityId, commentBody) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify({ comment_body: commentBody }),
+        });
+        if (!response.ok) throw new Error("Failed to update comment.");
+        const updatedActivity = await response.json();
+
+       
+        const updateLog = (log) => log.map(act => act.id === activityId ? updatedActivity : act);
+        setBoardData(prev => ({
+            ...prev,
+            items: {
+                ...prev.items,
+                [taskId]: { ...prev.items[taskId], activity_log: updateLog(prev.items[taskId].activity_log) }
+            }
+        }));
+        if (selectedItem && selectedItem.id === taskId) {
+            setSelectedItem(prev => ({ ...prev, activity_log: updateLog(prev.activity_log) }));
+        }
+    } catch (error) {
+        console.error("Error updating comment:", error);
+        setError("Could not update your comment.");
+    }
+};
+
+
+const handleDeleteComment = async (taskId, activityId) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        if (!response.ok) throw new Error("Failed to delete comment.");
+
+       
+        const filterLog = (log) => log.filter(act => act.id !== activityId);
+        setBoardData(prev => ({
+            ...prev,
+            items: {
+                ...prev.items,
+                [taskId]: { ...prev.items[taskId], activity_log: filterLog(prev.items[taskId].activity_log) }
+            }
+        }));
+        if (selectedItem && selectedItem.id === taskId) {
+            setSelectedItem(prev => ({ ...prev, activity_log: filterLog(prev.activity_log) }));
+        }
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        setError("Could not delete your comment.");
+    }
+};
+
+  
   useEffect(() => {
     if (isCreatingSprint) newSprintInputRef.current?.focus();
     if (editingSprintId) sprintNameInputRef.current?.focus();
@@ -877,25 +976,24 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
   const handleCloseCreateEpicModal = () => setIsCreatingEpic(false);
   const handleCloseCompleteSprintModal = () => setSprintToComplete(null);
 
-  // In BacklogPage.jsx (replace the existing handleUpdateItem)
-
+ 
   const handleUpdateItem = async (itemId, updates) => {
     const updatedItemFromServer = await handleUpdateItemDB(itemId, updates);
 
     if (updatedItemFromServer) {
-      // ✅ NEW: Normalize the priority string format from the server
+     
       if (
         updatedItemFromServer.priority &&
         typeof updatedItemFromServer.priority === "string"
       ) {
         const priorityStr = updatedItemFromServer.priority;
-        // Converts "LOWEST" or "lowest" to "Lowest"
+        
         updatedItemFromServer.priority =
           priorityStr.charAt(0).toUpperCase() +
           priorityStr.slice(1).toLowerCase();
       }
 
-      // Update local state with the definitive, corrected data from the server
+      
       setBoardData((prevData) => {
         const newItems = {
           ...prevData.items,
@@ -1044,19 +1142,32 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
     return options;
   }, [epics]);
 
-   const filteredSprints = useMemo(() => {
-        if (!boardData || !boardData.sprints) return [];
-        
-        // If no epic is selected, show all sprints
-        if (selectedEpicId === null) {
-            return boardData.sprints;
+
+const { uncompletedSprints, completedSprints } = useMemo(() => {
+    if (!boardData || !boardData.sprints) {
+        return { uncompletedSprints: [], completedSprints: [] };
+    }
+
+    
+    const sprintsToDisplay = selectedEpicId === null
+        ? boardData.sprints
+        : boardData.sprints.filter(sprint => sprint.epic === selectedEpicId);
+
+  
+    const uncompleted = [];
+    const completed = [];
+    sprintsToDisplay.forEach(sprint => {
+        if (sprint.is_ended) {
+            completed.push(sprint);
+        } else {
+            uncompleted.push(sprint);
         }
+    });
 
-        // Otherwise, only show sprints that match the selected epic's ID
-        return boardData.sprints.filter(sprint => sprint.epic === selectedEpicId);
-    }, [selectedEpicId, boardData]);
+    return { uncompletedSprints: uncompleted, completedSprints: completed };
+}, [selectedEpicId, boardData]);
 
-  // --- RENDER LOGIC ---
+  
   if (isLoading) {
     return (
       <div
@@ -1091,7 +1202,8 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
         filteredItems={filteredItems}
         backlogItems={backlogItems}
         searchTerm={searchTerm}
-        sprints={filteredSprints} // ✅ Pass the filtered list here
+        uncompletedSprints={uncompletedSprints} 
+        completedSprints={completedSprints}    
         setSearchTerm={setSearchTerm}
         activePanel={activePanel}
         isMoreMenuOpen={isMoreMenuOpen}
@@ -1144,9 +1256,14 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
         onClose={handleCloseModal}
         onUpdate={handleUpdateItem}
         onCreateSubtask={handleCreateSubtask}
+         onFetchComments={handleFetchComments}
+        onAddComment={handleAddComment}
+        onUpdateComment={handleUpdateComment}
+        onDeleteComment={handleDeleteComment}
       />
       <EditSprintModal
         sprint={sprintToEdit}
+        epics={epics}
         onClose={handleCloseEditSprintModal}
         onUpdate={handleUpdateSprint}
       />
@@ -1156,15 +1273,13 @@ const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
         onStart={handleStartSprint}
       />
       {isCreatingEpic && (
-        <CreateEpicModal
-          onClose={handleCloseCreateEpicModal}
-          onCreate={handleAddNewEpic}
-          sprints={boardData.sprints || []}
-          users={usersWithUnassigned || []}
-          reporterId={currentUserId}
-          projectName={projectName}
-        />
-      )}
+    <CreateEpicModal
+        onClose={handleCloseCreateEpicModal}
+        onCreate={handleAddNewEpic}
+        projectName={projectName}
+        currentUser={users.find(u => u.id === currentUserId)} 
+    />
+)}
       {sprintToComplete && (
         <CompleteSprintModal
           sprint={sprintToComplete}
