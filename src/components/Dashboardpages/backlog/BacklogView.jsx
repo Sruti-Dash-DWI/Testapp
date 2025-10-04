@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 
-// --- Restored Original Imports ---
+// --- Imports ---
 import {
     StatusDropdown,
     PriorityDropdown,
     UserSelector,
     Dropdown
 } from './ReusableComponents';
-
 import {
     BacklogSearchIcon,
     DropdownChevronIcon,
@@ -19,7 +18,7 @@ import {
     UserAvatar,
 } from '../../Icons';
 
-// --- Side Panel Components (Now defined inside BacklogView.js) ---
+// --- Side Panel Components ---
 const InsightsPanel = ({ onClose }) => (
     <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm">
         <div className="flex justify-between items-center mb-6 flex-shrink-0">
@@ -67,7 +66,7 @@ const ViewSettingsPanel = ({ onClose }) => (
         <div className="flex justify-between items-center mb-6 flex-shrink-0">
             <h3 className="text-lg font-bold text-gray-800">View settings</h3>
             <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
             </button>
         </div>
         <div className="space-y-6 flex-grow overflow-y-auto pr-2">
@@ -106,8 +105,9 @@ export default function BacklogView({
     epicOptions,
     filteredItems,
     backlogItems,
-    epics,               // ✅ Add prop
-    sprints,             // ✅ Add prop for the filtered lis
+    epics,
+    uncompletedSprints,
+    completedSprints,
 
     // State Props
     searchTerm,
@@ -124,7 +124,6 @@ export default function BacklogView({
     backlogNameInputRef,
     itemNameInputRef,
     newSprintInputRef,
-    
 
     // Handler Props
     setSelectedEpicId,
@@ -160,17 +159,114 @@ export default function BacklogView({
     };
 
     if (!boardData) {
-        return <div>Loading...</div>; // Render a loading state
+        return <div>Loading...</div>;
     }
     
     const moreMenuOptions = [
         { value: 'manage-filters', label: 'Manage custom filters' }
     ];
 
+    // Helper component to render a single sprint to avoid duplicating code
+    const SprintSection = ({ sprint }) => {
+        const sprintItems = sprint.itemIds.map(id => filteredItems[id]).filter(Boolean);
+        const sprintOptions = [
+            { value: 'edit', label: 'Edit sprint' },
+            { value: 'delete', label: 'Delete sprint', isDestructive: true },
+        ];
+        const handleSprintAction = (action) => {
+            if (action === 'edit') setSprintToEdit(sprint);
+            if (action === 'delete') handleDeleteSprint(sprint.id);
+        };
+        const formattedStartDate = formatDate(sprint.startDate);
+        const formattedEndDate = formatDate(sprint.endDate);
+
+        return (
+            <div key={sprint.id} className="mb-4">
+                <div className={`p-3 rounded-md shadow-sm border ${sprint.is_ended ? 'bg-gray-100' : 'bg-[#f0eaff]/60 backdrop-blur-sm border-white/30'}`} onDragOver={handleDragOver} onDrop={(e) => !sprint.is_ended && handleDrop(e, sprint.id)}>
+                    <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center gap-3">
+                            <input type="checkbox" className="form-checkbox h-4 w-4" />
+                            <div className="flex items-center gap-2">
+                                <h2 className={`font-bold ${sprint.is_ended ? 'text-gray-600' : 'text-gray-800'}`}>{sprint.name}</h2>
+                                {sprint.isActive && <span className="text-xs font-bold bg-green-200 text-green-800 px-2 py-0.5 rounded-full">ACTIVE</span>}
+                                {sprint.is_ended && <span className="text-xs font-bold bg-gray-300 text-gray-700 px-2 py-0.5 rounded-full">COMPLETED</span>}
+                                {!sprint.is_ended && editingSprintId !== sprint.id && <button onClick={() => handleStartRenameSprint(sprint.id)} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>}
+                            </div>
+                            {editingSprintId === sprint.id && (
+                                <input
+                                    ref={sprintNameInputRef}
+                                    type="text"
+                                    defaultValue={sprint.name}
+                                    onBlur={(e) => handleRenameSprint(sprint.id, e.target.value)}
+                                    onKeyDown={(e) => { if(e.key === 'Enter') handleRenameSprint(sprint.id, e.target.value) }}
+                                    className="font-bold text-gray-800 bg-white border rounded px-1"
+                                />
+                            )}
+                            {formattedStartDate && formattedEndDate && <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>}
+                            <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {!sprint.is_ended && (
+                                <>
+                                    {sprint.isActive ? (
+                                        <button onClick={() => handleOpenCompleteSprintModal(sprint.id)} className="bg-green-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-green-700">Complete Sprint</button>
+                                    ) : (
+                                        <button onClick={() => setSprintToStart(sprint)} className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" disabled={sprint.itemIds.length === 0}>Start sprint</button>
+                                    )}
+                                    <Dropdown options={sprintOptions} onSelect={handleSprintAction}>
+                                        <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full"><MoreHorizontalIcon /></button>
+                                    </Dropdown>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className={`min-h-[80px] rounded p-2 border-2 border-dashed ${sprint.is_ended ? 'bg-gray-50 border-gray-200' : 'bg-purple-100/40 border-purple-200/50'}`}>
+                        {sprintItems.map((item) => (
+                            <div key={item.id} data-item-id={item.id} draggable={!sprint.is_ended} onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
+                                 <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
+                                <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
+                                <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
+                                    {editingItemId === item.id ? (
+                                        <input
+                                            ref={itemNameInputRef}
+                                            type="text"
+                                            defaultValue={item.title}
+                                            onClick={e => e.stopPropagation()}
+                                            onBlur={(e) => handleRenameItem(item.id, e.target.value)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') handleRenameItem(item.id, e.target.value) }}
+                                            className="text-sm text-gray-800 bg-white border rounded px-1 w-full"
+                                        />
+                                    ) : (
+                                        <>
+                                            <span>{item.title}</span>
+                                            <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <PencilIcon />
+                                            </button>
+                                        </>
+                                    )}
+                                </span>
+                                <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
+                                    <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
+                                    <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
+                                    <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ActionTrashIcon />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {!sprint.is_ended && <button onClick={() => handleCreateItem(sprint.id)} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>}
+                </div>
+            </div>
+        );
+    };
+
+
     return (
         <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
             <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
-                <div className="flex items-center space-x-4">
+                 <div className="flex items-center space-x-4">
                     <div className="relative">
                         <BacklogSearchIcon /> 
                         <input
@@ -198,7 +294,6 @@ export default function BacklogView({
                 </div>
             </header>
 
-            {/* ✅ ADD THIS ENTIRE JSX BLOCK for the epic filters */}
             <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/50 backdrop-blur-sm border-b shadow-sm">
                 <span className="text-sm font-semibold mr-2 text-gray-600">Filter by Epic:</span>
                 <button
@@ -220,114 +315,10 @@ export default function BacklogView({
 
             <div className="flex flex-grow overflow-hidden">
                 <main className={`flex-grow transition-all duration-300 ease-in-out overflow-y-auto p-6 ${activePanel ? 'w-2/3' : 'w-full'}`}>
-                    {/* PLANNED SPRINTS */}
-                    {sprints.map(sprint => {
-                        const sprintItems = sprint.itemIds.map(id => filteredItems[id]).filter(Boolean);
-                        const sprintOptions = [
-                            { value: 'edit', label: 'Edit sprint' },
-                            { value: 'delete', label: 'Delete sprint', isDestructive: true },
-                        ];
-                        const handleSprintAction = (action) => {
-                            if (action === 'edit') setSprintToEdit(sprint);
-                            if (action === 'delete') handleDeleteSprint(sprint.id);
-                        };
-                        const formattedStartDate = formatDate(sprint.startDate);
-                        const formattedEndDate = formatDate(sprint.endDate);
-
-                        return (
-                            <div key={sprint.id} className="mb-4">
-                                <div className="bg-[#f0eaff]/60 backdrop-blur-sm p-3 rounded-md shadow-sm border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, sprint.id)}>
-                                    <div className="flex justify-between items-center mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <input type="checkbox" className="form-checkbox h-4 w-4" />
-                                            {editingSprintId === sprint.id ? (
-                                                <input
-                                                    ref={sprintNameInputRef}
-                                                    type="text"
-                                                    defaultValue={sprint.name}
-                                                    onBlur={(e) => handleRenameSprint(sprint.id, e.target.value)}
-                                                    onKeyDown={(e) => { if(e.key === 'Enter') handleRenameSprint(sprint.id, e.target.value) }}
-                                                    className="font-bold text-gray-800 bg-white border rounded px-1"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center gap-2">
-                                                    <h2 className="font-bold text-gray-800">{sprint.name}</h2>
-                                                    {sprint.isActive && <span className="text-xs font-bold bg-green-200 text-green-800 px-2 py-0.5 rounded-full">ACTIVE</span>}
-                                                    <button onClick={() => handleStartRenameSprint(sprint.id)} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>
-                                                </div>
-                                            )}
-                                            {formattedStartDate && formattedEndDate ? (
-                                               <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>
-                                            ) : (
-                                               <button onClick={() => setSprintToEdit(sprint)} className="text-sm text-gray-500 hover:underline">Add dates</button>
-                                            )}
-                                            <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div>
-                                            
-                                            {sprint.isActive ? (
-                                                <button 
-                                                    onClick={() => handleOpenCompleteSprintModal(sprint.id)} 
-                                                    className="bg-green-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-green-700">
-                                                    Complete Sprint
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    onClick={() => setSprintToStart(sprint)} 
-                                                    className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" 
-                                                    disabled={sprint.itemIds.length === 0}>
-                                                    Start sprint
-                                                </button>
-                                            )}
-                                            
-                                            <Dropdown options={sprintOptions} onSelect={handleSprintAction}>
-                                                 <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full"><MoreHorizontalIcon /></button>
-                                            </Dropdown>
-                                        </div>
-                                    </div>
-                                    <div className="min-h-[80px] bg-purple-100/40 rounded p-2 border-2 border-dashed border-purple-200/50">
-                                        {sprintItems.map((item) => (
-                                            <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
-                                                <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
-                                                <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
-                                                <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
-                                                    {editingItemId === item.id ? (
-                                                        <input
-                                                            ref={itemNameInputRef}
-                                                            type="text"
-                                                            defaultValue={item.title}
-                                                            onClick={e => e.stopPropagation()}
-                                                            onBlur={(e) => handleRenameItem(item.id, e.target.value)}
-                                                            onKeyDown={(e) => { if (e.key === 'Enter') handleRenameItem(item.id, e.target.value) }}
-                                                            className="text-sm text-gray-800 bg-white border rounded px-1 w-full"
-                                                        />
-                                                    ) : (
-                                                        <>
-                                                            <span>{item.title}</span>
-                                                            <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <PencilIcon />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </span>
-                                                <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
-                                                    <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
-                                                    <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
-                                                    <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
-                                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <ActionTrashIcon />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button onClick={() => handleCreateItem(sprint.id)} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
-                                </div>
-                                <div className="text-center my-2 text-gray-700/80"><span className="text-xs font-semibold">{sprint.itemIds.length} work item • Estimate: 0</span></div>
-                            </div>
-                        )
-                    })}
+                    
+                    {uncompletedSprints.map(sprint => (
+                        <SprintSection key={sprint.id} sprint={sprint} />
+                    ))}
 
                     <div className="bg-[#fff0f9]/50 backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
                         <div className="flex justify-between items-center mb-3">
@@ -409,6 +400,15 @@ export default function BacklogView({
                         </div>
                         <button onClick={() => handleCreateItem('backlog')} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
                     </div>
+
+                    {completedSprints.length > 0 && (
+                        <div className="mt-8">
+                            <h3 className="text-lg font-bold text-gray-500 mb-2 border-b pb-2">Completed Sprints</h3>
+                            {completedSprints.map(sprint => (
+                                <SprintSection key={sprint.id} sprint={sprint} />
+                            ))}
+                        </div>
+                    )}
                 </main>
 
                 {activePanel && ( 
@@ -421,4 +421,3 @@ export default function BacklogView({
         </div>
     );
 }
-

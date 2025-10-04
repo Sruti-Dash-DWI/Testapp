@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion'; // For animations
+import { motion } from 'framer-motion'; 
 import { UserSelector, PriorityDropdown, StatusDropdown } from './ReusableComponents';
 import {
     MoreHorizontalIcon,
     CloseIcon,
     AddItemIcon,
-} from '../../Icons'; // Make sure path is correct
+} from '../../Icons'; 
 
-// --- Placeholder Icons for the new modal ---
-// You can move these to your main Icons.jsx file later
+
 const CheckCircleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -19,10 +18,7 @@ const ExclamationCircleIcon = () => (
         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
     </svg>
 );
-// --- End Placeholder Icons ---
 
-
-// This is the UserAvatar component, used by multiple modals in this file.
 const UserAvatar = ({ user }) => {
     const initials = user ? user.name.split(' ').map(n => n[0]).join('') : 'U';
     const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
@@ -35,7 +31,7 @@ const UserAvatar = ({ user }) => {
     );
 };
 
-// In BacklogModals.jsx
+
 
 export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, onCreateSubtask }) => {
     if (!item) return null;
@@ -58,7 +54,7 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
         onUpdate(item.id, { [field]: value });
     };
 
-    // This now calls the powerful handler in the parent component
+    
     const handleAddSubtask = () => {
         if (newSubtaskText.trim() === '') return;
         onCreateSubtask(item.id, newSubtaskText);
@@ -67,7 +63,7 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
     
     const toggleSubtask = (subtaskId) => {
         console.log("Toggling subtask completion needs a dedicated API call.", subtaskId);
-        // You would call a function like onUpdate(subtaskId, { is_completed: true }) here
+    
     };
 
     return (
@@ -184,7 +180,9 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
     );
 };
 
-export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
+
+
+export const EditSprintModal = ({ sprint, epics, onClose, onUpdate }) => { 
     if (!sprint) return null;
 
     const [name, setName] = useState('');
@@ -192,6 +190,7 @@ export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [goal, setGoal] = useState('');
+    const [epicId, setEpicId] = useState(''); 
 
     useEffect(() => {
         if (sprint) {
@@ -200,8 +199,10 @@ export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
             setStartDate(sprint.startDate || '');
             setEndDate(sprint.endDate || '');
             setDuration(sprint.duration || 'custom');
+            setEpicId(sprint.epic || ''); 
         }
     }, [sprint]);
+
 
     useEffect(() => {
         if (duration !== 'custom' && startDate) {
@@ -219,13 +220,13 @@ export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // ✅ FIX: The keys here now match your backend (snake_case)
         const sprintData = { 
             name, 
             duration, 
-            start_date: startDate, // Changed from startDate
-            end_date: endDate,     // Changed from endDate
-            goal 
+            start_date: startDate,
+            end_date: endDate,
+            goal,
+            epic: epicId === '' ? null : epicId 
         };
 
         onUpdate(sprint.id, sprintData);
@@ -249,6 +250,24 @@ export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
                             className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
+                    
+                    {/* ✅ 5. ADD THE EPIC DROPDOWN FIELD */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Epic</label>
+                        <select
+                            value={epicId}
+                            onChange={(e) => setEpicId(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">None</option>
+                            {epics.map(epic => (
+                                <option key={epic.id} value={epic.id}>
+                                    {epic.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                         <select
@@ -295,7 +314,7 @@ export const EditSprintModal = ({ sprint, onClose, onUpdate }) => {
                     </div>
                 </main>
                 <footer className="px-6 py-3 bg-gray-50 flex justify-end items-center rounded-b-lg">
-                      <button type="button" onClick={onClose} className="text-gray-600 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                    <button type="button" onClick={onClose} className="text-gray-600 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">Cancel</button>
                     <button type="submit" className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition ml-2">Update</button>
                 </footer>
             </form>
@@ -318,7 +337,7 @@ export const StartSprintModal = ({ sprint, onClose, onStart }) => {
         if(sprint) {
             setSprintData({
                 name: sprint.name || '',
-                duration: sprint.duration || '2', // Default to 2 weeks
+                duration: sprint.duration || '2',                 
                 startDate: sprint.startDate || new Date().toISOString().split('T')[0],
                 endDate: sprint.endDate || '',
                 goal: sprint.goal || ''
@@ -380,83 +399,47 @@ export const StartSprintModal = ({ sprint, onClose, onStart }) => {
                 </footer>
             </form>
         </div>
-    )
-};
 
-export const CreateEpicModal = ({ onClose, onCreate, sprints, users, reporterId, projectName }) => {
-    const [formData, setFormData] = useState({
-        epicName: '',
-        summary: '',
-        description: '',
-        reporter: reporterId || null,
-        assignee: null,
-        sprint: '',
-        priority: 'Medium',
-        status: 'TO DO',
-        labels: '',
-        startDate: '',
-        dueDate: '',
-        attachment: null,
-        workType: 'Epic',
-    });
-    const [fileName, setFileName] = useState('');
 
-    useEffect(() => {
-        setFormData(prev => ({ ...prev, reporter: reporterId }));
-    }, [reporterId]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        if (e.target.files[0]) {
-            setFormData(prev => ({ ...prev, attachment: e.target.files[0] }));
-            setFileName(e.target.files[0].name);
-        }
-    };
-    
-    const handleUpdate = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
+export const CreateEpicModal = ({ onClose, onCreate, projectName, currentUser }) => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.summary || !formData.epicName) {
-            alert("Please fill in the required fields: Epic Name and Summary.");
+        if (!title.trim()) {
+            alert("Epic Name is required.");
             return;
         }
-        onCreate(formData);
+    
+        onCreate({
+            title,
+            description,
+        });
         onClose();
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-xl rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+            <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-xl rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <header className="p-4 border-b flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-xl font-semibold text-gray-800">Create</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">Create Epic</h2>
                     <button type="button" onClick={onClose} className="p-1.5 text-gray-600 hover:bg-black/10 rounded-full"><CloseIcon width="24" height="24"/></button>
                 </header>
 
                 <main className="p-6 space-y-5 overflow-y-auto">
                     <div className="grid grid-cols-2 gap-6">
+                        {/* Static Project Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
                             <input type="text" value={projectName} disabled className="w-full p-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed" />
                         </div>
+                        {/* Static Work Type Field */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Work Type</label>
-                            <select 
-                                name="workType" 
-                                value={formData.workType} 
-                                onChange={handleChange} 
-                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="Epic">Epic</option>
-                                <option value="Task">Task</option>
-                                <option value="Story">Story</option>
-                            </select>
+                            <div className="w-full p-2 bg-gray-100 border border-gray-300 rounded-md text-gray-500">
+                                Epic
+                            </div>
                         </div>
                     </div>
                     
@@ -464,77 +447,40 @@ export const CreateEpicModal = ({ onClose, onCreate, sprints, users, reporterId,
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Epic Name <span className="text-red-500">*</span></label>
-                        <input name="epicName" type="text" value={formData.epicName} onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Summary <span className="text-red-500">*</span></label>
-                        <input name="summary" type="text" value={formData.summary} onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
+                        <input 
+                            name="title" 
+                            type="text" 
+                            value={title} 
+                            onChange={(e) => setTitle(e.target.value)} 
+                            required 
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" 
+                        />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <textarea name="description" value={formData.description} onChange={handleChange} placeholder="What is this epic about?" className="w-full p-2 border border-gray-300 rounded-md h-28 focus:ring-2 focus:ring-blue-500"></textarea>
+                        <textarea 
+                            name="description" 
+                            value={description} 
+                            onChange={(e) => setDescription(e.target.value)} 
+                            placeholder="What is this epic about?" 
+                            className="w-full p-2 border border-gray-300 rounded-md h-28 focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <StatusDropdown currentStatus={formData.status} onItemUpdate={(update) => handleUpdate('status', update.status)} menuAlign="left" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Sprint</label>
-                            <select name="sprint" value={formData.sprint} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                <option value="">None</option>
-                                {sprints.map(sprint => (
-                                    <option key={sprint.id} value={sprint.id}>{sprint.name}</option>
-                                ))}
-                            </select>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Reporter</label>
+                        <div className="flex items-center gap-2 p-1">
+                            {currentUser ? (
+                                <>
+                                    <UserAvatar user={currentUser} />
+                                    <span>{currentUser.name}</span>
+                                </>
+                            ) : (
+                                <span>-</span>
+                            )}
                         </div>
                     </div>
-
-                     <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                            <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                            <input name="dueDate" type="date" value={formData.dueDate} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
-                            <UserSelector selectedUserId={formData.assignee} users={users} onUpdate={(userId) => handleUpdate('assignee', userId)} />
-                        </div>
-                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Reporter</label>
-                            <UserSelector
-                                selectedUserId={formData.reporter}
-                                users={users.filter(u => u.id !== null)}
-                                onUpdate={(userId) => handleUpdate('reporter', userId)}
-                            />
-                        </div>
-                    </div>
-                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                        <PriorityDropdown currentPriority={formData.priority} onItemUpdate={(update) => handleUpdate('priority', update.priority)} />
-                    </div>
-
-                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Labels</label>
-                        <input name="labels" type="text" value={formData.labels} onChange={handleChange} placeholder="e.g., mobile-app, q4-release" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
-                    </div>
-                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Attachment</label>
-                        <label htmlFor="file-upload" className="w-full flex items-center justify-center p-2 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-blue-500 hover:bg-gray-50">
-                            <AddItemIcon />
-                            <span className="ml-2 text-sm text-gray-600">{fileName || "Choose a file"}</span>
-                        </label>
-                        <input id="file-upload" name="attachment" type="file" onChange={handleFileChange} className="hidden" />
-                    </div>
-
                 </main>
 
                 <footer className="px-6 py-3 bg-gray-50 flex justify-end items-center rounded-b-lg flex-shrink-0">
