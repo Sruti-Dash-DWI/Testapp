@@ -106,10 +106,13 @@ export default function BacklogView({
     epicOptions,
     filteredItems,
     backlogItems,
+    epics,               // ✅ Add prop
+    sprints,             // ✅ Add prop for the filtered lis
 
     // State Props
     searchTerm,
     activePanel,
+    selectedEpicId,
     editingSprintId,
     editingItemId,
     isEditingBacklogName,
@@ -121,8 +124,10 @@ export default function BacklogView({
     backlogNameInputRef,
     itemNameInputRef,
     newSprintInputRef,
+    
 
     // Handler Props
+    setSelectedEpicId,
     setSearchTerm,
     setIsCreatingEpic,
     handlePanelToggle,
@@ -193,10 +198,30 @@ export default function BacklogView({
                 </div>
             </header>
 
+            {/* ✅ ADD THIS ENTIRE JSX BLOCK for the epic filters */}
+            <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/50 backdrop-blur-sm border-b shadow-sm">
+                <span className="text-sm font-semibold mr-2 text-gray-600">Filter by Epic:</span>
+                <button
+                    onClick={() => setSelectedEpicId(null)}
+                    className={`px-3 py-1 text-sm font-semibold rounded-full transition ${selectedEpicId === null ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                    All Sprints
+                </button>
+                {epics.map(epic => (
+                    <button
+                        key={epic.id}
+                        onClick={() => setSelectedEpicId(epic.id)}
+                        className={`px-3 py-1 text-sm font-semibold rounded-full transition ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                    >
+                        {epic.title}
+                    </button>
+                ))}
+            </div>
+
             <div className="flex flex-grow overflow-hidden">
                 <main className={`flex-grow transition-all duration-300 ease-in-out overflow-y-auto p-6 ${activePanel ? 'w-2/3' : 'w-full'}`}>
                     {/* PLANNED SPRINTS */}
-                    {boardData.sprints.map(sprint => {
+                    {sprints.map(sprint => {
                         const sprintItems = sprint.itemIds.map(id => filteredItems[id]).filter(Boolean);
                         const sprintOptions = [
                             { value: 'edit', label: 'Edit sprint' },
