@@ -5,7 +5,8 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("todo");
-  const [badges, setBadges] = useState("");
+  const [taskType, setTaskType] = useState("");
+  const [priority, setPriority] = useState("");
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -75,10 +76,8 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
       title,
       description,
       status,
-      badges: badges
-        .split(",")
-        .map((b) => b.trim())
-        .filter((b) => b),
+      taskType,
+      priority,
     };
 
     try {
@@ -110,7 +109,8 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
       setTitle("");
       setDescription("");
       setStatus("todo");
-      setBadges("");
+      setTaskType("");
+      setPriority("");
       onHide();
       
     } catch (error) {
@@ -198,16 +198,53 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-200 mb-1">
-              Badges (comma-separated)
+          <label className="block text-sm font-semibold text-gray-200 mb-1">
+              Task Type
             </label>
-            <input
-              type="text"
-              value={badges}
-              onChange={(e) => setBadges(e.target.value)}
-              placeholder="e.g., UI/UX, High Priority"
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            />
+            <select
+              value={taskType}
+              onChange={(e) => setTaskType(e.target.value)}
+              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            >
+              <option className="text-black" value="BUG">
+                Bug
+              </option>
+              <option className="text-black" value="FEATURE">
+                Feature
+              </option>
+              <option className="text-black" value="IMPROVEMENT">
+                Improvement
+              </option>
+              <option className="text-black" value="TEST_CASE">
+                Test Case
+              </option>
+            </select>            
+          </div>
+          <div>
+          <label className="block text-sm font-semibold text-gray-200 mb-1">
+              Priority
+            </label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            >
+              <option className="text-black" value="LOWEST">
+                Lowest
+              </option>
+              <option className="text-black" value="LOW">
+                Low
+              </option>
+              <option className="text-black" value="MEDIUM">
+                Medium
+              </option>
+              <option className="text-black" value="HIGH">
+                High
+              </option>
+              <option className="text-black" value="HIGHEST">
+                Highest
+              </option>
+            </select>           
           </div>
 
           {/* Footer */}
