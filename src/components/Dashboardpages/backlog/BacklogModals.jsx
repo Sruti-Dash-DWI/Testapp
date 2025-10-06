@@ -399,8 +399,8 @@ export const StartSprintModal = ({ sprint, onClose, onStart }) => {
                 </footer>
             </form>
         </div>
-
-
+    );
+};
 export const CreateEpicModal = ({ onClose, onCreate, projectName, currentUser }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
