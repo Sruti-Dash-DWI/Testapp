@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UsersIcon, MoreIcon, CopyLinkIcon, FullScreenIcon, ExitFullScreenIcon, ShareIcon, ThunderIcon } from '../assets/icons.jsx';
 
-const Dashboardheader = () => {
+const Dashboardheader = ({projectName}) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const Dashboardheader = () => {
     return (
         <header className="flex items-center rounded-t-2xl justify-between p-4 border-b border-gray-200/80 bg-white/50 backdrop-blur-sm flex-shrink-0">
             <div className="flex items-center gap-4">
-                <p className="font-bold text-lg">Scrum Project</p>
+                <p className="font-bold text-lg">{projectName}</p>
                 <button className="text-gray-500 hover:text-gray-800"><UsersIcon /></button>
                 <button className="text-gray-500 hover:text-gray-800"><MoreIcon /></button>
             </div>

@@ -35,7 +35,7 @@ const SideNav = ({ isOpen }) => {
                     throw new Error('Could not fetch projects');
                 }
                 const data = await response.json();
-                // The API returns grouped data, so we flatten it into a single array
+              
                 const allProjects = Object.values(data).flat();
                 setProjects(allProjects);
             } catch (error) {
@@ -47,6 +47,13 @@ const SideNav = ({ isOpen }) => {
         fetchProjects();
     }, []);
 
+    
+    const handle =(project)=>
+    {
+       localStorage.setItem('activeProjectName', project.name);
+        localStorage.setItem('activeProjectId', project.id);
+
+    }
     const staticNavItems = [
         { icon: <CartIcon />, name: 'Cart', path: 'cart' },
         { icon: <StatsIcon />, name: 'Statistics', path: 'statistics' },
@@ -87,6 +94,7 @@ const SideNav = ({ isOpen }) => {
                                     <NavLink
                                         to={`/backlog/${project.id}`}
                                         title={project.name}
+                                        onClick={()=>handle(project)}
                                         className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-colors hover:bg-white/10 ${isActive ? 'bg-white/20 font-semibold' : 'text-white/80'}`}
                                     >
                                         {project.name}

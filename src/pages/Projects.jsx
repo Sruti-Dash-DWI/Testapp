@@ -98,9 +98,11 @@ const Projects = () => {
 
       if (!response.ok) {
         throw new Error('Failed to create project');
-      }
+      } 
 
-      fetchProjects(); // Refresh the project list
+       window.dispatchEvent(new CustomEvent('projectListUpdated'));
+
+      fetchProjects();
       handleClose();
       setFormData({
         name: '',
@@ -116,9 +118,15 @@ const Projects = () => {
     }
   };
 
+  const handleProjectClick= (project)=>
+  {
+    localStorage.setItem("activeProjectId",project.id);
+    localStorage.setItem("activeProjectName",project.name);
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br p-6 md:p-8">
-      {/* Header Section */}
+   
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
         <button 
@@ -132,9 +140,9 @@ const Projects = () => {
         </button>
       </div>
 
-      {/* Content Section */}
+     
       <div className="container mx-auto">
-        {/* Error Message */}
+       
         {error && (
           <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded" role="alert">
             <p className="font-bold">Error</p>
@@ -142,11 +150,11 @@ const Projects = () => {
           </div>
         )}
 
-        {/* Display Projects */}
+        
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-            <Link key={project.id} to={`/backlog/${project.id}`}>
+            <Link key={project.id} to={`/backlog/${project.id}`} onClick={()=>handleProjectClick(project)}>
               <div 
                 key={project.id} 
                 className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
@@ -215,7 +223,7 @@ const Projects = () => {
         )}
       </div>
 
-      {/* Custom Modal */}
+      
       {show && (
         <div 
           className="modal-overlay"
@@ -249,7 +257,7 @@ const Projects = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
+         
             <div 
               style={{
                 padding: '24px 24px 16px 24px',
@@ -290,9 +298,9 @@ const Projects = () => {
               </button>
             </div>
 
-            {/* Modal Body */}
+            
             <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
-              {/* Project Name */}
+              
               <div style={{ marginBottom: '20px' }}>
                 <label 
                   style={{
@@ -335,7 +343,7 @@ const Projects = () => {
                 />
               </div>
 
-              {/* Description */}
+              
               <div style={{ marginBottom: '20px' }}>
                 <label 
                   style={{
@@ -381,7 +389,7 @@ const Projects = () => {
                 />
               </div>
 
-              {/* Status */}
+              
               <div style={{ marginBottom: '32px' }}>
                 <label 
                   style={{
@@ -429,7 +437,7 @@ const Projects = () => {
                 </select>
               </div>
 
-              {/* Modal Footer */}
+              
               <div 
                 style={{
                   display: 'flex',
