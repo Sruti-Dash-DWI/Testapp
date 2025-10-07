@@ -406,7 +406,9 @@ useEffect(() => {
   };
 
 
-  const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
+  // In BacklogPage.jsx
+
+const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     const authToken = localStorage.getItem("authToken");
     const currentUserMembership = projectMembers.find(
       (member) =>
@@ -414,64 +416,66 @@ useEffect(() => {
     );
 
     if (!currentUserMembership) {
-      setError("Cannot create subtask: User is not a project member.");
-      return;
+        setError("Cannot create subtask: User is not a project member.");
+        return;
     }
-
-  
+    
     const subtaskPayload = {
-      title: subtaskTitle,
-      project: parseInt(projectId, 10),
-      status_id: 1, 
-      priority: "MEDIUM",
-      task_type: "FEATURE",
-      reporter: currentUserMembership.id,
+        title: subtaskTitle,
+        project: parseInt(projectId, 10),
+        status_id: 1,
+        priority: "MEDIUM",
+        task_type: "FEATURE",
+        reporter: currentUserMembership.id,
     };
-
+    
     const newSubtask = await createTaskOnBackend(subtaskPayload);
 
     if (newSubtask) {
-    
-      try {
-        const linkPayload = { parent_task: parentItemId };
-        const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
+        try {
+            const linkPayload = { parent_task: parentItemId };
+            const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
+            
+            const linkResponse = await fetch(linkUrl, {
+                method: "PATCH",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(linkPayload),
+            });
 
-        const linkResponse = await fetch(linkUrl, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(linkPayload),
-        });
+            if (!linkResponse.ok) throw new Error("Failed to link subtask to parent.");
 
-        if (!linkResponse.ok)
-          throw new Error("Failed to link subtask to parent.");
+            console.log("✅ SUCCESS: Subtask linked to parent.");
+            
+            // --- UI STATE UPDATES ---
 
-        console.log("✅ SUCCESS: Subtask linked to parent.");
+            // 1. Update the main data store (`boardData`)
+            setBoardData((prevData) => {
+                const parentItem = prevData.items[parentItemId];
+                const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
 
-        
-        setBoardData((prevData) => {
-          const parentItem = prevData.items[parentItemId];
-          const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
+                return {
+                    ...prevData,
+                    items: {
+                        ...prevData.items,
+                        [newSubtask.id]: { ...newSubtask, parent: parentItemId },
+                        [parentItemId]: { ...parentItem, subtasks: updatedSubtasks }
+                    }
+                };
+            });
 
-          return {
-            ...prevData,
-            items: {
-              ...prevData.items,
-              
-              [newSubtask.id]: { ...newSubtask, parent: parentItemId },
-              
-              [parentItemId]: { ...parentItem, subtasks: updatedSubtasks },
-            },
-          };
-        });
-      } catch (error) {
-        console.error("❌ FAILURE: Could not link subtask.", error);
-      }
+            // ✅ 2. ADD THIS BLOCK TO UPDATE THE MODAL'S VIEW (`selectedItem`)
+            if (selectedItem && selectedItem.id === parentItemId) {
+                setSelectedItem(prev => {
+                    const updatedSubtasks = [...(prev.subtasks || []), newSubtask];
+                    return { ...prev, subtasks: updatedSubtasks };
+                });
+            }
+
+        } catch (error) {
+            console.error("❌ FAILURE: Could not link subtask.", error);
+        }
     }
-  };
-
+};
   const handleUpdateItemDB = async (itemId, updates) => {
     const authToken = localStorage.getItem("authToken");
    
