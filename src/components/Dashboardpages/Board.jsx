@@ -8,8 +8,6 @@ import {
   MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
   FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons';
-// CRITICAL CHANGE: Removed the import for DashboardLayout
-// import DashboardLayout from '../../layout/DashboardLayout';
 
 const Dropdown = ({ button, children, align = 'right' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,11 +46,6 @@ const Dropdown = ({ button, children, align = 'right' }) => {
 
 
 const Board = () => {
-  // const [columns, setColumns] = useState([
-  //   { id: 'todo', title: 'To Do', status: 'todo' },
-  //   { id: 'inprogress', title: 'In Progress', status: 'inprogress' },
-  //   { id: 'done', title: 'Done', status: 'done' },
-  // ]);
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -149,7 +142,7 @@ const Board = () => {
         throw new Error('Failed to create the column on the server.');
       }
       
-      // After successful creation, refetch all columns to get the latest list
+      //refetch all columns to get the latest list
       await fetchColumns();
 
       } catch (err) {
@@ -167,6 +160,42 @@ const Board = () => {
         task.id.toString() === taskId ? { ...task, ...updatedData } : task
       )
     );
+  };
+
+  const handleDeleteColumn = async (columnIdToDelete) => {
+    // Find the status string from the column ID before deleting
+    const columnToDelete = columns.find(col => col.id === columnIdToDelete);
+    if (!columnToDelete) return; // Exit if column not found
+    const statusToDelete = columnToDelete.status;
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/statuses/${columnIdToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        // If the server responds with an error, throw an exception
+        throw new Error('Failed to delete the column from the server.');
+      }
+
+      // If the API call is successful, update the local state
+      console.log(`Column with ID ${columnIdToDelete} deleted successfully.`);
+      
+      // Remove the column from the columns state
+      setColumns(prevColumns => prevColumns.filter(col => col.id !== columnIdToDelete));
+      
+      // Also remove any tasks that belonged to the deleted column
+      setTasks(prevTasks => prevTasks.filter(task => task.status !== statusToDelete));
+
+    } catch (err) {
+      console.error('Error deleting column:', err);
+      // Optionally, set an error state here to show a message to the user
+      setError('Could not delete the column. Please try again.');
+    }
   };
 
   const handleMoveColumn = (columnStatus, direction) => {
@@ -311,20 +340,16 @@ const Board = () => {
             title={column.title}
             tasks={sortedTasks.filter(task => task.status === column.status)}
             status={column.status}
+            columnId={column.id}
             onUpdateTask={handleUpdateTask}
             onAddTaskClick={handleOpenAddTaskModal}
             onMoveColumn={handleMoveColumn}
-            onDeleteColumn={(status) => {
-              // Replaced window.confirm with a direct action for this fix.
-              // Consider implementing a custom modal for confirmation.
-              setTasks(tasks.filter(task => task.status !== status));
-              setColumns(columns.filter(col => col.status !== status));
-            }}
+            onDeleteColumn={handleDeleteColumn}
             onEditTask={setEditingTask}
             columnIndex={columns.findIndex(col => col.status === column.status)}
             totalColumns={columns.length}
-            draggingTaskId={draggingTaskId}
-            setDraggingTaskId={setDraggingTaskId}
+            // draggingTaskId={draggingTaskId}
+            // setDraggingTaskId={setDraggingTaskId}
           />
         ))}
         <div className="w-80 flex-shrink-0">

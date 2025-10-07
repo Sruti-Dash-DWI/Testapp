@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { XIcon } from "./Icons"; 
+import { XIcon } from "./Icons";
 
-const AddTaskModal = ({ show, onHide, onAddTask }) => {
+const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("todo");
+  const [status, setStatus] = useState(1);
   const [taskType, setTaskType] = useState("");
   const [priority, setPriority] = useState("");
   const [tasks, setTasks] = useState([]);
@@ -13,9 +13,12 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
 
   useEffect(() => {
     if (show) {
+      // Set status to the initialStatus passed from Board, or the first column's status
+      // const defaultStatus = 1;
+      // setStatus(defaultStatus);
       fetchTasks();
     }
-  }, [show]);
+  }, [show, columns]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -23,7 +26,7 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      
+
       if (!authToken) {
         setError('Please login to view tasks');
         return;
@@ -34,7 +37,7 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${authToken}` 
+          'Authorization': `Bearer ${authToken}`
         },
       });
 
@@ -47,7 +50,7 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const tasksData = await response.json();              
+      const tasksData = await response.json();
       setTasks(tasksData);
 
     } catch (error) {
@@ -61,7 +64,7 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -96,23 +99,24 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
       }
 
       const newTask = await response.json();
-      
+
       // Call the parent component's onAddTask if provided
       if (onAddTask) {
         onAddTask(newTask);
       }
-      
+
       // Refresh the task list
       fetchTasks();
-      
+
       // Reset form and close modal
       setTitle("");
       setDescription("");
-      setStatus("todo");
+      //const defaultStatus = initialStatus || (columns.length > 0 ? columns[0].status : "todo");
+      setStatus(1);
       setTaskType("");
       setPriority("");
       onHide();
-      
+
     } catch (error) {
       console.error('Error creating task:', error);
       setError('Failed to create task. Please check server connection.');
@@ -185,20 +189,21 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
               onChange={(e) => setStatus(e.target.value)}
               className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
-              <option className="text-black" value="todo">
-                To Do
-              </option>
-              <option className="text-black" value="inprogress">
-                In Progress
-              </option>
-              <option className="text-black" value="done">
-                Done
-              </option>
+              {/* Dynamically generate options from the columns prop */}
+              {columns.map((column, i) => (
+                <option
+                  key={i}
+                  className="text-black"
+                  value={column?.id}
+                >
+                  {column.title}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
-          <label className="block text-sm font-semibold text-gray-200 mb-1">
+            <label className="block text-sm font-semibold text-gray-200 mb-1">
               Task Type
             </label>
             <select
@@ -218,10 +223,10 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
               <option className="text-black" value="TEST_CASE">
                 Test Case
               </option>
-            </select>            
+            </select>
           </div>
           <div>
-          <label className="block text-sm font-semibold text-gray-200 mb-1">
+            <label className="block text-sm font-semibold text-gray-200 mb-1">
               Priority
             </label>
             <select
@@ -244,7 +249,7 @@ const AddTaskModal = ({ show, onHide, onAddTask }) => {
               <option className="text-black" value="HIGHEST">
                 Highest
               </option>
-            </select>           
+            </select>
           </div>
 
           {/* Footer */}

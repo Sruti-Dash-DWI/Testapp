@@ -6,6 +6,7 @@ const TaskColumn = ({
   title,
   tasks,
   status,
+  columnId,
   onUpdateTask,
   onAddTaskClick,
   onDeleteColumn,
@@ -113,7 +114,7 @@ const TaskColumn = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDeleteColumn(status);
+                            onDeleteColumn(columnId); // <-- Use columnId instead of status
                             setIsDropdownOpen(false);
                           }}
                           className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 text-red-400 hover:bg-red-500/10"
