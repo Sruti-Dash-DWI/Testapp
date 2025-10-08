@@ -49,7 +49,7 @@ const TaskCard = ({ task, onUpdateTask }) => {
             <p className="text-sm text-gray-300 mb-3">{task.description}</p>
             <div className="text-sm text-gray-400 mb-3 flex items-center">
                 <CalendarIcon />
-                <span>{new Date(task.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span>{new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</span>
             </div>
             <div className="flex flex-wrap gap-2">
                 {task.priority && (
