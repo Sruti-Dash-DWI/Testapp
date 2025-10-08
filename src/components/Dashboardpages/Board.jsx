@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { initialTasks } from '../../data/initial-data';
+//import { initialTasks } from '../../data/initial-data';
 import AddTaskModal from '../AddTaskModal';
 import EditTaskModal from '../EditTaskModal';
 import TaskColumn from '../TaskColumn';
@@ -85,40 +85,57 @@ const Board = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      await fetchColumns();
-
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setTasks(initialTasks);
-      } catch (err) {
-        setError(err);
-        console.error('Failed to fetch tasks:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchColumns();
   }, []);
 
+useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:8000/api/tasks/', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks.');
+      }
+      const data = await response.json();
+      console.log(data,"data of tasks");
+      setTasks(data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err);
+      setError('Could not load tasks. Please try again.');
+    }
+  };
+  fetchTasks();
+}, []);
+  
   const handleOpenAddTaskModal = (status) => {
     setNewTaskStatus(status);
     setIsModalOpen(true);
   };
 
-  const handleAddTask = async (newTaskData) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const addedTask = {
-        ...newTaskData,
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-      };
-      setTasks((prevTasks) => [...prevTasks, addedTask]);
-    } catch (err) {
-      console.error('Failed to add task', err);
-    }
+  // const handleAddTask = async (newTaskData) => {
+  //   try {
+  //     await new Promise((resolve) => setTimeout(resolve, 500));
+  //     const addedTask = {
+  //       ...newTaskData,
+  //       id: Date.now(),
+  //       date: new Date().toISOString().split('T')[0],
+  //     };
+  //     setTasks((prevTasks) => [...prevTasks, addedTask]);
+  //   } catch (err) {
+  //     console.error('Failed to add task', err);
+  //   }
+  // };
+
+  const handleAddTask = async () => {
+    // After a new task is successfully added in the modal,
+    // we just need to refresh our list of tasks from the server.
+    await fetchTasks();
   };
 
   const handleSaveNewColumn = async () => {
@@ -242,7 +259,7 @@ const Board = () => {
   if (loading) return <div className="flex items-center justify-center h-full text-white text-xl">Loading tasks...</div>;
   if (error) return <div className="flex items-center justify-center h-full text-red-400 text-xl">Error loading tasks.</div>;
 
-  
+
   return (
     <div className="flex flex-col text-white p-4 md:p-6 h-full">
       <AddTaskModal
@@ -340,7 +357,7 @@ const Board = () => {
           <TaskColumn
             key={column.id}
             title={column.title}
-            tasks={sortedTasks.filter(task => task.status === column.status)}
+            tasks={sortedTasks}
             status={column.status}
             columnId={column.id}
             onUpdateTask={handleUpdateTask}

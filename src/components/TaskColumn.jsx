@@ -33,7 +33,6 @@ const TaskColumn = ({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }, []);
-
     
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -45,7 +44,7 @@ const TaskColumn = ({
         const taskId = e.dataTransfer.getData('taskId');
         
         if (taskId && onUpdateTask) {
-            onUpdateTask(taskId, { status: status });
+            onUpdateTask(taskId, { status: columnId });
         }
         setIsDraggingOver(false); 
     };
@@ -128,7 +127,6 @@ const TaskColumn = ({
                 </div>
               </div>
 
-        
             <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 scrollbar-hide">
                 {tasks.map(task => (
                   <div 

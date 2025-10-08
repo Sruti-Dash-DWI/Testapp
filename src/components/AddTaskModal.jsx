@@ -103,20 +103,21 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus, project
         throw new Error(errorMessage || 'Failed to create task');
       }
 
-      const newTask = await response.json();
+      //const newTask = await response.json();
 
       // Call the parent component's onAddTask if provided
+      // if (onAddTask) {
+      //   onAddTask(newTask);
+      // }
+      
       if (onAddTask) {
-        onAddTask(newTask);
+        onAddTask();
       }
-
-      // Refresh the task list
-      fetchTasks();
+      //fetchTasks();
 
       // Reset form and close modal
       setTitle("");
       setDescription("");
-      //const defaultStatus = initialStatus || (columns.length > 0 ? columns[0].status : "todo");
       setStatus(1);
       setTaskType("BUG");
       setPriority("MEDIUM");

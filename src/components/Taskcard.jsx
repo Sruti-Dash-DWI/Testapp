@@ -51,13 +51,6 @@ const TaskCard = ({ task, onUpdateTask }) => {
                 <CalendarIcon />
                 <span>{new Date(task.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
             </div>
-            {/* <div className="flex flex-wrap gap-2">
-                {task.badges.map(badge => (
-                    <span key={badge} className={`px-2 py-1 text-xs font-semibold rounded-full ${badgeColorMap[badge.toLowerCase()] || badgeColorMap.default}`}>
-                        {badge}
-                    </span>
-                ))}
-            </div> */}
             <div className="flex flex-wrap gap-2">
                 {task.priority && (
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${badgeColorMap[task.priority.toLowerCase()] || badgeColorMap.default}`}>
