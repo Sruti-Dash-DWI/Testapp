@@ -23,6 +23,7 @@ import Settings from "../pages/sidenav_pages/Settings.jsx";
 import Board from "../components/Dashboardpages/Board.jsx";
 import Calendar from "../components/Dashboardpages/Calendar.jsx";
 import Timeline from "../components/Dashboardpages/Timeline.jsx";
+import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
 
 // Developer imports 
 import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
@@ -44,7 +45,7 @@ const AppRouter = () => {
        
         <Route element={<DashboardLayout />}>
          
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={<Projectmanager />} />
           <Route path="/statistics" element={<Statisticspage />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/notifications" element={<Notifications />} />

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X, AlertCircle } from 'lucide-react';
 
 // --- MODAL IMPORTS ---
-// We only need the EditSprintModal now.
-import { EditSprintModal } from "../Dashboardpages/backlog/BacklogModals";
+import { ItemDetailModal, EditSprintModal } from "../Dashboardpages/backlog/BacklogModals";
 
 // --- Mocks/Constants (Unchanged) ---
 const taskTypes = [
@@ -20,6 +19,8 @@ const statusOptions = [
     { id: 4, title: 'Done' },
     { id: 5, title: 'Testing' },
 ];
+
+const priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
 
 export default function CalendarUI() {
@@ -47,10 +48,12 @@ export default function CalendarUI() {
     const [selectedAssignees, setSelectedAssignees] = useState([]);
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [selectedPriorities, setSelectedPriorities] = useState([]);
     const [sprints, setSprints] = useState([]);
     const [epics, setEpics] = useState([]);
     const [sprintToEdit, setSprintToEdit] = useState(null);
-    const [popover, setPopover] = useState({ type: null, data: null, position: null });
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [popover, setPopover] = useState({ type: null, data: null, style: {} });
     const popoverRef = useRef(null);
 
     // --- MEMOIZED VALUES ---
@@ -72,9 +75,10 @@ export default function CalendarUI() {
                 task.assignees.some(a => selectedAssignees.includes(a.user.id));
             const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(task.task_type);
             const statusMatch = selectedStatuses.length === 0 || selectedStatuses.includes(task.status?.id);
-            return searchMatch && assigneeMatch && typeMatch && statusMatch;
+            const priorityMatch = selectedPriorities.length === 0 || selectedPriorities.includes(task.priority?.toUpperCase());
+            return searchMatch && assigneeMatch && typeMatch && statusMatch && priorityMatch;
         });
-    }, [tasks, searchTerm, selectedAssignees, selectedTypes, selectedStatuses]);
+    }, [tasks, searchTerm, selectedAssignees, selectedTypes, selectedStatuses, selectedPriorities]);
 
     // --- DATA FETCHING ---
     useEffect(() => {
@@ -124,17 +128,58 @@ export default function CalendarUI() {
         };
         fetchAllData();
     }, [projectId, navigate]);
-
+    
     // --- API HANDLERS ---
+    const handleUpdateItemDB = async (itemId, updates) => {
+        const authToken = localStorage.getItem("authToken");
+        const projectIdInt = parseInt(projectId, 10);
+        const updateKey = Object.keys(updates)[0];
+        if (!updateKey) return;
+
+        let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+        let payload = {};
+
+        switch (updateKey) {
+            case "assignee":
+                fullUrl += "assignees/";
+                payload = { assignees: updates.assignee ? [updates.assignee] : [], project: projectIdInt };
+                break;
+            case "sprint":
+                fullUrl += 'sprint/';
+                payload = { sprint: updates.sprint };
+                break;
+            default:
+                payload = { ...updates };
+                if (payload.priority) payload.priority = payload.priority.toUpperCase();
+                break;
+        }
+
+        try {
+            const response = await fetch(fullUrl, {
+                method: "PATCH",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(payload),
+            });
+            const responseData = await response.json();
+            if (!response.ok) throw new Error(JSON.stringify(responseData));
+            
+            setTasks(prev => prev.map(t => t.id === itemId ? { ...t, ...responseData } : t));
+            if (selectedItem && selectedItem.id === itemId) {
+                setSelectedItem(prev => ({ ...prev, ...responseData }));
+            }
+        } catch (error) {
+            console.error(`Failed to update item ${itemId}:`, error.message);
+            setError("Failed to update the task.");
+        }
+    };
+    
     const handleToggleTaskStatus = async (taskId) => {
         const authToken = localStorage.getItem("authToken");
         const task = tasks.find(t => t.id === taskId);
         if (!task) return;
 
-        // Toggle between 'To Do' (1) and 'Done' (4)
         const newStatusId = task.status?.id === 4 ? 1 : 4; 
         
-        // Optimistic UI update
         const originalTasks = tasks;
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: statusOptions.find(s => s.id === newStatusId) } : t));
 
@@ -147,12 +192,11 @@ export default function CalendarUI() {
             if (!response.ok) throw new Error("Failed to update task status.");
             
             const updatedTask = await response.json();
-            // Final state update with server response
             setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updatedTask } : t));
         } catch (error) {
             console.error("Error toggling task status:", error);
             setError("Could not update task status.");
-            setTasks(originalTasks); // Revert on failure
+            setTasks(originalTasks);
         }
     };
     
@@ -196,6 +240,10 @@ export default function CalendarUI() {
 
     const formatDateForAPI = (date) => {
         if (!date) return null;
+        // If date is already a string in 'YYYY-MM-DD' format, return it
+        if (typeof date === 'string') {
+            return date.split('T')[0];
+        }
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
@@ -281,18 +329,95 @@ export default function CalendarUI() {
             setError(error.message);
         }
     };
+
+    // *** NEW FUNCTION to create subtasks from the detail modal ***
+    const handleCreateSubtask = async (subtaskTitle) => {
+        if (!subtaskTitle.trim() || !selectedItem) return;
+
+        const authToken = localStorage.getItem("authToken");
+        const currentUserId = parseInt(localStorage.getItem("userId"), 10);
+        const currentUserMembership = projectMembers.find(m => m.user.id === currentUserId);
+        
+        if (!currentUserMembership) {
+            setError("You are not a member of this project and cannot create subtasks.");
+            return;
+        }
+        
+        try {
+            // 1. Create the base task
+            const taskPayload = {
+                title: subtaskTitle,
+                project: parseInt(projectId, 10),
+                reporter: currentUserMembership.id,
+                due_date: formatDateForAPI(selectedItem.due_date) || formatDateForAPI(new Date()), // Default to parent's due date or today
+                status_id: 1, 
+                priority: "MEDIUM",
+                task_type: 'SUBTASK', // Set type to subtask
+            };
+            
+            const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(taskPayload),
+            });
+
+            const createdTask = await taskResponse.json();
+            if (!taskResponse.ok) {
+                throw new Error(JSON.stringify(createdTask) || "Failed to create subtask.");
+            }
+
+            // 2. Link it to the parent task
+            const linkPayload = { parent_task: selectedItem.id };
+            const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
+                method: "PATCH",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(linkPayload),
+            });
+            if (!linkResponse.ok) throw new Error("Task created, but failed to link to parent.");
+            
+            const finalTask = await linkResponse.json();
+            
+            // 3. Update state
+            setTasks(prev => [...prev, finalTask]);
+            
+            // Also update the parent task's subtasks array in the selectedItem state to reflect the change immediately
+            setSelectedItem(prev => ({
+                ...prev,
+                subtasks: [...(prev.subtasks || []), finalTask]
+            }));
+
+        } catch (error) {
+            console.error("Error creating subtask:", error);
+            setError(error.message);
+        }
+    };
     
     // --- HELPER FUNCTIONS ---
     const getItemsForDate = (date) => {
-        const localDateStr = formatDateForAPI(date);
+        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
         const tasksOnDate = filteredTasks
-            .filter(task => task.due_date === localDateStr)
+            .filter(task => {
+                if (!task.due_date) return false;
+                const taskDate = new Date(task.due_date + 'T00:00:00');
+                return taskDate.getTime() === localDate.getTime();
+            })
             .map(task => ({ ...task, itemType: 'task' }));
 
-        const sprintsOnDate = sprints
-            .filter(sprint => sprint.start_date === localDateStr || sprint.end_date === localDateStr)
-            .map(sprint => ({ ...sprint, itemType: 'sprint' }));
+        let sprintsOnDate = [];
+        const isAnyFilterActive = selectedAssignees.length > 0 || selectedTypes.length > 0 || selectedStatuses.length > 0 || selectedPriorities.length > 0;
+        
+        if (!isAnyFilterActive) {
+            sprintsOnDate = sprints
+                .filter(sprint => {
+                    const startDate = new Date(sprint.start_date + 'T00:00:00');
+                    const endDate = new Date(sprint.end_date + 'T00:00:00');
+                    const isWithinDate = localDate >= startDate && localDate <= endDate;
+                    const searchMatch = searchTerm === '' || sprint.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    return isWithinDate && searchMatch;
+                })
+                .map(sprint => ({ ...sprint, itemType: 'sprint' }));
+        }
 
         return [...sprintsOnDate, ...tasksOnDate];
     };
@@ -302,29 +427,50 @@ export default function CalendarUI() {
         if (filterType === 'assignee') setSelectedAssignees(updater);
         if (filterType === 'type') setSelectedTypes(updater);
         if (filterType === 'status') setSelectedStatuses(updater);
+        if (filterType === 'priority') setSelectedPriorities(updater);
     };
+    
+    const calculatePopoverPosition = (event) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const popoverHeight = 250;
+        const popoverWidth = 250;
+        
+        let style = {};
+
+        if (rect.bottom + popoverHeight > window.innerHeight) {
+            style.bottom = `${window.innerHeight - rect.top}px`;
+        } else {
+            style.top = `${rect.bottom}px`;
+        }
+
+        if (rect.left + popoverWidth > window.innerWidth) {
+            style.right = `${window.innerWidth - rect.right}px`;
+        } else {
+            style.left = `${rect.left}px`;
+        }
+        
+        return style;
+    }
 
     const handleItemClick = (item, event) => {
         event.stopPropagation();
         if (item.itemType === 'task') {
-            handleToggleTaskStatus(item.id);
+            setSelectedItem(item);
         } else if (item.itemType === 'sprint') {
-            const rect = event.currentTarget.getBoundingClientRect();
             setPopover({
                 type: 'sprint',
                 data: item,
-                position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX }
+                style: calculatePopoverPosition(event)
             });
         }
     };
     
     const handleMoreClick = (items, event) => {
         event.stopPropagation();
-        const rect = event.currentTarget.getBoundingClientRect();
         setPopover({
             type: 'more',
             data: items,
-            position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX }
+            style: calculatePopoverPosition(event)
         });
     };
 
@@ -334,8 +480,15 @@ export default function CalendarUI() {
                 setPopover({ type: null });
             }
         };
+        const handleScroll = () => {
+            setPopover({ type: null });
+        };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener("scroll", handleScroll, true);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("scroll", handleScroll, true);
+        };
     }, []);
 
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -380,15 +533,16 @@ export default function CalendarUI() {
     return (
         <div className="bg-gradient-to-br from-purple-50 via-white to-purple-100 min-h-screen">
             {(showTypeDropdown || showStatusDropdown || showAssigneeDropdown || showMoreFiltersDropdown) && (<div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />)}
- 
+
             <div className="flex items-center justify-between px-6 py-4 border-b border-purple-100 bg-white/95 backdrop-blur-sm relative z-20">
+                {/* Filters and Search */}
                 <div className="flex items-center space-x-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                         <input type="text" placeholder="Search calendar" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64 bg-white" />
                     </div>
                     <div className="flex items-center space-x-2">
-                        <div className="relative">
+                         <div className="relative">
                             <button onClick={() => { closeAllDropdowns(); setShowAssigneeDropdown(!showAssigneeDropdown);}} className="flex items-center px-3 py-2 border border-pink-300 rounded-lg hover:bg-gradient-to-r hover:from-pink-100 hover:to-rose-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-sm shadow-sm text-pink-600">
                                 Assignee <ChevronDown className="ml-1 w-4 h-4" />
                              </button>
@@ -409,7 +563,7 @@ export default function CalendarUI() {
                         </div>
                         <div className="relative">
                               <button onClick={() => { closeAllDropdowns(); setShowTypeDropdown(!showTypeDropdown); }} className="flex items-center px-3 py-2 border border-blue-200 rounded-lg hover:bg-gradient-to-r hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-sm shadow-sm text-blue-700">
-                                 Type <ChevronDown className="ml-1 w-4 h-4" />
+                                  Type <ChevronDown className="ml-1 w-4 h-4" />
                               </button>
                               {showTypeDropdown && ( 
                                   <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30 p-2 space-y-1">
@@ -424,7 +578,7 @@ export default function CalendarUI() {
                         </div>
                         <div className="relative">
                               <button onClick={() => { closeAllDropdowns(); setShowStatusDropdown(!showStatusDropdown); }} className="flex items-center px-3 py-2 border border-green-200 rounded-lg hover:bg-gradient-to-r hover:from-green-100 hover:to-emerald-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-green-50/90 backdrop-blur-sm shadow-sm text-green-700">
-                                 Status <ChevronDown className="ml-1 w-4 h-4" />
+                                  Status <ChevronDown className="ml-1 w-4 h-4" />
                               </button>
                               {showStatusDropdown && ( 
                                  <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30 p-2 space-y-1">
@@ -434,52 +588,60 @@ export default function CalendarUI() {
                                               <span className="text-sm">{status.title}</span>
                                           </label>
                                       ))}
-                                 </div>
+                                  </div>
                               )}
                         </div>
-                         <div className="relative">
-                             <button onClick={() => { closeAllDropdowns(); setShowMoreFiltersDropdown(!showMoreFiltersDropdown); }} className="whitespace-nowrap flex items-center px-3 py-2 border border-purple-200 rounded-lg hover:bg-gradient-to-r hover:from-purple-100 hover:to-violet-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-purple-50/90 backdrop-blur-sm shadow-sm text-purple-700">
-                                More filters <ChevronDown className="ml-1 w-4 h-4" />
-                             </button>
-                             {showMoreFiltersDropdown && ( <div className="absolute top-full left-0 mt-1 w-64 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto"> <div className="p-3"> <div className="relative mb-3"> <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" /> <input type="text" placeholder="Search more filters" className="pl-9 pr-3 py-2 w-full border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" /> </div> <div className="space-y-1"> {['Attachment','Comment','Created','Creator','Description','Design','Development','Due date','Environment','Epic Link','Fix Version','Labels','Last comment','Priority','Project','Reporter','Resolution','Sprint','Story Points','Team','Time in Status','Updated','Versions','Watchers'].map((filter) => ( <label key={filter} className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer"> <input type="checkbox" className="rounded w-4 h-4" /> <span className="text-sm">{filter}</span> </label> ))} </div> </div> </div> )}
+                        <div className="relative">
+                            <button onClick={() => { closeAllDropdowns(); setShowMoreFiltersDropdown(!showMoreFiltersDropdown); }} className="whitespace-nowrap flex items-center px-3 py-2 border border-purple-200 rounded-lg hover:bg-gradient-to-r hover:from-purple-100 hover:to-violet-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-purple-50/90 backdrop-blur-sm shadow-sm text-purple-700">
+                                 More filters <ChevronDown className="ml-1 w-4 h-4" />
+                            </button>
+                            {showMoreFiltersDropdown && (
+                                 <div className="absolute top-full left-0 mt-1 w-64 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto p-3">
+                                     <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Priority</h4>
+                                     <div className='space-y-1 mb-3'>
+                                        {priorityOptions.map((priority) => (
+                                            <label key={priority} className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer">
+                                                <input type="checkbox" className="rounded w-4 h-4" checked={selectedPriorities.includes(priority)} onChange={() => toggleFilter('priority', priority)} />
+                                                <span className="text-sm">{priority.charAt(0) + priority.slice(1).toLowerCase()}</span>
+                                            </label>
+                                        ))}
+                                     </div>
+                                 </div>
+                            )}
                         </div>
                     </div>
                 </div>
- 
-                <div className="flex items-center space-x-4">
-                    <button onClick={goToToday} className="px-4 py-2 border border-orange-200 rounded-lg hover:bg-gradient-to-r hover:from-orange-100 hover:to-amber-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm text-orange-700 font-medium">
-                        Today
-                    </button>
 
-                    <div className="flex items-center space-x-2">
-                        <button onClick={() => navigateMonth(-1)} className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm">
-                            <ChevronLeft className="w-5 h-5 text-violet-600" />
-                        </button>
-
-                        <span className="text-xl font-bold min-w-32 text-center bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                        </span>
-
-                        <button onClick={() => navigateMonth(1)} className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm">
-                            <ChevronRight className="w-5 h-5 text-violet-600" />
-                        </button>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                        <button className="p-2 hover:bg-gradient-to-r hover:from-cyan-200 hover:to-blue-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-cyan-50/80 shadow-sm">
-                            <CalendarIcon className="w-5 h-5 text-cyan-600" />
-                        </button>
-                        <button onClick={() => { setModalSelectedDate(new Date()); setShowTaskModal(true); }} className="p-2 hover:bg-gradient-to-r hover:from-rose-200 hover:to-pink-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-rose-50/80 shadow-sm">
-                            <Plus className="w-5 h-5 text-rose-600" />
-                        </button>
-                        <button className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm">
-                            <MoreHorizontal className="w-5 h-5 text-amber-600" />
-                        </button>
-                    </div>
-                </div>
+                {/* Calendar Controls */}
+                 <div className="flex items-center space-x-4">
+                     <button onClick={goToToday} className="px-4 py-2 border border-orange-200 rounded-lg hover:bg-gradient-to-r hover:from-orange-100 hover:to-amber-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm text-orange-700 font-medium">
+                         Today
+                     </button>
+                     <div className="flex items-center space-x-2">
+                         <button onClick={() => navigateMonth(-1)} className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm">
+                             <ChevronLeft className="w-5 h-5 text-violet-600" />
+                         </button>
+                         <span className="text-xl font-bold min-w-32 text-center bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                         </span>
+                         <button onClick={() => navigateMonth(1)} className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm">
+                             <ChevronRight className="w-5 h-5 text-violet-600" />
+                         </button>
+                     </div>
+                     <div className="flex items-center space-x-2">
+                         <button className="p-2 hover:bg-gradient-to-r hover:from-cyan-200 hover:to-blue-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-cyan-50/80 shadow-sm">
+                             <CalendarIcon className="w-5 h-5 text-cyan-600" />
+                         </button>
+                         <button onClick={() => { setModalSelectedDate(new Date()); setShowTaskModal(true); }} className="p-2 hover:bg-gradient-to-r hover:from-rose-200 hover:to-pink-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-rose-50/80 shadow-sm">
+                             <Plus className="w-5 h-5 text-rose-600" />
+                         </button>
+                         <button className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm">
+                             <MoreHorizontal className="w-5 h-5 text-amber-600" />
+                         </button>
+                     </div>
+                 </div>
             </div>
             
-            {/* --- CALENDAR GRID --- */}
             <div className="flex flex-col">
                 <div className="grid grid-cols-7 border-b border-purple-100">
                     {weekDays.map((day) => (<div key={day} className="p-4 text-center text-sm font-medium border-r border-purple-100 last:border-r-0 bg-purple-100 text-purple-700">{day}</div>))}
@@ -489,32 +651,37 @@ export default function CalendarUI() {
                         <div key={weekIndex} className="grid grid-cols-7" style={{ minHeight: '8rem' }}>
                             {week.map((day, dayIndex) => {
                                 const items = getItemsForDate(day.fullDate);
-                                const displayItems = items.slice(0, 3);
-                                const hiddenItemsCount = items.length - 3;
+                                const displayItems = items.slice(0, 1);
+                                const hiddenItemsCount = items.length - 1;
+                                const today = new Date();
+                                today.setHours(0,0,0,0);
 
                                 return (
                                     <div key={`${weekIndex}-${dayIndex}`} onClick={() => { if (day.isCurrentMonth) setShowTaskModal(true); setModalSelectedDate(day.fullDate) }} className={`border-r border-b border-purple-100 last:border-r-0 p-2 transition-all duration-200 cursor-pointer relative overflow-visible ${!day.isCurrentMonth ? 'bg-purple-50/40 text-gray-400' : 'bg-purple-50/70 hover:bg-purple-100/80'}`}>
                                         <div className="text-sm font-medium text-purple-700">{day.date}</div>
                                         <div className="mt-1 space-y-1">
-                                            {displayItems.map((item) => (
-                                                <div 
-                                                    key={`${item.itemType}-${item.id}`} 
-                                                    onClick={(e) => handleItemClick(item, e)}
-                                                    className={`text-xs p-1 rounded-sm cursor-pointer transition-all duration-200 flex items-center space-x-1 truncate ${item.itemType === 'sprint' ? 'bg-blue-800 text-white font-bold' : 'bg-blue-100 text-blue-800'} ${item.itemType === 'task' && item.status?.id === 4 ? 'opacity-60 line-through' : ''}`}
-                                                >
-                                                    {item.itemType === 'task' && (
-                                                        <input 
-                                                            type="checkbox" 
-                                                            checked={item.status?.id === 4}
-                                                            readOnly
-                                                            className="w-3 h-3 rounded-sm form-checkbox"
-                                                        />
-                                                    )}
-                                                    <span className="flex-1 truncate">
-                                                        {item.itemType === 'sprint' ? `SCRUM ${item.name}` : item.title}
-                                                    </span>
-                                                </div>
-                                            ))}
+                                            {displayItems.map((item) => {
+                                                const isOverdue = item.itemType === 'task' && item.due_date && new Date(item.due_date) < today && item.status?.id !== 4;
+                                                return (
+                                                    <div 
+                                                        key={`${item.itemType}-${item.id}`} 
+                                                        onClick={(e) => handleItemClick(item, e)}
+                                                        className={`text-xs p-1 rounded-sm cursor-pointer transition-all duration-200 flex items-center space-x-1 truncate ${item.itemType === 'sprint' ? 'bg-blue-800 text-white font-bold' : 'bg-blue-100 text-blue-800'} ${item.itemType === 'task' && item.status?.id === 4 ? 'opacity-60 line-through' : ''}`}
+                                                    >
+                                                        {item.itemType === 'task' && (
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={item.status?.id === 4}
+                                                                onChange={() => {}}
+                                                                onClick={(e) => { e.stopPropagation(); handleToggleTaskStatus(item.id); }}
+                                                                className="w-3 h-3 rounded-sm form-checkbox"
+                                                            />
+                                                        )}
+                                                        <span className="flex-1 truncate">{item.itemType === 'sprint' ? `SCRUM ${item.name}` : item.title}</span>
+                                                        {isOverdue && <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />}
+                                                    </div>
+                                                );
+                                            })}
                                             {hiddenItemsCount > 0 && (
                                                 <button onClick={(e) => handleMoreClick(items, e)} className="text-xs text-blue-600 font-semibold hover:underline w-full text-left mt-1">
                                                     +{hiddenItemsCount} more
@@ -532,8 +699,8 @@ export default function CalendarUI() {
             {popover.type && (
                 <div 
                     ref={popoverRef}
-                    style={{ top: popover.position?.top, left: popover.position?.left }}
-                    className="absolute z-40 bg-white rounded-lg shadow-2xl border border-gray-200 min-w-[250px]"
+                    style={popover.style}
+                    className="fixed z-40 bg-white rounded-lg shadow-2xl border border-gray-200 min-w-[250px]"
                 >
                     {popover.type === 'sprint' && (
                         <SprintPopover 
@@ -547,38 +714,37 @@ export default function CalendarUI() {
                         <MoreItemsPopover 
                             items={popover.data}
                             onItemClick={handleItemClick}
+                            onToggleTask={handleToggleTaskStatus}
                         />
                     )}
                 </div>
             )}
-
+            
             {showTaskModal && (
                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-96 max-w-md mx-4">
-                        <div className="p-4 border-b border-purple-200">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-purple-800">Create New Item</h3>
-                                    {modalSelectedDate && selectedTaskType !== 'Epic' && (<p className="text-sm text-purple-600 mt-1">{modalSelectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>)}
-                                </div>
-                                <button onClick={() => { setShowTaskModal(false); setTaskInput(''); setSelectedDate(null); setModalSelectedDate(null);}} className="text-purple-400 hover:text-purple-600">
-                                    <X className="w-7 h-7 text-purple-800" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="p-4">
-                            <input
-                                type="text"
-                                placeholder="What needs to be done?"
-                                value={taskInput}
-                                onChange={(e) => setTaskInput(e.target.value)}
-                                className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 bg-white/90 backdrop-blur-sm"
-                                autoFocus
-                            />
-
-                           {selectedTaskType !== 'Epic' && (
-                                <div className="mb-4">
+                     <div className="bg-white rounded-lg shadow-xl w-96 max-w-md mx-4">
+                         <div className="p-4 border-b border-purple-200">
+                             <div className="flex items-center justify-between">
+                                 <div>
+                                     <h3 className="text-lg font-semibold text-purple-800">Create New Item</h3>
+                                     {modalSelectedDate && selectedTaskType !== 'Epic' && (<p className="text-sm text-purple-600 mt-1">{modalSelectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>)}
+                                 </div>
+                                 <button onClick={() => { setShowTaskModal(false); setTaskInput(''); setSelectedDate(null); setModalSelectedDate(null);}} className="text-purple-400 hover:text-purple-600">
+                                     <X className="w-7 h-7 text-purple-800" />
+                                 </button>
+                             </div>
+                         </div>
+                         <div className="p-4">
+                             <input
+                                 type="text"
+                                 placeholder="What needs to be done?"
+                                 value={taskInput}
+                                 onChange={(e) => setTaskInput(e.target.value)}
+                                 className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 bg-white/90 backdrop-blur-sm"
+                                 autoFocus
+                             />
+                            {selectedTaskType !== 'Epic' && (
+                                 <div className="mb-4">
                                   <label className="block text-sm font-medium text-purple-700 mb-1">Due Date</label>
                                   <input 
                                       type="date"
@@ -589,9 +755,8 @@ export default function CalendarUI() {
                                       }}
                                       className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/90 backdrop-blur-sm"
                                   />
-                                </div>
-                            )}
-
+                                 </div>
+                             )}
                             <div className="relative mb-4">
                                 <button onClick={() => setShowTaskTypeMenu(!showTaskTypeMenu)} className="w-full flex justify-between items-center p-3 border border-purple-300 rounded-lg bg-white/90 backdrop-blur-sm">
                                     <span className='flex items-center gap-2'>
@@ -600,22 +765,21 @@ export default function CalendarUI() {
                                     </span>
                                     <ChevronDown className="w-4 h-4 text-purple-600" />
                                 </button>
-                                {showTaskTypeMenu && (
-                                    <div className="absolute top-full left-0 mt-1 w-full bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-10">
-                                        <div className="p-2">
-                                            {taskTypes.map(type => (
-                                                <button key={type.name} onClick={() => { setSelectedTaskType(type.name); setShowTaskTypeMenu(false); setSelectedParentTaskId(''); }} className="w-full text-left flex items-center gap-2 p-2 hover:bg-purple-50 rounded">
-                                                    <span>{type.icon}</span>
-                                                    <span>{type.name}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                 {showTaskTypeMenu && (
+                                     <div className="absolute top-full left-0 mt-1 w-full bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-10">
+                                         <div className="p-2">
+                                             {taskTypes.map(type => (
+                                                 <button key={type.name} onClick={() => { setSelectedTaskType(type.name); setShowTaskTypeMenu(false); setSelectedParentTaskId(''); }} className="w-full text-left flex items-center gap-2 p-2 hover:bg-purple-50 rounded">
+                                                     <span>{type.icon}</span>
+                                                     <span>{type.name}</span>
+                                                 </button>
+                                             ))}
+                                         </div>
+                                     </div>
+                                 )}
                             </div>
-                            
-                            {selectedTaskType === 'Subtask' && (
-                                <div className="mb-4">
+                             {selectedTaskType === 'Subtask' && (
+                                 <div className="mb-4">
                                   <label className="block text-sm font-medium text-purple-700 mb-1">Parent Task</label>
                                   <select value={selectedParentTaskId} onChange={(e) => setSelectedParentTaskId(e.target.value)} className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/90 backdrop-blur-sm">
                                       <option value="">Select a parent...</option>
@@ -623,9 +787,8 @@ export default function CalendarUI() {
                                           <option key={task.id} value={task.id}>{task.title}</option>
                                       ))}
                                   </select>
-                                </div>
-                            )}
-
+                                 </div>
+                             )}
                         </div>
                         <div className="p-4 border-t flex justify-end">
                             <button onClick={handleCreateTask} disabled={!taskInput.trim()} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:bg-purple-300 disabled:cursor-not-allowed transition-all duration-300">
@@ -635,6 +798,16 @@ export default function CalendarUI() {
                     </div>
                 </div>
             )}
+            
+            <ItemDetailModal
+                item={selectedItem}
+                users={usersWithUnassigned}
+                sprintName={sprints.find(s => s.id === selectedItem?.sprint)?.name || 'Backlog'}
+                onClose={() => setSelectedItem(null)}
+                onUpdate={handleUpdateItemDB}
+                // *** PASSING THE NEW FUNCTION AS A PROP ***
+                onCreateSubtask={handleCreateSubtask} 
+            />
 
             <EditSprintModal
                 sprint={sprintToEdit}
@@ -691,30 +864,37 @@ const SprintPopover = ({ sprint, onEdit, onDelete, onClose }) => {
     );
 };
 
-const MoreItemsPopover = ({ items, onItemClick }) => {
+const MoreItemsPopover = ({ items, onItemClick, onToggleTask }) => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
     return (
         <div className="p-2 max-h-60 overflow-y-auto">
              <h4 className="font-bold text-sm mb-2 px-2">Items for this day</h4>
-            {items.map(item => (
-                <div 
-                    key={`${item.itemType}-${item.id}`} 
-                    onClick={(e) => onItemClick(item, e)}
-                    className={`text-xs p-2 rounded cursor-pointer transition-all duration-200 flex items-center space-x-2 truncate hover:bg-gray-100 ${item.itemType === 'sprint' ? 'bg-blue-800 text-white font-bold' : 'bg-blue-100 text-blue-800'} ${item.itemType === 'task' && item.status?.id === 4 ? 'opacity-60 line-through' : ''}`}
-                >
-                    {item.itemType === 'task' && (
-                        <input 
-                            type="checkbox" 
-                            checked={item.status?.id === 4}
-                            readOnly
-                            className="w-3 h-3 rounded-sm form-checkbox"
-                        />
-                    )}
-                    <span className="flex-1 truncate">
-                        {item.itemType === 'sprint' ? `SCRUM ${item.name}` : item.title}
-                    </span>
-                </div>
-            ))}
+            {items.map(item => {
+                const isOverdue = item.itemType === 'task' && item.due_date && new Date(item.due_date) < today && item.status?.id !== 4;
+                return (
+                    <div 
+                        key={`${item.itemType}-${item.id}`} 
+                        onClick={(e) => onItemClick(item, e)}
+                        className={`text-xs p-2 rounded cursor-pointer transition-all duration-200 flex items-center space-x-2 truncate hover:bg-gray-100 ${item.itemType === 'sprint' ? 'bg-blue-800 text-white font-bold' : 'bg-blue-100 text-blue-800'} ${item.itemType === 'task' && item.status?.id === 4 ? 'opacity-60 line-through' : ''}`}
+                    >
+                        {item.itemType === 'task' && (
+                            <input 
+                                type="checkbox" 
+                                checked={item.status?.id === 4}
+                                onChange={() => {}}
+                                onClick={(e) => { e.stopPropagation(); onToggleTask(item.id); }}
+                                className="w-3 h-3 rounded-sm form-checkbox"
+                            />
+                        )}
+                        <span className="flex-1 truncate">
+                            {item.itemType === 'sprint' ? `SCRUM ${item.name}` : item.title}
+                        </span>
+                        {isOverdue && <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />}
+                    </div>
+                );
+            })}
         </div>
     );
 };
-
