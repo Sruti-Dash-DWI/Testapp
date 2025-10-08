@@ -24,6 +24,12 @@ import Board from "../components/Dashboardpages/Board.jsx";
 import Calendar from "../components/Dashboardpages/Calendar.jsx";
 import Timeline from "../components/Dashboardpages/Timeline.jsx";
 
+// Developer imports 
+import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
+
+// Tester imports
+import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
+
 const AppRouter = () => {
   return (
     <Router>
@@ -73,6 +79,15 @@ const AppRouter = () => {
           <Route path="/security/:pageId" element={<PageContent page={{ text: 'Security', description: 'Manage security vulnerabilities and compliance.' }} />} />
           <Route path="/shortcuts/:pageId" element={<PageContent page={{ text: 'Shortcuts', description: 'Create quick links to important pages or resources.' }} />} />
         </Route>
+
+        {/* Developer Routes */}
+
+        <Route path="/developer/projects" element={<DeveloperProjects />} />
+
+        {/* Tester Routes */}
+
+        <Route path="/tester/projects" element={<TesterProjects />} />
+        
       </Routes>
     </Router>
   );
