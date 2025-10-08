@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { initialTasks } from '../../data/initial-data';
 import AddTaskModal from '../AddTaskModal';
 import EditTaskModal from '../EditTaskModal';
@@ -46,6 +46,7 @@ const Dropdown = ({ button, children, align = 'right' }) => {
 
 
 const Board = () => {
+  const { projectId } = useParams();
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -250,6 +251,7 @@ const Board = () => {
         onAddTask={handleAddTask}
         columns={columns}
         initialStatus={newTaskStatus}
+        projectId={projectId}
       />
       <EditTaskModal
         show={!!editingTask}
