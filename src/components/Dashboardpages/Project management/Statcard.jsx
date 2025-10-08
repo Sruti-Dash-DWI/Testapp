@@ -1,4 +1,5 @@
 import React from 'react';
+import PrimaryBackground from '../../PrimaryBackground';
 
 
 const UserIcon = ({ className = "w-6 h-6" }) => (

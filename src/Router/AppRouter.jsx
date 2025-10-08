@@ -14,7 +14,9 @@ import BacklogPage from "../components/Dashboardpages/BacklogPage.jsx";
 import PageContent from "../components/Dashboardpages/PageContent.jsx";
 import Summary from "../components/Dashboardpages/Summary.jsx";
 import List from "../components/Dashboardpages/List.jsx";
-import Cart from "../pages/sidenav_pages/Cart.jsx";
+// This path is wrong in your original file. It should probably be a page, not a component
+// For now, I'm assuming a placeholder component for Cart exists.
+// import Cart from "../pages/sidenav_pages/Cart.jsx";
 import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
@@ -23,6 +25,7 @@ import Settings from "../pages/sidenav_pages/Settings.jsx";
 import Board from "../components/Dashboardpages/Board.jsx";
 import Calendar from "../components/Dashboardpages/Calendar.jsx";
 import Timeline from "../components/Dashboardpages/Timeline.jsx";
+// The alias "Projectmanager" points to your Teammanagement component
 import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
 
 // Developer imports 
@@ -42,10 +45,12 @@ const AppRouter = () => {
         <Route path="services" element={<Services />} />
         <Route path="/generic" element={<GenericPage title="Generic Page" />} />
 
-       
+        
         <Route element={<DashboardLayout />}>
-         
-          <Route path="/cart" element={<Projectmanager />} />
+          
+          {/* OLD /cart ROUTE IS NOW /user-details */}
+          <Route path="/user-details" element={<Projectmanager />} />
+          
           <Route path="/statistics" element={<Statisticspage />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/notifications" element={<Notifications />} />
@@ -55,7 +60,7 @@ const AppRouter = () => {
           
           <Route path='/projects' element={<Projects />} />
           
-         
+          
           <Route path='/backlog/:projectId' element={<BacklogPage />} />
           <Route path='/summary/:projectId' element={<Summary />} />
           <Route path='/list/:projectId' element={<List />} />
@@ -63,7 +68,7 @@ const AppRouter = () => {
           <Route path="/timeline/:projectId" element={<Timeline />} />
           <Route path="/calendar/:projectId" element={<Calendar />} />
 
-         
+          
           <Route path='/backlog' element={<Projects />} />
 
           
@@ -82,11 +87,9 @@ const AppRouter = () => {
         </Route>
 
         {/* Developer Routes */}
-
         <Route path="/developer/projects" element={<DeveloperProjects />} />
 
         {/* Tester Routes */}
-
         <Route path="/tester/projects" element={<TesterProjects />} />
         
       </Routes>

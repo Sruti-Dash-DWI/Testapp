@@ -233,7 +233,13 @@ useEffect(() => {
 
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-  const filteredTasks = tasks.filter((task) => {
+ const filteredTasks = tasks.filter((task) => {
+   
+    const matchesProject = task.project?.toString() === projectId;
+    if (!matchesProject) {
+        return false;
+    }
+    
     const matchesSearch =
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -357,7 +363,7 @@ useEffect(() => {
           <TaskColumn
             key={column.id}
             title={column.title}
-            tasks={sortedTasks}
+            tasks={sortedTasks.filter(task => task.status?.id === column.id)}
             status={column.status}
             columnId={column.id}
             onUpdateTask={handleUpdateTask}
@@ -365,7 +371,7 @@ useEffect(() => {
             onMoveColumn={handleMoveColumn}
             onDeleteColumn={handleDeleteColumn}
             onEditTask={setEditingTask}
-            columnIndex={columns.findIndex(col => col.status === column.status)}
+            columnIndex={columns.findIndex(col => col.id === column.id)}
             totalColumns={columns.length}
             // draggingTaskId={draggingTaskId}
             // setDraggingTaskId={setDraggingTaskId}
