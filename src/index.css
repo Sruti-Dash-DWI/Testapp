@@ -36,3 +36,46 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: rgba(107, 208, 193, 0.6) rgba(255, 255, 255, 0.05);
 }
+
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Style for the LIGHT "Invite Member" modal */
+  .modal-input {
+    @apply w-full px-4 py-2.5 border border-gray-300/50 rounded-lg shadow-sm bg-white/50 placeholder-gray-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+    /* This does not have 'color: white' because the background is light */
+  }
+
+  /* Style for the DARK "Edit Member" modal */
+  .edit-modal-input {
+    @apply w-full px-4 py-3 border border-white/20 rounded-lg shadow-sm bg-black/20 placeholder-gray-400;
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+    
+    /* This class specifically makes the input text white */
+    color: white;
+  }
+}
+
+/* Glowing effect for the "Edit Member" modal */
+.glowing-modal {
+  position: relative;
+}
+.glowing-modal::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  /* Brighter gradient for more "light" */
+  background: linear-gradient(to right, #c084fc, #f472b6, #fb923c);
+  border-radius: 18px; 
+  z-index: -1;
+  /* Wider blur for a softer glow */
+  filter: blur(25px);
+  opacity: 0.7;
+}

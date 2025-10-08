@@ -1,58 +1,68 @@
-import React from 'react';
-import PrimaryBackground from '../../PrimaryBackground';
 
 
-const UserIcon = ({ className = "w-6 h-6" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.122-1.28-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.122-1.28.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-const CheckIcon = ({ className = "w-6 h-6" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-const ProjectIcon = ({ className = "w-6 h-6" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-  </svg>
-);
+import React, { useEffect, useRef } from 'react';
+import { motion, useInView, useSpring } from 'framer-motion';
+import { Users, CheckCircle, FolderKanban } from 'lucide-react'; 
 
+
+const AnimatedNumber = ({ value }) => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true });
+    const spring = useSpring(0, {
+        damping: 30,
+        stiffness: 100,
+    });
+
+    useEffect(() => {
+        if (isInView) {
+            spring.set(value);
+        }
+    }, [isInView, value, spring]);
+
+    useEffect(() => {
+        return spring.on("change", (latest) => {
+            if (ref.current) {
+                ref.current.textContent = Math.round(latest).toLocaleString();
+            }
+        });
+    }, [spring]);
+
+    return <span ref={ref}>0</span>;
+};
 
 const cardStyles = {
-  "Total Members": { 
-    icon: <UserIcon />, 
-    className: "bg-blue-100 text-blue-600" 
-  },
-  "Active Members": { 
-    icon: <CheckIcon />, 
-    className: "bg-green-100 text-green-600" 
-  },
-  "Active Projects": { 
-    icon: <ProjectIcon />, 
-    className: "bg-purple-100 text-purple-600" 
-  },
+    "Total Members": { icon: <Users size={28} />, className: "bg-blue-500/20 text-blue-800" },
+    "Active Members": { icon: <CheckCircle size={28} />, className: "bg-green-500/20 text-green-800" },
+    "Active Projects": { icon: <FolderKanban size={28} />, className: "bg-purple-500/20 text-purple-800" },
 };
 
 const StatCard = ({ title, value }) => {
- 
-  const styleInfo = cardStyles[title] || {};
+    const styleInfo = cardStyles[title] || {};
+    
+    const cardVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    };
 
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 flex justify-between items-center shadow-sm">
-      <div>
-        <p className="text-gray-500">{title}</p>
-        <h2 className="text-3xl font-bold text-gray-900 mt-1">{value}</h2>
-      </div>
-
-      
-      {styleInfo.icon && (
-        <div className={`p-3 rounded-lg ${styleInfo.className}`}>
-          {styleInfo.icon}
-        </div>
-      )}
-    </div>
-  );
+    return (
+        <motion.div
+            className="bg-white/50 backdrop-blur-lg border border-white/30 rounded-2xl p-6 flex justify-between items-center shadow-xl transition-all duration-300"
+            variants={cardVariants}
+            whileHover={{ scale: 1.05, shadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+        >
+            <div>
+                <p className="font-semibold text-gray-700 text-lg">{title}</p>
+                <h2 className="text-5xl font-bold text-gray-900 mt-2">
+                    <AnimatedNumber value={value} />
+                </h2>
+            </div>
+            {styleInfo.icon && (
+                <div className={`p-4 rounded-xl ${styleInfo.className}`}>
+                    {styleInfo.icon}
+                </div>
+            )}
+        </motion.div>
+    );
 };
 
 export default StatCard;
