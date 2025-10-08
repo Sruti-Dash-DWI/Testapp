@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons";
 
-const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus }) => {
+const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus, projectId }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState(1);
-  const [taskType, setTaskType] = useState("");
-  const [priority, setPriority] = useState("");
+  const [taskType, setTaskType] = useState("BUG");
+  const [priority, setPriority] = useState("MEDIUM");
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -78,9 +78,10 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus }) => {
     const taskData = {
       title,
       description,
-      status,
-      taskType,
+      status_id: status,
+      task_type: taskType,
       priority,
+      project: projectId,
     };
 
     try {
@@ -95,7 +96,11 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create task');
+        const errorData = await response.json();
+        const errorMessage = Object.entries(errorData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join('; ');
+        throw new Error(errorMessage || 'Failed to create task');
       }
 
       const newTask = await response.json();
@@ -113,14 +118,14 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus }) => {
       setDescription("");
       //const defaultStatus = initialStatus || (columns.length > 0 ? columns[0].status : "todo");
       setStatus(1);
-      setTaskType("");
-      setPriority("");
+      setTaskType("BUG");
+      setPriority("MEDIUM");
       onHide();
 
     } catch (error) {
       console.error('Error creating task:', error);
-      setError('Failed to create task. Please check server connection.');
-    } finally {
+      setError(error.message || 'Failed to create task. Please check server connection.');
+     } finally {
       setLoading(false);
     }
   };

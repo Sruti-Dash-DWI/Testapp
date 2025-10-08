@@ -3,7 +3,7 @@ import { KebabMenuIcon, CalendarIcon, EditIcon } from './Icons';
 const TaskCard = ({ task, onUpdateTask }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newTitle, setNewTitle] = useState(task.title);
-    const badgeColorMap = { 'high': 'bg-red-200 text-red-800', 'medium': 'bg-yellow-200 text-yellow-800', 'low': 'bg-blue-200 text-blue-800', 'bug': 'bg-pink-200 text-pink-800', 'ui/ux': 'bg-purple-200 text-purple-800', 'frontend': 'bg-green-200 text-green-800', 'backend': 'bg-gray-300 text-gray-800', 'devops': 'bg-indigo-200 text-indigo-800', 'qa': 'bg-teal-200 text-teal-800', 'documentation': 'bg-orange-200 text-orange-800', 'default': 'bg-gray-200 text-gray-800' };
+    const badgeColorMap = { 'highest':'bg-red-200 text-red-800', 'high': 'bg-red-200 text-red-800', 'medium': 'bg-yellow-200 text-yellow-800', 'low': 'bg-blue-200 text-blue-800','lowest': 'bg-green-200 text-green-800', 'bug': 'bg-pink-200 text-pink-800', 'feature': 'bg-purple-200 text-purple-800', 'improvement': 'bg-green-200 text-green-800', 'test_case': 'bg-gray-300 text-gray-800','default': 'bg-gray-200 text-gray-800' };
 
     const handleDragStart = (e) => {
         e.dataTransfer.setData('taskId', task.id);
@@ -51,13 +51,25 @@ const TaskCard = ({ task, onUpdateTask }) => {
                 <CalendarIcon />
                 <span>{new Date(task.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            {/* <div className="flex flex-wrap gap-2">
                 {task.badges.map(badge => (
                     <span key={badge} className={`px-2 py-1 text-xs font-semibold rounded-full ${badgeColorMap[badge.toLowerCase()] || badgeColorMap.default}`}>
                         {badge}
                     </span>
                 ))}
-            </div>
+            </div> */}
+            <div className="flex flex-wrap gap-2">
+                {task.priority && (
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${badgeColorMap[task.priority.toLowerCase()] || badgeColorMap.default}`}>
+                        {task.priority}
+                    </span>
+                )}
+                {task.task_type && (
+                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${badgeColorMap[task.task_type.toLowerCase()] || badgeColorMap.default}`}>
+                        {task.task_type}
+                    </span>
+                )}
+            </div> 
         </div>
     );
 };
