@@ -53,6 +53,9 @@ const TaskColumn = ({
     const handleDragEnter = () => setIsDraggingOver(true);
     const handleDragLeave = () => setIsDraggingOver(false);
 
+    console.log(status,"status");
+    console.log(columnId,"columnId");
+    
     return (
         <div 
             onDragOver={handleDragOver}
@@ -140,7 +143,7 @@ const TaskColumn = ({
             </div>
             {onAddTaskClick && isHovered && (
                 <button 
-                    onClick={() => onAddTaskClick(status)}
+                    onClick={() => onAddTaskClick(columnId)}
                     className="mt-4 p-2 w-full rounded-lg bg-white/10 text-gray-300 hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                     <span className="text-lg font-bold text-gray-700">+</span> <span className="text-gray-700">Create</span>

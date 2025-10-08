@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons";
 
-const AddTaskModal = ({ show, onHide, onAddTask, columns, initialStatus, projectId }) => {
+const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, projectId }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState(1);
+  const [status, setStatus] = useState("");
   const [taskType, setTaskType] = useState("BUG");
   const [priority, setPriority] = useState("MEDIUM");
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // useEffect(() => {
+  //   if (show) {
+      
+  //     fetchTasks();
+  //   }
+  // }, [show, columns]);
+
   useEffect(() => {
     if (show) {
-      // Set status to the initialStatus passed from Board, or the first column's status
-      // const defaultStatus = 1;
-      // setStatus(defaultStatus);
-      fetchTasks();
+      if (initialColumnId) {
+        setStatus(initialColumnId);
+      } else if (columns && columns.length > 0) {
+        setStatus(columns[0].id);
+      }
     }
-  }, [show, columns]);
+  }, [show, columns, initialColumnId]);
 
   const fetchTasks = async () => {
     setLoading(true);

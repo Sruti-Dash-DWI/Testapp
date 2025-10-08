@@ -57,7 +57,7 @@ const Board = () => {
   const [sortTerm, setSortTerm] = useState('default');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLocalSearchOpen, setIsLocalSearchOpen] = useState(false);
-  const [newTaskStatus, setNewTaskStatus] = useState(null);
+  const [newTaskColumnId, setNewTaskColumnId] = useState(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [draggingTaskId, setDraggingTaskId] = useState(null);
@@ -113,10 +113,16 @@ useEffect(() => {
   fetchTasks();
 }, []);
   
-  const handleOpenAddTaskModal = (status) => {
-    setNewTaskStatus(status);
+  const handleOpenAddTaskModal = (columnId) => {
+    setNewTaskColumnId(columnId);
     setIsModalOpen(true);
   };
+
+  const handleCloseModal = () => {     
+  setIsModalOpen(false);     
+  setNewTaskColumnId(null); 
+};
+ 
 
   // const handleAddTask = async (newTaskData) => {
   //   try {
@@ -270,10 +276,10 @@ useEffect(() => {
     <div className="flex flex-col text-white p-4 md:p-6 h-full">
       <AddTaskModal
         show={isModalOpen}
-        onHide={() => setIsModalOpen(false)}
+        onHide={handleCloseModal}
         onAddTask={handleAddTask}
         columns={columns}
-        initialStatus={newTaskStatus}
+        initialColumnId={newTaskColumnId}
         projectId={projectId}
       />
       <EditTaskModal
@@ -341,7 +347,7 @@ useEffect(() => {
               </div>
             ))}
           </Dropdown>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-white/30">
+          <button onClick={() => {setIsModalOpen(true); setNewTaskColumnId(null)}} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-white/30">
             <span className="text-lg font-bold text-gray-600">+</span> <span className="text-gray-700">Add Task</span>
           </button>
         </div>
