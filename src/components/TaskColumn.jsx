@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import TaskCard from './Taskcard';
 import { DotsVerticalIcon, ArrowLeftIcon, ArrowRightIcon, TrashIcon } from './Icons';
+import { MdOutlineEdit } from "react-icons/md";
 
 const TaskColumn = ({
   title,
@@ -85,10 +86,11 @@ const TaskColumn = ({
                     
                     {isDropdownOpen && (
                       <div className="absolute right-0 mt-1 w-48 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-10 overflow-hidden">
+                        
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onMoveColumn(status, 'left');
+                            onMoveColumn(columnId, 'left');
                             setIsDropdownOpen(false);
                           }}
                           disabled={columnIndex === 0}
@@ -97,11 +99,11 @@ const TaskColumn = ({
                           <ArrowLeftIcon className="w-4 h-4" />
                           Move left
                         </button>
-                        
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onMoveColumn(status, 'right');
+                            onMoveColumn(columnId, 'right');
                             setIsDropdownOpen(false);
                           }}
                           disabled={columnIndex === totalColumns - 1}
@@ -112,11 +114,24 @@ const TaskColumn = ({
                         </button>
                         
                         <div className="border-t border-white/10 my-1"></div>
-                        
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDeleteColumn(columnId); // <-- Use columnId instead of status
+                            onMoveColumn(columnId, 'left');
+                            setIsDropdownOpen(false);
+                          }}
+                          disabled={columnIndex === 0}
+                          className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${columnIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'text-gray-200 hover:bg-white/10'}`}
+                        >
+                          <MdOutlineEdit className="w-4 h-4" />
+                          Change title
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteColumn(columnId);
                             setIsDropdownOpen(false);
                           }}
                           className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 text-red-400 hover:bg-red-500/10"

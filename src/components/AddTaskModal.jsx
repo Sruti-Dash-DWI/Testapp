@@ -11,13 +11,6 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (show) {
-      
-  //     fetchTasks();
-  //   }
-  // }, [show, columns]);
-
   useEffect(() => {
     if (show) {
       if (initialColumnId) {
@@ -110,18 +103,10 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
           .join('; ');
         throw new Error(errorMessage || 'Failed to create task');
       }
-
-      //const newTask = await response.json();
-
-      // Call the parent component's onAddTask if provided
-      // if (onAddTask) {
-      //   onAddTask(newTask);
-      // }
       
       if (onAddTask) {
         onAddTask();
       }
-      //fetchTasks();
 
       // Reset form and close modal
       setTitle("");
