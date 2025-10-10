@@ -135,6 +135,7 @@ const Modal = ({ isOpen, onClose }) => {
                                         <option value="DEVELOPER">Developer</option>
                                         <option value="MANAGER">Manager</option>
                                         <option value="OWNER">Owner</option>
+                                        <option value="TESTER">Tester</option>
                                     </select>
                                 </div>
                                 <div className="flex justify-end gap-3">

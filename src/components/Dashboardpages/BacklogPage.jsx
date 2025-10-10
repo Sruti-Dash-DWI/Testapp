@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-
 import BacklogView from "../Dashboardpages/backlog/BacklogView";
 import {
   ItemDetailModal,
@@ -12,7 +11,6 @@ import {
 } from "../Dashboardpages/backlog/BacklogModals";
 
 export default function BacklogPage() {
-  
   const { projectId } = useParams();
   const navigate = useNavigate();
 
@@ -46,115 +44,110 @@ export default function BacklogPage() {
   const itemNameInputRef = useRef(null);
   const newSprintInputRef = useRef(null);
 
-
-
-useEffect(() => {
+  useEffect(() => {
     const fetchInitialData = async () => {
-        if (!projectId) {
-            setError("Project ID is missing from the URL.");
-            setIsLoading(false);
-            return;
+      if (!projectId) {
+        setError("Project ID is missing from the URL.");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const sprintDashboardUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
+        const projectDataUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
+
+        const [sprintResponse, projectResponse] = await Promise.all([
+          fetch(sprintDashboardUrl, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          }),
+          fetch(projectDataUrl, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          }),
+        ]);
+
+        if (!sprintResponse.ok || !projectResponse.ok) {
+          throw new Error(`Failed to fetch all necessary data.`);
         }
 
-        setIsLoading(true);
-        const authToken = localStorage.getItem("authToken");
-        if (!authToken) {
-            navigate("/login");
-            return;
-        }
+        const sprintData = await sprintResponse.json();
+        const projectData = await projectResponse.json();
 
-        try {
-          
-            const sprintDashboardUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
-            const projectDataUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
+        const allSprintsFromNewAPI = [
+          ...(sprintData.active_sprints || []),
+          ...(sprintData.upcoming_sprints || []),
+          ...(sprintData.completed_sprints || []),
+        ];
+        const allTasksFromOldAPI = projectData.tasks || [];
 
-           
-            const [sprintResponse, projectResponse] = await Promise.all([
-                fetch(sprintDashboardUrl, { headers: { Authorization: `Bearer ${authToken}` } }),
-                fetch(projectDataUrl, { headers: { Authorization: `Bearer ${authToken}` } })
-            ]);
+        const formattedBoardData = {
+          items: {},
+          sprints: [],
+          backlog: { id: "backlog", name: "Backlog", itemIds: [] },
+          itemCounter: allTasksFromOldAPI.length,
+        };
 
-            if (!sprintResponse.ok || !projectResponse.ok) {
-                throw new Error(`Failed to fetch all necessary data.`);
-            }
+        allTasksFromOldAPI.forEach((task) => {
+          if (task.priority && typeof task.priority === "string") {
+            const priorityStr = task.priority;
+            task.priority =
+              priorityStr.charAt(0).toUpperCase() +
+              priorityStr.slice(1).toLowerCase();
+          }
+          formattedBoardData.items[task.id] = {
+            ...task,
+            assignee:
+              task.assignees.length > 0 ? task.assignees[0].user.id : null,
+          };
+        });
 
-            const sprintData = await sprintResponse.json(); 
-            const projectData = await projectResponse.json(); 
+        formattedBoardData.sprints = allSprintsFromNewAPI.map((sprint) => ({
+          id: sprint.id,
+          name: sprint.name,
+          goal: sprint.goal,
+          startDate: sprint.start_date,
+          endDate: sprint.end_date,
+          isActive: sprint.is_active,
+          is_ended: sprint.is_ended,
+          epic: sprint.epic,
 
-           
-            const allSprintsFromNewAPI = [
-                ...(sprintData.active_sprints || []),
-                ...(sprintData.upcoming_sprints || []),
-                ...(sprintData.completed_sprints || [])
-            ];
-            const allTasksFromOldAPI = projectData.tasks || [];
+          itemIds: (sprint.tasks || []).map((task) => task.id),
+        }));
 
-            const formattedBoardData = {
-                items: {},
-                sprints: [],
-                backlog: { id: "backlog", name: "Backlog", itemIds: [] },
-                itemCounter: allTasksFromOldAPI.length,
-            };
+        formattedBoardData.backlog.itemIds = allTasksFromOldAPI
+          .filter((task) => task.sprint === null)
+          .map((task) => task.id);
 
-          
-            allTasksFromOldAPI.forEach((task) => {
-                if (task.priority && typeof task.priority === "string") {
-                    const priorityStr = task.priority;
-                    task.priority = priorityStr.charAt(0).toUpperCase() + priorityStr.slice(1).toLowerCase();
-                }
-                formattedBoardData.items[task.id] = {
-                    ...task,
-                    assignee: task.assignees.length > 0 ? task.assignees[0].user.id : null
-                };
-            });
-            
-            
-            formattedBoardData.sprints = allSprintsFromNewAPI.map((sprint) => ({
-                id: sprint.id,
-                name: sprint.name,
-                goal: sprint.goal,
-                startDate: sprint.start_date,
-                endDate: sprint.end_date,
-                isActive: sprint.is_active,
-                is_ended: sprint.is_ended, 
-                epic: sprint.epic,
-          
-                itemIds: (sprint.tasks || []).map(task => task.id),
-            }));
+        const transformedUsers = (projectData.members || []).map((member) => ({
+          id: member.user.id,
+          membershipId: member.id,
+          name:
+            member.user.first_name && member.user.last_name
+              ? `${member.user.first_name} ${member.user.last_name}`.trim()
+              : member.user.email,
+          email: member.user.email,
+        }));
 
-            
-            formattedBoardData.backlog.itemIds = allTasksFromOldAPI
-                .filter(task => task.sprint === null)
-                .map(task => task.id);
-            
-           
-            const transformedUsers = (projectData.members || []).map((member) => ({
-                id: member.user.id,
-                membershipId: member.id,
-                name:
-                    member.user.first_name && member.user.last_name
-                        ? `${member.user.first_name} ${member.user.last_name}`.trim()
-                        : member.user.email,
-                email: member.user.email,
-            }));
-
-         
-            setProjectName(projectData.name || '');
-            setBoardData(formattedBoardData);
-            setUsers(transformedUsers);
-            setEpics(projectData.epics || []);
-            setProjectMembers(projectData.members || []);
-
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setIsLoading(false);
-        }
+        setProjectName(projectData.name || "");
+        setBoardData(formattedBoardData);
+        setUsers(transformedUsers);
+        setEpics(projectData.epics || []);
+        setProjectMembers(projectData.members || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchInitialData();
-}, [projectId, navigate]);
-
+  }, [projectId, navigate]);
 
   const handleAddNewSprint = async (e) => {
     e.preventDefault();
@@ -215,9 +208,8 @@ useEffect(() => {
     setIsCreatingSprint(false);
   };
 
-  const handleUpdateSprint = async (sprintId, updates) => { 
+  const handleUpdateSprint = async (sprintId, updates) => {
     const originalBoardData = boardData;
-
 
     setBoardData((prev) => ({
       ...prev,
@@ -235,7 +227,6 @@ useEffect(() => {
       ),
     }));
 
-    
     const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
     const authToken = localStorage.getItem("authToken");
     const payload = { ...updates };
@@ -258,11 +249,9 @@ useEffect(() => {
       });
 
       if (!response.ok) {
-        
         throw new Error("Server rejected the update.");
       }
 
-      
       const updatedSprintFromServer = await response.json();
       setBoardData((prev) => ({
         ...prev,
@@ -275,7 +264,7 @@ useEffect(() => {
     } catch (error) {
       console.error("❌ Update sprint error, rolling back UI:", error);
       setError("Failed to update sprint. Your changes have been reverted.");
-      setBoardData(originalBoardData); 
+      setBoardData(originalBoardData);
     }
   };
 
@@ -295,10 +284,8 @@ useEffect(() => {
       return { ...prev, sprints: newSprints };
     });
 
-    
     setSprintToStart(null);
 
-    
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/activate/`;
     const payload = {
@@ -318,11 +305,10 @@ useEffect(() => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok){
+      if (!response.ok) {
         throw new Error("Server rejected the request.");
       }
 
-      
       const updatedSprintFromServer = await response.json();
       setBoardData((prev) => ({
         ...prev,
@@ -333,7 +319,6 @@ useEffect(() => {
 
       console.log("✅ Sprint started and saved successfully.");
     } catch (error) {
-
       console.error(
         "❌ Failed to start sprint, rolling back UI change:",
         error
@@ -371,7 +356,6 @@ useEffect(() => {
     }
   };
 
-  
   const createTaskOnBackend = async (taskPayload) => {
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
@@ -405,10 +389,9 @@ useEffect(() => {
     }
   };
 
-
   // In BacklogPage.jsx
 
-const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
+  const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     const authToken = localStorage.getItem("authToken");
     const currentUserMembership = projectMembers.find(
       (member) =>
@@ -416,72 +399,73 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     );
 
     if (!currentUserMembership) {
-        setError("Cannot create subtask: User is not a project member.");
-        return;
+      setError("Cannot create subtask: User is not a project member.");
+      return;
     }
-    
+
     const subtaskPayload = {
-        title: subtaskTitle,
-        project: parseInt(projectId, 10),
-        status_id: 1,
-        priority: "MEDIUM",
-        task_type: "FEATURE",
-        reporter: currentUserMembership.id,
+      title: subtaskTitle,
+      project: parseInt(projectId, 10),
+      status_id: 1,
+      priority: "MEDIUM",
+      task_type: "FEATURE",
+      reporter: currentUserMembership.id,
     };
-    
+
     const newSubtask = await createTaskOnBackend(subtaskPayload);
 
     if (newSubtask) {
-        try {
-            const linkPayload = { parent_task: parentItemId };
-            const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
-            
-            const linkResponse = await fetch(linkUrl, {
-                method: "PATCH",
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                body: JSON.stringify(linkPayload),
-            });
+      try {
+        const linkPayload = { parent_task: parentItemId };
+        const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
 
-            if (!linkResponse.ok) throw new Error("Failed to link subtask to parent.");
+        const linkResponse = await fetch(linkUrl, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(linkPayload),
+        });
 
-            console.log("✅ SUCCESS: Subtask linked to parent.");
-            
-            // --- UI STATE UPDATES ---
+        if (!linkResponse.ok)
+          throw new Error("Failed to link subtask to parent.");
 
-            // 1. Update the main data store (`boardData`)
-            setBoardData((prevData) => {
-                const parentItem = prevData.items[parentItemId];
-                const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
+        console.log("✅ SUCCESS: Subtask linked to parent.");
 
-                return {
-                    ...prevData,
-                    items: {
-                        ...prevData.items,
-                        [newSubtask.id]: { ...newSubtask, parent: parentItemId },
-                        [parentItemId]: { ...parentItem, subtasks: updatedSubtasks }
-                    }
-                };
-            });
+        // --- UI STATE UPDATES ---
 
-            // ✅ 2. ADD THIS BLOCK TO UPDATE THE MODAL'S VIEW (`selectedItem`)
-            if (selectedItem && selectedItem.id === parentItemId) {
-                setSelectedItem(prev => {
-                    const updatedSubtasks = [...(prev.subtasks || []), newSubtask];
-                    return { ...prev, subtasks: updatedSubtasks };
-                });
-            }
+        // 1. Update the main data store (`boardData`)
+        setBoardData((prevData) => {
+          const parentItem = prevData.items[parentItemId];
+          const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
 
-        } catch (error) {
-            console.error("❌ FAILURE: Could not link subtask.", error);
+          return {
+            ...prevData,
+            items: {
+              ...prevData.items,
+              [newSubtask.id]: { ...newSubtask, parent: parentItemId },
+              [parentItemId]: { ...parentItem, subtasks: updatedSubtasks },
+            },
+          };
+        });
+
+        if (selectedItem && selectedItem.id === parentItemId) {
+          setSelectedItem((prev) => {
+            const updatedSubtasks = [...(prev.subtasks || []), newSubtask];
+            return { ...prev, subtasks: updatedSubtasks };
+          });
         }
+      } catch (error) {
+        console.error("❌ FAILURE: Could not link subtask.", error);
+      }
     }
-};
+  };
   const handleUpdateItemDB = async (itemId, updates) => {
     const authToken = localStorage.getItem("authToken");
-   
+
     const projectIdInt = parseInt(projectId, 10);
 
-    
     const updateKey = Object.keys(updates)[0];
     if (!updateKey) {
       console.error("Update function called with empty updates object.");
@@ -491,7 +475,6 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
     let payload = {};
 
-    
     switch (updateKey) {
       case "status_id":
         fullUrl += "status/";
@@ -534,17 +517,15 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
         };
         break;
 
-      
-      case 'sprint':
-        fullUrl += 'sprint/'; 
-        payload = { 
-            sprint: updates.sprint 
+      case "sprint":
+        fullUrl += "sprint/";
+        payload = {
+          sprint: updates.sprint,
         };
         break;
 
       case "priority":
       case "title":
-        
         payload = { ...updates };
         if (payload.priority) {
           payload.priority = payload.priority.toUpperCase();
@@ -555,7 +536,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
         console.error(
           `❌ Unhandled update key: '${updateKey}'. No API endpoint is configured for this field.`
         );
-        return; 
+        return;
     }
 
     console.log(
@@ -576,7 +557,6 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
       const responseData = await response.json();
 
       if (!response.ok) {
-        
         throw new Error(
           JSON.stringify(responseData) ||
             `Request failed with status ${response.status}`
@@ -619,7 +599,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     const reporterMembershipId = currentUserMembership.id;
 
     const payload = {
-      title: `New Task ${boardData.itemCounter + 1}`,
+      title: "New Task",
       description: "",
       project: parseInt(projectId, 10),
       sprint: listId === "backlog" ? null : listId,
@@ -718,7 +698,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
 
   const handleAddNewEpic = async (formData) => {
     const payload = {
-      title: formData.title, 
+      title: formData.title,
       description: formData.description,
       project: parseInt(projectId, 10),
     };
@@ -747,225 +727,253 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     }
   };
 
- 
-
-const handleOpenCompleteSprintModal = (sprintId) => {
+  const handleOpenCompleteSprintModal = (sprintId) => {
     const sprint = boardData.sprints.find((s) => s.id === sprintId);
     if (!sprint || !sprint.isActive) return;
 
     const completedIssues = sprint.itemIds.filter(
-        (id) => boardData.items[id].status.title.toUpperCase() === 'DONE'
+      (id) => boardData.items[id].status.title.toUpperCase() === "DONE"
     );
     const openIssues = sprint.itemIds.filter(
-        (id) => boardData.items[id].status.title.toUpperCase() !== 'DONE'
+      (id) => boardData.items[id].status.title.toUpperCase() !== "DONE"
     );
-    
+
     const futureSprints = boardData.sprints.filter(
-        (s) => !s.isActive && s.id !== sprintId
+      (s) => !s.isActive && s.id !== sprintId
     );
 
     setSprintToComplete({
-        ...sprint,
-        completedCount: completedIssues.length,
-        openCount: openIssues.length,
-        openIssueIds: openIssues,
-        futureSprints: futureSprints,
+      ...sprint,
+      completedCount: completedIssues.length,
+      openCount: openIssues.length,
+      openIssueIds: openIssues,
+      futureSprints: futureSprints,
     });
-};
+  };
 
-const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
+  const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
     const authToken = localStorage.getItem("authToken");
 
     try {
-        const newSprintId =
-            destination === "backlog" ? null : parseInt(destination, 10);
+      const newSprintId =
+        destination === "backlog" ? null : parseInt(destination, 10);
 
-        const moveTasksPromises = openIssueIds.map((taskId) => {
-            const moveUrl = `http://127.0.0.1:8000/api/tasks/${taskId}/sprint/`;
-            return fetch(moveUrl, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({ sprint: newSprintId }),
-            });
+      const moveTasksPromises = openIssueIds.map((taskId) => {
+        const moveUrl = `http://127.0.0.1:8000/api/tasks/${taskId}/sprint/`;
+        return fetch(moveUrl, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ sprint: newSprintId }),
         });
-        await Promise.all(moveTasksPromises);
-const completeSprintUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/end/`;
-const completeSprintResponse = await fetch(completeSprintUrl, {
-    method: 'PATCH',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-    },
-    
-    body: JSON.stringify({ "is_ended": true }), 
-});
+      });
+      await Promise.all(moveTasksPromises);
+      const completeSprintUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/end/`;
+      const completeSprintResponse = await fetch(completeSprintUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
 
-        if (!completeSprintResponse.ok) {
-            throw new Error("Tasks were moved, but failed to complete the sprint.");
-        }
+        body: JSON.stringify({ is_ended: true }),
+      });
 
-       
-        setBoardData((prevData) => {
-            const newSprints = prevData.sprints.map(sprint => {
-                if (sprint.id === sprintId) {
-                    return {
-                        ...sprint,
-                        isActive: false,
-                        is_ended: true,
-                        itemIds: sprint.itemIds.filter(id => !openIssueIds.includes(id))
-                    };
-                }
-                if (sprint.id === newSprintId) {
-                    return {
-                        ...sprint,
-                        itemIds: [...sprint.itemIds, ...openIssueIds]
-                    };
-                }
-                return sprint;
-            });
+      if (!completeSprintResponse.ok) {
+        throw new Error("Tasks were moved, but failed to complete the sprint.");
+      }
 
-            const newBacklog = destination === 'backlog'
-                ? {
-                    ...prevData.backlog,
-                    itemIds: [...prevData.backlog.itemIds, ...openIssueIds]
-                  }
-                : prevData.backlog;
-
+      setBoardData((prevData) => {
+        const newSprints = prevData.sprints.map((sprint) => {
+          if (sprint.id === sprintId) {
             return {
-                ...prevData,
-                sprints: newSprints,
-                backlog: newBacklog,
+              ...sprint,
+              isActive: false,
+              is_ended: true,
+              itemIds: sprint.itemIds.filter(
+                (id) => !openIssueIds.includes(id)
+              ),
             };
+          }
+          if (sprint.id === newSprintId) {
+            return {
+              ...sprint,
+              itemIds: [...sprint.itemIds, ...openIssueIds],
+            };
+          }
+          return sprint;
         });
 
-    } catch (error) {
-        console.error("Error completing sprint:", error);
-        setError("Failed to complete the sprint. Please check the console.");
-    } finally {
-        setSprintToComplete(null);
-    }
-};
+        const newBacklog =
+          destination === "backlog"
+            ? {
+                ...prevData.backlog,
+                itemIds: [...prevData.backlog.itemIds, ...openIssueIds],
+              }
+            : prevData.backlog;
 
-const handleFetchComments = async (taskId) => {
+        return {
+          ...prevData,
+          sprints: newSprints,
+          backlog: newBacklog,
+        };
+      });
+    } catch (error) {
+      console.error("Error completing sprint:", error);
+      setError("Failed to complete the sprint. Please check the console.");
+    } finally {
+      setSprintToComplete(null);
+    }
+  };
+
+  const handleFetchComments = async (taskId) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/activities/`, {
-            headers: { 'Authorization': `Bearer ${authToken}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch comments.");
-        const activities = await response.json();
-
-        
-        setBoardData(prev => ({
-            ...prev,
-            items: {
-                ...prev.items,
-                [taskId]: { ...prev.items[taskId], activity_log: activities }
-            }
-        }));
-        if (selectedItem && selectedItem.id === taskId) {
-            setSelectedItem(prev => ({ ...prev, activity_log: activities }));
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/tasks/${taskId}/activities/`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
         }
+      );
+      if (!response.ok) throw new Error("Failed to fetch comments.");
+      const activities = await response.json();
+
+      setBoardData((prev) => ({
+        ...prev,
+        items: {
+          ...prev.items,
+          [taskId]: { ...prev.items[taskId], activity_log: activities },
+        },
+      }));
+      if (selectedItem && selectedItem.id === taskId) {
+        setSelectedItem((prev) => ({ ...prev, activity_log: activities }));
+      }
     } catch (error) {
-        console.error("Error fetching comments:", error);
+      console.error("Error fetching comments:", error);
     }
-};
+  };
 
-
-const handleAddComment = async (taskId, commentBody) => {
+  const handleAddComment = async (taskId, commentBody) => {
     if (!commentBody.trim()) return;
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ comment_body: commentBody }),
-        });
-        if (!response.ok) throw new Error("Failed to post comment.");
-        const newActivity = await response.json();
-
-        
-        setBoardData(prev => {
-            const task = prev.items[taskId];
-            return {
-                ...prev,
-                items: {
-                    ...prev.items,
-                    [taskId]: { ...task, activity_log: [...(task.activity_log || []), newActivity] }
-                }
-            };
-        });
-        if (selectedItem && selectedItem.id === taskId) {
-            setSelectedItem(prev => ({ ...prev, activity_log: [...(prev.activity_log || []), newActivity] }));
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ comment_body: commentBody }),
         }
+      );
+      if (!response.ok) throw new Error("Failed to post comment.");
+      const newActivity = await response.json();
+
+      setBoardData((prev) => {
+        const task = prev.items[taskId];
+        return {
+          ...prev,
+          items: {
+            ...prev.items,
+            [taskId]: {
+              ...task,
+              activity_log: [...(task.activity_log || []), newActivity],
+            },
+          },
+        };
+      });
+      if (selectedItem && selectedItem.id === taskId) {
+        setSelectedItem((prev) => ({
+          ...prev,
+          activity_log: [...(prev.activity_log || []), newActivity],
+        }));
+      }
     } catch (error) {
-        console.error("Error adding comment:", error);
-        setError("Could not post your comment.");
+      console.error("Error adding comment:", error);
+      setError("Could not post your comment.");
     }
-};
+  };
 
-
-const handleUpdateComment = async (taskId, activityId, commentBody) => {
+  const handleUpdateComment = async (taskId, activityId, commentBody) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ comment_body: commentBody }),
-        });
-        if (!response.ok) throw new Error("Failed to update comment.");
-        const updatedActivity = await response.json();
-
-       
-        const updateLog = (log) => log.map(act => act.id === activityId ? updatedActivity : act);
-        setBoardData(prev => ({
-            ...prev,
-            items: {
-                ...prev.items,
-                [taskId]: { ...prev.items[taskId], activity_log: updateLog(prev.items[taskId].activity_log) }
-            }
-        }));
-        if (selectedItem && selectedItem.id === taskId) {
-            setSelectedItem(prev => ({ ...prev, activity_log: updateLog(prev.activity_log) }));
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ comment_body: commentBody }),
         }
+      );
+      if (!response.ok) throw new Error("Failed to update comment.");
+      const updatedActivity = await response.json();
+
+      const updateLog = (log) =>
+        log.map((act) => (act.id === activityId ? updatedActivity : act));
+      setBoardData((prev) => ({
+        ...prev,
+        items: {
+          ...prev.items,
+          [taskId]: {
+            ...prev.items[taskId],
+            activity_log: updateLog(prev.items[taskId].activity_log),
+          },
+        },
+      }));
+      if (selectedItem && selectedItem.id === taskId) {
+        setSelectedItem((prev) => ({
+          ...prev,
+          activity_log: updateLog(prev.activity_log),
+        }));
+      }
     } catch (error) {
-        console.error("Error updating comment:", error);
-        setError("Could not update your comment.");
+      console.error("Error updating comment:", error);
+      setError("Could not update your comment.");
     }
-};
+  };
 
-
-const handleDeleteComment = async (taskId, activityId) => {
+  const handleDeleteComment = async (taskId, activityId) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` },
-        });
-        if (!response.ok) throw new Error("Failed to delete comment.");
-
-       
-        const filterLog = (log) => log.filter(act => act.id !== activityId);
-        setBoardData(prev => ({
-            ...prev,
-            items: {
-                ...prev.items,
-                [taskId]: { ...prev.items[taskId], activity_log: filterLog(prev.items[taskId].activity_log) }
-            }
-        }));
-        if (selectedItem && selectedItem.id === taskId) {
-            setSelectedItem(prev => ({ ...prev, activity_log: filterLog(prev.activity_log) }));
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${authToken}` },
         }
-    } catch (error) {
-        console.error("Error deleting comment:", error);
-        setError("Could not delete your comment.");
-    }
-};
+      );
+      if (!response.ok) throw new Error("Failed to delete comment.");
 
-  
+      const filterLog = (log) => log.filter((act) => act.id !== activityId);
+      setBoardData((prev) => ({
+        ...prev,
+        items: {
+          ...prev.items,
+          [taskId]: {
+            ...prev.items[taskId],
+            activity_log: filterLog(prev.items[taskId].activity_log),
+          },
+        },
+      }));
+      if (selectedItem && selectedItem.id === taskId) {
+        setSelectedItem((prev) => ({
+          ...prev,
+          activity_log: filterLog(prev.activity_log),
+        }));
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      setError("Could not delete your comment.");
+    }
+  };
+
   useEffect(() => {
     if (isCreatingSprint) newSprintInputRef.current?.focus();
     if (editingSprintId) sprintNameInputRef.current?.focus();
@@ -980,38 +988,45 @@ const handleDeleteComment = async (taskId, activityId) => {
   const handleCloseCreateEpicModal = () => setIsCreatingEpic(false);
   const handleCloseCompleteSprintModal = () => setSprintToComplete(null);
 
- 
   const handleUpdateItem = async (itemId, updates) => {
     const updatedItemFromServer = await handleUpdateItemDB(itemId, updates);
 
-    if (updatedItemFromServer) {
-     
-      if (
-        updatedItemFromServer.priority &&
-        typeof updatedItemFromServer.priority === "string"
-      ) {
-        const priorityStr = updatedItemFromServer.priority;
-        
-        updatedItemFromServer.priority =
-          priorityStr.charAt(0).toUpperCase() +
-          priorityStr.slice(1).toLowerCase();
-      }
+    if (!updatedItemFromServer) {
+      return;
+    }
 
-      
-      setBoardData((prevData) => {
-        const newItems = {
-          ...prevData.items,
-          [itemId]: {
-            ...prevData.items[itemId],
-            ...updatedItemFromServer,
-          },
-        };
-        return { ...prevData, items: newItems };
-      });
+    const finalUpdates = {
+      ...updates,
+      ...updatedItemFromServer,
+    };
 
-      if (selectedItem && selectedItem.id === itemId) {
-        setSelectedItem((prev) => ({ ...prev, ...updatedItemFromServer }));
-      }
+    if (finalUpdates.assignees) {
+      finalUpdates.assignee =
+        finalUpdates.assignees.length > 0
+          ? finalUpdates.assignees[0].user.id
+          : null;
+    }
+
+    if (finalUpdates.priority && typeof finalUpdates.priority === "string") {
+      const priorityStr = finalUpdates.priority;
+      finalUpdates.priority =
+        priorityStr.charAt(0).toUpperCase() +
+        priorityStr.slice(1).toLowerCase();
+    }
+
+    setBoardData((prevData) => {
+      const newItems = {
+        ...prevData.items,
+        [itemId]: {
+          ...prevData.items[itemId],
+          ...finalUpdates,
+        },
+      };
+      return { ...prevData, items: newItems };
+    });
+
+    if (selectedItem && selectedItem.id === itemId) {
+      setSelectedItem((prev) => ({ ...prev, ...finalUpdates }));
     }
   };
 
@@ -1136,6 +1151,7 @@ const handleDeleteComment = async (taskId, activityId) => {
     [users]
   );
 
+  
   const epicOptions = useMemo(() => {
     if (!epics) return [];
     const options = epics.map((epic) => ({
@@ -1146,32 +1162,29 @@ const handleDeleteComment = async (taskId, activityId) => {
     return options;
   }, [epics]);
 
-
-const { uncompletedSprints, completedSprints } = useMemo(() => {
+  const { uncompletedSprints, completedSprints } = useMemo(() => {
     if (!boardData || !boardData.sprints) {
-        return { uncompletedSprints: [], completedSprints: [] };
+      return { uncompletedSprints: [], completedSprints: [] };
     }
 
-    
-    const sprintsToDisplay = selectedEpicId === null
+    const sprintsToDisplay =
+      selectedEpicId === null
         ? boardData.sprints
-        : boardData.sprints.filter(sprint => sprint.epic === selectedEpicId);
+        : boardData.sprints.filter((sprint) => sprint.epic === selectedEpicId);
 
-  
     const uncompleted = [];
     const completed = [];
-    sprintsToDisplay.forEach(sprint => {
-        if (sprint.is_ended) {
-            completed.push(sprint);
-        } else {
-            uncompleted.push(sprint);
-        }
+    sprintsToDisplay.forEach((sprint) => {
+      if (sprint.is_ended) {
+        completed.push(sprint);
+      } else {
+        uncompleted.push(sprint);
+      }
     });
 
     return { uncompletedSprints: uncompleted, completedSprints: completed };
-}, [selectedEpicId, boardData]);
+  }, [selectedEpicId, boardData]);
 
-  
   if (isLoading) {
     return (
       <div
@@ -1206,8 +1219,8 @@ const { uncompletedSprints, completedSprints } = useMemo(() => {
         filteredItems={filteredItems}
         backlogItems={backlogItems}
         searchTerm={searchTerm}
-        uncompletedSprints={uncompletedSprints} 
-        completedSprints={completedSprints}    
+        uncompletedSprints={uncompletedSprints}
+        completedSprints={completedSprints}
         setSearchTerm={setSearchTerm}
         activePanel={activePanel}
         isMoreMenuOpen={isMoreMenuOpen}
@@ -1244,8 +1257,8 @@ const { uncompletedSprints, completedSprints } = useMemo(() => {
         setIsCreatingSprint={setIsCreatingSprint}
         setNewSprintName={setNewSprintName}
         handleAddNewSprint={handleAddNewSprint}
-        selectedEpicId={selectedEpicId} 
-        setSelectedEpicId={setSelectedEpicId} 
+        selectedEpicId={selectedEpicId}
+        setSelectedEpicId={setSelectedEpicId}
         epics={epics}
       />
 
@@ -1260,7 +1273,7 @@ const { uncompletedSprints, completedSprints } = useMemo(() => {
         onClose={handleCloseModal}
         onUpdate={handleUpdateItem}
         onCreateSubtask={handleCreateSubtask}
-         onFetchComments={handleFetchComments}
+        onFetchComments={handleFetchComments}
         onAddComment={handleAddComment}
         onUpdateComment={handleUpdateComment}
         onDeleteComment={handleDeleteComment}
@@ -1277,13 +1290,13 @@ const { uncompletedSprints, completedSprints } = useMemo(() => {
         onStart={handleStartSprint}
       />
       {isCreatingEpic && (
-    <CreateEpicModal
-        onClose={handleCloseCreateEpicModal}
-        onCreate={handleAddNewEpic}
-        projectName={projectName}
-        currentUser={users.find(u => u.id === currentUserId)} 
-    />
-)}
+        <CreateEpicModal
+          onClose={handleCloseCreateEpicModal}
+          onCreate={handleAddNewEpic}
+          projectName={projectName}
+          currentUser={users.find((u) => u.id === currentUserId)}
+        />
+      )}
       {sprintToComplete && (
         <CompleteSprintModal
           sprint={sprintToComplete}
@@ -1294,3 +1307,4 @@ const { uncompletedSprints, completedSprints } = useMemo(() => {
     </>
   );
 }
+

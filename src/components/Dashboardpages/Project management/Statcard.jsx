@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useRef } from 'react';
 import { motion, useInView, useSpring } from 'framer-motion';
 import { Users, CheckCircle, FolderKanban } from 'lucide-react'; 

@@ -1,5 +1,3 @@
-// src/components/Dashboardpages/Project management/Teamcard.jsx
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MessageSquare, Eye } from 'lucide-react';

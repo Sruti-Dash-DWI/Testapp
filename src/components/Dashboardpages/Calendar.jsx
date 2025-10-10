@@ -455,6 +455,7 @@ export default function CalendarUI() {
     const handleItemClick = (item, event) => {
         event.stopPropagation();
         if (item.itemType === 'task') {
+            console.log("DATA FOR MODAL:", item); 
             setSelectedItem(item);
         } else if (item.itemType === 'sprint') {
             setPopover({

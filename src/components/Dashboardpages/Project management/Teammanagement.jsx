@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,8 +5,7 @@ import { PlusCircle } from 'lucide-react';
 import StatCard from './Statcard';
 import Modal from './Modal';
 import TeamMembersList from './Teammeberlist';
-
-const API_BASE_URL = 'http://127.0.0.1:8000/api'; 
+ 
 
 const TeamManagement = () => {
     const { isInviteModalOpen, openModal, closeModal } = useOutletContext();
@@ -28,10 +26,9 @@ const TeamManagement = () => {
                 };
 
                 
-                const response = await fetch(`${API_BASE_URL}/team/stats/`, { headers });
+                const response = await fetch(`http://127.0.0.1:8000/api/team/stats/`, { headers });
 
                 if (!response.ok) {
-                   
                     if (response.status === 404) {
                         throw new Error('The /api/team/stats/ endpoint was not found on the server.');
                     }

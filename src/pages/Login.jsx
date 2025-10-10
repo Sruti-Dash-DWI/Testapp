@@ -29,6 +29,7 @@ function Login() {
       .required("Password is required"),
   });
 
+
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const accessToken = tokenResponse.access_token;
@@ -56,28 +57,8 @@ function Login() {
       } else {
         throw new Error("Auth tokens or user info missing in response after Google login.");
       }
-         localStorage.setItem('authToken', data.key);
-            // const decodedToken = parseJwt(data.key);
- 
-            localStorage.setItem('userId', data.user_id);
-           
-            alert(`Welcome! You are now logged in.`);
-            navigate('/projects');
-        // --- FIX: Save the token AND decode it to get the user ID ---
-        if (data.key) {
-            localStorage.setItem('authToken', data.key);
-            const decodedToken = parseJwt(data.key);
-            if (decodedToken && decodedToken.user_id) {
-                localStorage.setItem('userId', decodedToken.user_id);
-                alert(`Welcome! You are now logged in.`);
-                navigate('/projects');
-            } else {
-                throw new Error("Invalid token received from server after Google login.");
-            }
-           
-        } else {
-             throw new Error("Auth token not found in server response after Google login.");
-        }
+        
+       
  
       } catch (error) {
         alert("Error during Google login: " + error.message);
@@ -119,7 +100,7 @@ function Login() {
 
                 const data = await response.json();
                 
-                // --- FIX: Save the token AND decode it to get the user ID ---
+             
                 if (data.access) {
                     localStorage.setItem('authToken', data.access);
                     const decodedToken = parseJwt(data.access);
@@ -137,7 +118,7 @@ function Login() {
 
               }catch(error) {
                 console.error("Login Error:", error);
-                // The setFieldError above will display the error message in the form
+              
               }
             }}
           >

@@ -1,9 +1,7 @@
-// src/components/Dashboardpages/SideNav.jsx
-
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 
-// --- ICONS (Defined here for simplicity) ---
+
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
 const UserManagementIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
 const InviteIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>);
@@ -17,7 +15,7 @@ const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" h
 const SideNav = ({ isOpen, openInviteModal }) => {
     const [projects, setProjects] = useState([]);
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); // State for new dropdown
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -52,19 +50,18 @@ const SideNav = ({ isOpen, openInviteModal }) => {
         localStorage.setItem('activeProjectId', project.id);
     };
     
-    // "Cart" is removed from this list
+
     const staticNavItems = [
-        { icon: <StatsIcon />, name: 'Statistics', path: 'statistics' },
+     
         { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
         { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
-        { icon: <WalletIcon />, name: 'Wallet', path: 'wallet' },
         { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
 
     return (
-        <div className={`transition-all duration-300 bg-black/20 backdrop-blur-md rounded-3xl shadow-lg border border-white/20 h-full flex flex-col p-5 text-white ${isOpen ? 'w-70' : 'w-20 items-center'}`}>
+        <div className={`transition-all duration-300 bg-black/20 backdrop-blur-md rounded-3xl shadow-lg border border-white/20 h-full flex flex-col p-5 text-white overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 ${isOpen ? 'w-70' : 'w-20 items-center'}`}>
             <ul className="flex flex-col gap-2 flex-grow">
-                {/* Projects Dropdown Section */}
+                
                 <li>
                     <button 
                         onClick={() => setIsProjectsOpen(!isProjectsOpen)}
@@ -77,7 +74,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         )}
                     </button>
                     {isOpen && isProjectsOpen && (
-                        // ADDED SCROLLBAR CLASSES HERE
+                        
                         <ul className="mt-2 space-y-1 pl-8 border-l border-white/20 ml-5 max-h-48 overflow-y-auto">
                             <li>
                                 <NavLink 
@@ -103,7 +100,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li>
 
-                {/* NEW User Management Dropdown Section */}
+               
                 <li>
                     <button 
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -139,7 +136,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li>
 
-                {/* Other Static Nav Items */}
+                
                 {staticNavItems.map((item) => (
                     <li key={item.name}>
                         <NavLink 
