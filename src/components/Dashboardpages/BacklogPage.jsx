@@ -1277,6 +1277,7 @@ export default function BacklogPage() {
         onAddComment={handleAddComment}
         onUpdateComment={handleUpdateComment}
         onDeleteComment={handleDeleteComment}
+         currentUserId={currentUserId}
       />
       <EditSprintModal
         sprint={sprintToEdit}

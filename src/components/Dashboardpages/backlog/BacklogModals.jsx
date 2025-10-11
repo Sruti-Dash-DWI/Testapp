@@ -20,7 +20,7 @@ const ExclamationCircleIcon = () => (
 );
 
 const UserAvatar = ({ user }) => {
-    const initials = user ? user.name.split(' ').map(n => n[0]).join('') : 'U';
+    const initials = user ? (user.name || user.email || '?').split(' ').map(n => n[0]).join('') : 'U';
     const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
     const color = (user && user.id) ? colors[user.id.toString().charCodeAt(0) % colors.length] : 'bg-gray-400';
 
@@ -33,21 +33,29 @@ const UserAvatar = ({ user }) => {
 
 
 
-export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, onCreateSubtask }) => {
+export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, onCreateSubtask ,onFetchComments,onAddComment,onUpdateComment,onDeleteComment,currentUserId}) => {
     if (!item) return null;
 
     const [title, setTitle] = useState(item.title || '');
     const [description, setDescription] = useState(item.description || '');
     const [subtasks, setSubtasks] = useState([]);
     const [newSubtaskText, setNewSubtaskText] = useState('');
+    const [newComment,setNewComment]=useState('');
+    const [editingComment,setEditingComment]=useState(null)
 
    
     useEffect(() => {
         setSubtasks(item.subtasks || []);
-    }, [item]);
+
+        if(item && item.id && onFetchComments)
+        {
+            onFetchComments(item.id);
+        }
+    }, [item,onFetchComments]);
+    
 
     
-    const reporterUser = users.find(u => u.id === item.reporter);
+    
 
     // --- Handlers ---
     const handleDetailUpdate = (field, value) => {
@@ -66,6 +74,25 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
     
     };
 
+    const reporterEmail = item.reporter?.user?.email;
+    const reporterAvatarInfo = {
+        id: item.reporter?.user?.id || 0,
+        email: reporterEmail || '?'
+    };
+
+    const handlePostComment = () => {
+    if (newComment.trim()) {
+        onAddComment(item.id, newComment);
+        setNewComment('');
+    }
+};
+
+const handleSaveEdit = () => {
+    if (editingComment && editingComment.body.trim()) {
+        onUpdateComment(item.id, editingComment.id, editingComment.body);
+        setEditingComment(null); // Exit editing mode
+    }
+};
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl h-[95vh] flex flex-col text-gray-800">
@@ -140,10 +167,10 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
                             {/* ✅ NEW: Static Reporter Field */}
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Reporter</span>
-                                {reporterUser ? (
+                                {reporterEmail ? (
                                     <div className="flex items-center gap-2 p-1">
-                                        <UserAvatar user={reporterUser} />
-                                        <span>{reporterUser.name}</span>
+                                        <UserAvatar user={reporterAvatarInfo} />
+                                        <span>{reporterEmail}</span>
                                     </div>
                                 ) : (
                                     <span>-</span>
@@ -168,6 +195,71 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
                             </div>
                         </div>
                     </div>
+
+                    {/* This is the new Activity Section to add */}
+<div>
+    <h4 className="text-sm font-semibold text-gray-600 mb-2">Activity</h4>
+    <div className="space-y-4">
+        {/* Add Comment Input */}
+        <div className="flex items-start space-x-3">
+            <UserAvatar user={users.find(u => u.id === currentUserId)} />
+            <div className="flex-1">
+                <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="w-full p-2 border bg-white/70 border-black/10 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows="2"
+                ></textarea>
+                {newComment && (
+                    <button onClick={handlePostComment} className="mt-2 px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700">Save</button>
+                )}
+            </div>
+        </div>
+
+        {/* Comments List */}
+        <div className="space-y-5">
+            {item.activity_log && [...item.activity_log].reverse().map(activity => {
+                const author = users.find(u => u.id === activity.actor);
+                const isEditing = editingComment && editingComment.id === activity.id;
+                return (
+                    <div key={activity.id} className="flex items-start space-x-3">
+                        <UserAvatar user={author} />
+                        <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                                <span className="font-semibold text-sm">{author ? author.name : 'Unknown User'}</span>
+                                <span className="text-xs text-gray-500">{new Date(activity.created_at).toLocaleString()}</span>
+                            </div>
+                            
+                            {isEditing ? (
+                                <div>
+                                    <textarea
+                                        value={editingComment.body}
+                                        onChange={(e) => setEditingComment({ ...editingComment, body: e.target.value })}
+                                        className="mt-1 w-full p-2 border bg-white/70 border-black/10 rounded-md text-sm"
+                                    />
+                                    <div className="mt-2 space-x-2">
+                                        <button onClick={handleSaveEdit} className="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-md">Save</button>
+                                        <button onClick={() => setEditingComment(null)} className="px-3 py-1 bg-gray-200 text-sm rounded-md">Cancel</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-800 mt-1">{activity.comment_details.body}</p>
+                            )}
+
+                            {currentUserId === activity.actor && !isEditing && (
+                                <div className="text-xs mt-1 space-x-2">
+                                    <button onClick={() => setEditingComment({ id: activity.id, body: activity.comment_details.body })} className="text-gray-600 hover:underline">Edit</button>
+                                    <button onClick={() => onDeleteComment(item.id, activity.id)} className="text-red-600 hover:underline">Delete</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+</div>
                 </main>
                 
                 <footer className="p-3 bg-white/50 border-t border-black/10 rounded-b-2xl flex-shrink-0 flex justify-end">
