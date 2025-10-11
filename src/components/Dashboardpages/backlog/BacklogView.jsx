@@ -18,6 +18,79 @@ import {
     UserAvatar,
 } from '../../Icons';
 
+const calculateStatusCounts = (itemIds, allItems) => {
+  const counts = {
+    todo: 0,
+    inProgress: 0,
+    done: 0,
+  };
+
+  itemIds.forEach(id => {
+    const item = allItems[id];
+    if (!item || !item.status || !item.status.title) {
+      return; 
+    }
+
+    const status = item.status.title.toUpperCase();
+
+    if (status === 'DONE') {
+      counts.done += 1;
+    } else if (['IN PROGRESS', 'IN REVIEW', 'TESTING'].includes(status)) {
+      counts.inProgress += 1;
+    } else { 
+      counts.todo += 1;
+    }
+  });
+
+  return counts;
+};
+
+
+
+
+const StatusSummaryDots = ({ todo, inProgress, done }) => (
+  <div className="flex items-center space-x-1">
+    
+    <div className="relative group flex items-center">
+     
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+                       bg-gray-800 text-white text-xs rounded py-1 px-2 
+                       opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        {`${todo} To Do`}
+      </span>
+      
+      <span className="text-xs font-bold bg-gray-200 text-gray-700 w-6 h-5 flex items-center justify-center rounded-full">
+        {todo}
+      </span>
+    </div>
+
+    
+    <div className="relative group flex items-center">
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+                       bg-gray-800 text-white text-xs rounded py-1 px-2 
+                       opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        {`${inProgress} In Progress`}
+      </span>
+      <span className="text-xs font-bold bg-blue-100 text-blue-800 w-6 h-5 flex items-center justify-center rounded-full">
+        {inProgress}
+      </span>
+    </div>
+
+    
+    <div className="relative group flex items-center">
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+                       bg-gray-800 text-white text-xs rounded py-1 px-2 
+                       opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        {`${done} Done`}
+      </span>
+      <span className="text-xs font-bold bg-green-100 text-green-800 w-6 h-5 flex items-center justify-center rounded-full">
+        {done}
+      </span>
+    </div>
+
+  </div>
+);
+
 // --- Side Panel Components ---
 const InsightsPanel = ({ onClose }) => (
     <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm">
@@ -166,9 +239,9 @@ export default function BacklogView({
         { value: 'manage-filters', label: 'Manage custom filters' }
     ];
 
-    // Helper component to render a single sprint to avoid duplicating code
     const SprintSection = ({ sprint }) => {
         const sprintItems = sprint.itemIds.map(id => filteredItems[id]).filter(Boolean);
+        const statusCounts = calculateStatusCounts(sprint.itemIds, filteredItems);
         const sprintOptions = [
             { value: 'edit', label: 'Edit sprint' },
             { value: 'delete', label: 'Delete sprint', isDestructive: true },
@@ -179,7 +252,7 @@ export default function BacklogView({
         };
         const formattedStartDate = formatDate(sprint.startDate);
         const formattedEndDate = formatDate(sprint.endDate);
-
+       
         return (
             <div key={sprint.id} className="mb-4">
                 <div className={`p-3 rounded-md shadow-sm border ${sprint.is_ended ? 'bg-gray-100' : 'bg-[#f0eaff]/60 backdrop-blur-sm border-white/30'}`} onDragOver={handleDragOver} onDrop={(e) => !sprint.is_ended && handleDrop(e, sprint.id)}>
@@ -204,6 +277,11 @@ export default function BacklogView({
                             )}
                             {formattedStartDate && formattedEndDate && <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>}
                             <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
+                            <StatusSummaryDots 
+                        todo={statusCounts.todo} 
+                        inProgress={statusCounts.inProgress} 
+                        done={statusCounts.done} 
+                    />
                         </div>
                         <div className="flex items-center gap-4">
                             {!sprint.is_ended && (
@@ -262,7 +340,7 @@ export default function BacklogView({
         );
     };
 
-
+ const backlogStatusCounts = calculateStatusCounts(boardData.backlog.itemIds, filteredItems);
     return (
         <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
             <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
@@ -342,7 +420,11 @@ export default function BacklogView({
                                <span className="text-sm text-gray-500">{backlogItems.length} work items</span>
                             </div>
                             <div className="flex items-center gap-4">
-                               <div className="flex space-x-1"><span className="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">0</span><span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">0</span></div>
+                              <StatusSummaryDots 
+                        todo={backlogStatusCounts.todo}
+                        inProgress={backlogStatusCounts.inProgress}
+                        done={backlogStatusCounts.done}
+                    />
                                {!isCreatingSprint && <button onClick={() => setIsCreatingSprint(true)} className="bg-gray-200 text-gray-800 px-3 py-1.5 text-sm font-semibold rounded hover:bg-gray-300">Create sprint</button>}
                             </div>
                         </div>

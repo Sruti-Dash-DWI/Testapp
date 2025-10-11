@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X, AlertCircle } from 'lucide-react';
 
-// --- MODAL IMPORTS ---
+
 import { ItemDetailModal, EditSprintModal } from "../Dashboardpages/backlog/BacklogModals";
 
-// --- Mocks/Constants (Unchanged) ---
+
 const taskTypes = [
     { name: 'Task', icon: '✓' },
     { name: 'Epic', icon: '✨' },
@@ -20,7 +20,7 @@ const statusOptions = [
     { id: 5, title: 'Testing' },
 ];
 
-const priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+const priorityOptions = ['HIGH','HIGHEST', 'MEDIUM', 'LOW', 'LOWEST'];
 
 
 export default function CalendarUI() {
@@ -52,7 +52,8 @@ export default function CalendarUI() {
     const [sprints, setSprints] = useState([]);
     const [epics, setEpics] = useState([]);
     const [sprintToEdit, setSprintToEdit] = useState(null);
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItemId, setSelectedItemId] = useState(null);
+    const selectedItem = useMemo(() => tasks.find(t => t.id === selectedItemId) || null, [tasks, selectedItemId]);
     const [popover, setPopover] = useState({ type: null, data: null, style: {} });
     const popoverRef = useRef(null);
 
@@ -131,47 +132,51 @@ export default function CalendarUI() {
     
     // --- API HANDLERS ---
     const handleUpdateItemDB = async (itemId, updates) => {
-        const authToken = localStorage.getItem("authToken");
-        const projectIdInt = parseInt(projectId, 10);
-        const updateKey = Object.keys(updates)[0];
-        if (!updateKey) return;
+    const authToken = localStorage.getItem("authToken");
+    const projectIdInt = parseInt(projectId, 10);
+    const updateKey = Object.keys(updates)[0];
+    if (!updateKey) return;
 
-        let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
-        let payload = {};
+    let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+    let payload = {};
 
-        switch (updateKey) {
-            case "assignee":
-                fullUrl += "assignees/";
-                payload = { assignees: updates.assignee ? [updates.assignee] : [], project: projectIdInt };
-                break;
-            case "sprint":
-                fullUrl += 'sprint/';
-                payload = { sprint: updates.sprint };
-                break;
-            default:
-                payload = { ...updates };
-                if (payload.priority) payload.priority = payload.priority.toUpperCase();
-                break;
+    switch (updateKey) {
+        case "assignee":
+            fullUrl += "assignees/";
+            payload = { assignees: updates.assignee ? [updates.assignee] : [], project: projectIdInt };
+            break;
+        case "sprint":
+            fullUrl += 'sprint/';
+            payload = { sprint: updates.sprint };
+            break;
+        default:
+            payload = { ...updates };
+            if (payload.priority) payload.priority = payload.priority.toUpperCase();
+            break;
+    }
+
+    try {
+        const response = await fetch(fullUrl, {
+            method: "PATCH",
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify(payload),
+        });
+        
+        let responseData = await response.json();
+        if (!response.ok) throw new Error(JSON.stringify(responseData));
+        
+        if (responseData.assignees) {
+            responseData.assignee = responseData.assignees.length > 0
+                ? responseData.assignees[0].user.id
+                : null;
         }
 
-        try {
-            const response = await fetch(fullUrl, {
-                method: "PATCH",
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                body: JSON.stringify(payload),
-            });
-            const responseData = await response.json();
-            if (!response.ok) throw new Error(JSON.stringify(responseData));
-            
-            setTasks(prev => prev.map(t => t.id === itemId ? { ...t, ...responseData } : t));
-            if (selectedItem && selectedItem.id === itemId) {
-                setSelectedItem(prev => ({ ...prev, ...responseData }));
-            }
-        } catch (error) {
-            console.error(`Failed to update item ${itemId}:`, error.message);
-            setError("Failed to update the task.");
-        }
-    };
+        setTasks(prev => prev.map(t => t.id === itemId ? { ...t, ...responseData } : t));
+    } catch (error) {
+        console.error(`Failed to update item ${itemId}:`, error.message);
+        setError("Failed to update the task.");
+    }
+};
     
     const handleToggleTaskStatus = async (taskId) => {
         const authToken = localStorage.getItem("authToken");
@@ -237,6 +242,90 @@ export default function CalendarUI() {
             setError("Could not update the sprint.");
         }
     };
+
+    
+
+const handleFetchComments = async (taskId) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/activities/`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch comments.");
+        const activities = await response.json();
+
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, activity_log: activities } : t));
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+    }
+};
+
+const handleAddComment = async (taskId, commentBody) => {
+    if (!commentBody.trim()) return;
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify({ comment_body: commentBody }),
+        });
+        if (!response.ok) throw new Error("Failed to post comment.");
+        const newActivity = await response.json();
+
+        setTasks(prev => prev.map(t => {
+            if (t.id === taskId) {
+                return { ...t, activity_log: [...(t.activity_log || []), newActivity] };
+            }
+            return t;
+        }));
+    } catch (error) {
+        console.error("Error adding comment:", error);
+        setError("Could not post your comment.");
+    }
+};
+
+const handleUpdateComment = async (taskId, activityId, commentBody) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify({ comment_body: commentBody }),
+        });
+        if (!response.ok) throw new Error("Failed to update comment.");
+        const updatedActivity = await response.json();
+
+        const updateLogs = (logs) => (logs || []).map(act => act.id === activityId ? updatedActivity : act);
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, activity_log: updateLogs(t.activity_log) } : t));
+    } catch (error) {
+        console.error("Error updating comment:", error);
+        setError("Could not update your comment.");
+    }
+};
+
+const handleDeleteComment = async (taskId, activityId) => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (!response.ok) throw new Error("Failed to delete comment.");
+
+        const updateLogs = (logs) => (logs || []).filter(act => act.id !== activityId);
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, activity_log: updateLogs(t.activity_log) } : t));
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        setError("Could not delete your comment.");
+    }
+};
+
+
+
+
+
+
+
 
     const formatDateForAPI = (date) => {
         if (!date) return null;
@@ -330,67 +419,66 @@ export default function CalendarUI() {
         }
     };
 
-    // *** NEW FUNCTION to create subtasks from the detail modal ***
-    const handleCreateSubtask = async (subtaskTitle) => {
-        if (!subtaskTitle.trim() || !selectedItem) return;
+   
 
-        const authToken = localStorage.getItem("authToken");
-        const currentUserId = parseInt(localStorage.getItem("userId"), 10);
-        const currentUserMembership = projectMembers.find(m => m.user.id === currentUserId);
+const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
+    if (!subtaskTitle.trim() || !parentItemId) return;
+
+    const authToken = localStorage.getItem("authToken");
+    const currentUserId = parseInt(localStorage.getItem("userId"), 10);
+    const currentUserMembership = projectMembers.find(m => m.user.id === currentUserId);
+    
+    if (!currentUserMembership) {
+        setError("You are not a member of this project and cannot create subtasks.");
+        return;
+    }
+    
+    try {
+        const taskPayload = {
+            title: subtaskTitle,
+            project: parseInt(projectId, 10),
+            reporter: currentUserMembership.id,
+            due_date: formatDateForAPI(tasks.find(t => t.id === parentItemId)?.due_date) || formatDateForAPI(new Date()),
+            status_id: 1, 
+            priority: "MEDIUM",
+            task_type: 'FEATURE',
+        };
         
-        if (!currentUserMembership) {
-            setError("You are not a member of this project and cannot create subtasks.");
-            return;
+        const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify(taskPayload),
+        });
+
+        const createdTask = await taskResponse.json();
+        if (!taskResponse.ok) {
+            throw new Error(JSON.stringify(createdTask) || "Failed to create subtask.");
         }
-        
-        try {
-            // 1. Create the base task
-            const taskPayload = {
-                title: subtaskTitle,
-                project: parseInt(projectId, 10),
-                reporter: currentUserMembership.id,
-                due_date: formatDateForAPI(selectedItem.due_date) || formatDateForAPI(new Date()), // Default to parent's due date or today
-                status_id: 1, 
-                priority: "MEDIUM",
-                task_type: 'SUBTASK', // Set type to subtask
-            };
-            
-            const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                body: JSON.stringify(taskPayload),
+
+        const linkPayload = { parent_task: parentItemId };
+        const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
+            method: "PATCH",
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify(linkPayload),
+        });
+        if (!linkResponse.ok) throw new Error("Task created, but failed to link to parent.");
+
+        const newSubtask = { ...createdTask, parent: parentItemId };
+
+        setTasks(prevTasks => {
+            const tasksWithUpdatedParent = prevTasks.map(task => {
+                if (task.id === parentItemId) {
+                    return { ...task, subtasks: [...(task.subtasks || []), newSubtask] };
+                }
+                return task;
             });
-
-            const createdTask = await taskResponse.json();
-            if (!taskResponse.ok) {
-                throw new Error(JSON.stringify(createdTask) || "Failed to create subtask.");
-            }
-
-            // 2. Link it to the parent task
-            const linkPayload = { parent_task: selectedItem.id };
-            const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
-                method: "PATCH",
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                body: JSON.stringify(linkPayload),
-            });
-            if (!linkResponse.ok) throw new Error("Task created, but failed to link to parent.");
-            
-            const finalTask = await linkResponse.json();
-            
-            // 3. Update state
-            setTasks(prev => [...prev, finalTask]);
-            
-            // Also update the parent task's subtasks array in the selectedItem state to reflect the change immediately
-            setSelectedItem(prev => ({
-                ...prev,
-                subtasks: [...(prev.subtasks || []), finalTask]
-            }));
-
-        } catch (error) {
-            console.error("Error creating subtask:", error);
-            setError(error.message);
-        }
-    };
+            return [...tasksWithUpdatedParent, newSubtask];
+        });
+    } catch (error) {
+        console.error("Error creating subtask:", error);
+        setError(error.message);
+    }
+};
     
     // --- HELPER FUNCTIONS ---
     const getItemsForDate = (date) => {
@@ -456,7 +544,7 @@ export default function CalendarUI() {
         event.stopPropagation();
         if (item.itemType === 'task') {
             console.log("DATA FOR MODAL:", item); 
-            setSelectedItem(item);
+             setSelectedItemId(item.id);
         } else if (item.itemType === 'sprint') {
             setPopover({
                 type: 'sprint',
@@ -804,10 +892,15 @@ export default function CalendarUI() {
                 item={selectedItem}
                 users={usersWithUnassigned}
                 sprintName={sprints.find(s => s.id === selectedItem?.sprint)?.name || 'Backlog'}
-                onClose={() => setSelectedItem(null)}
+                onClose={() => setSelectedItemId(null)} 
                 onUpdate={handleUpdateItemDB}
-                // *** PASSING THE NEW FUNCTION AS A PROP ***
+              
                 onCreateSubtask={handleCreateSubtask} 
+                 onFetchComments={handleFetchComments}
+    onAddComment={handleAddComment}
+    onUpdateComment={handleUpdateComment}
+    onDeleteComment={handleDeleteComment}
+    currentUserId={parseInt(localStorage.getItem("userId"), 10)}
             />
 
             <EditSprintModal

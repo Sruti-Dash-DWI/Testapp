@@ -52,10 +52,6 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
             onFetchComments(item.id);
         }
     }, [item,onFetchComments]);
-    
-
-    
-    
 
     // --- Handlers ---
     const handleDetailUpdate = (field, value) => {
@@ -90,12 +86,12 @@ export const ItemDetailModal = ({ item, users, sprintName, onClose, onUpdate, on
 const handleSaveEdit = () => {
     if (editingComment && editingComment.body.trim()) {
         onUpdateComment(item.id, editingComment.id, editingComment.body);
-        setEditingComment(null); // Exit editing mode
+        setEditingComment(null); 
     }
 };
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl h-[95vh] flex flex-col text-gray-800">
+            <div onClick={(e) => e.stopPropagation()}  className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl h-[95vh] flex flex-col text-gray-800">
                 <header className="p-3 border-b border-black/10 flex justify-between items-center bg-white/50 rounded-t-2xl flex-shrink-0">
                     <div>
                         <span className="text-sm text-gray-600 font-medium">TASK / {item.id}</span>
@@ -139,7 +135,7 @@ const handleSaveEdit = () => {
                         <div className="space-y-2">
                             {subtasks.map(st => (
                                 <div key={st.id} className="flex items-center bg-black/5 p-2 rounded">
-                                    <input type="checkbox" checked={st.completed || false} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/>
+                                    {/* <input type="checkbox" checked={st.completed || false} onChange={() => toggleSubtask(st.id)} className="form-checkbox h-4 w-4 mr-3"/> */}
                                     <span className={`flex-grow text-sm ${st.completed ? 'line-through text-gray-500' : ''}`}>{st.title}</span>
                                 </div>
                             ))}
@@ -196,11 +192,11 @@ const handleSaveEdit = () => {
                         </div>
                     </div>
 
-                    {/* This is the new Activity Section to add */}
+                   
 <div>
     <h4 className="text-sm font-semibold text-gray-600 mb-2">Activity</h4>
     <div className="space-y-4">
-        {/* Add Comment Input */}
+    
         <div className="flex items-start space-x-3">
             <UserAvatar user={users.find(u => u.id === currentUserId)} />
             <div className="flex-1">
@@ -217,7 +213,7 @@ const handleSaveEdit = () => {
             </div>
         </div>
 
-        {/* Comments List */}
+    
         <div className="space-y-5">
             {item.activity_log && [...item.activity_log].reverse().map(activity => {
                 const author = users.find(u => u.id === activity.actor);
@@ -343,7 +339,7 @@ export const EditSprintModal = ({ sprint, epics, onClose, onUpdate }) => {
                         />
                     </div>
                     
-                    {/* ✅ 5. ADD THE EPIC DROPDOWN FIELD */}
+                
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Epic</label>
                         <select
@@ -521,12 +517,12 @@ export const CreateEpicModal = ({ onClose, onCreate, projectName, currentUser })
 
                 <main className="p-6 space-y-5 overflow-y-auto">
                     <div className="grid grid-cols-2 gap-6">
-                        {/* Static Project Field */}
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
                             <input type="text" value={projectName} disabled className="w-full p-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed" />
                         </div>
-                        {/* Static Work Type Field */}
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Work Type</label>
                             <div className="w-full p-2 bg-gray-100 border border-gray-300 rounded-md text-gray-500">
@@ -584,7 +580,7 @@ export const CreateEpicModal = ({ onClose, onCreate, projectName, currentUser })
     );
 };
 
-// --- NEW COMPONENT ---
+
 export const CompleteSprintModal = ({ sprint, onClose, onComplete }) => {
     if (!sprint) return null;
 

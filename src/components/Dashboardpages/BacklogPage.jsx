@@ -28,7 +28,9 @@ export default function BacklogPage() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+ 
+const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   const [sprintToEdit, setSprintToEdit] = useState(null);
   const [sprintToStart, setSprintToStart] = useState(null);
   const [sprintToComplete, setSprintToComplete] = useState(null);
@@ -392,75 +394,100 @@ export default function BacklogPage() {
   // In BacklogPage.jsx
 
   const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
-    const authToken = localStorage.getItem("authToken");
-    const currentUserMembership = projectMembers.find(
-      (member) =>
-        member.user.id === parseInt(localStorage.getItem("userId"), 10)
-    );
+  const authToken = localStorage.getItem("authToken");
+  const currentUserMembership = projectMembers.find(
+    (member) =>
+      member.user.id === parseInt(localStorage.getItem("userId"), 10)
+  );
 
-    if (!currentUserMembership) {
-      setError("Cannot create subtask: User is not a project member.");
-      return;
-    }
+  if (!currentUserMembership) {
+    setError("Cannot create subtask: User is not a project member.");
+    return;
+  }
 
-    const subtaskPayload = {
-      title: subtaskTitle,
-      project: parseInt(projectId, 10),
-      status_id: 1,
-      priority: "MEDIUM",
-      task_type: "FEATURE",
-      reporter: currentUserMembership.id,
-    };
-
-    const newSubtask = await createTaskOnBackend(subtaskPayload);
-
-    if (newSubtask) {
-      try {
-        const linkPayload = { parent_task: parentItemId };
-        const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
-
-        const linkResponse = await fetch(linkUrl, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(linkPayload),
-        });
-
-        if (!linkResponse.ok)
-          throw new Error("Failed to link subtask to parent.");
-
-        console.log("✅ SUCCESS: Subtask linked to parent.");
-
-        // --- UI STATE UPDATES ---
-
-        // 1. Update the main data store (`boardData`)
-        setBoardData((prevData) => {
-          const parentItem = prevData.items[parentItemId];
-          const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
-
-          return {
-            ...prevData,
-            items: {
-              ...prevData.items,
-              [newSubtask.id]: { ...newSubtask, parent: parentItemId },
-              [parentItemId]: { ...parentItem, subtasks: updatedSubtasks },
-            },
-          };
-        });
-
-        if (selectedItem && selectedItem.id === parentItemId) {
-          setSelectedItem((prev) => {
-            const updatedSubtasks = [...(prev.subtasks || []), newSubtask];
-            return { ...prev, subtasks: updatedSubtasks };
-          });
-        }
-      } catch (error) {
-        console.error("❌ FAILURE: Could not link subtask.", error);
-      }
-    }
+  const subtaskPayload = {
+    title: subtaskTitle,
+    project: parseInt(projectId, 10),
+    status_id: 1,
+    priority: "MEDIUM",
+    task_type: "FEATURE",
+    reporter: currentUserMembership.id,
   };
+
+  const newSubtask = await createTaskOnBackend(subtaskPayload);
+
+  if (newSubtask) {
+    try {
+      const linkPayload = { parent_task: parentItemId };
+      const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
+
+      const linkResponse = await fetch(linkUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(linkPayload),
+      });
+
+      if (!linkResponse.ok)
+        throw new Error("Failed to link subtask to parent.");
+
+      console.log("✅ SUCCESS: Subtask linked to parent.");
+
+      // --- UI STATE UPDATES ---
+      setBoardData((prevData) => {
+        const parentItem = prevData.items[parentItemId];
+        const updatedSubtasks = [...(parentItem.subtasks || []), newSubtask];
+
+        const location = findItemLocation(parentItemId);
+        const listId = location ? location.listId : null;
+        
+        let newSprints = [...prevData.sprints];
+        let newBacklog = { ...prevData.backlog };
+
+        if (listId) {
+          if (listId === "backlog") {
+            const parentIndex = newBacklog.itemIds.indexOf(parentItemId);
+            const newItemIds = [...newBacklog.itemIds];
+            newItemIds.splice(parentIndex + 1, 0, newSubtask.id);
+            newBacklog.itemIds = newItemIds;
+          } else {
+            newSprints = prevData.sprints.map((sprint) => {
+              if (sprint.id === listId) {
+                const parentIndex = sprint.itemIds.indexOf(parentItemId);
+                const newItemIds = [...sprint.itemIds];
+                newItemIds.splice(parentIndex + 1, 0, newSubtask.id);
+                return { ...sprint, itemIds: newItemIds };
+              }
+              return sprint;
+            });
+          }
+        }
+
+        return {
+          ...prevData,
+          items: {
+            ...prevData.items,
+            [newSubtask.id]: { ...newSubtask, parent: parentItemId },
+            [parentItemId]: { ...parentItem, subtasks: updatedSubtasks },
+          },
+          sprints: newSprints,
+          backlog: newBacklog,
+        };
+      });
+
+      if (selectedItem && selectedItem.id === parentItemId) {
+        setSelectedItem((prev) => {
+          const updatedSubtasks = [...(prev.subtasks || []), newSubtask];
+          return { ...prev, subtasks: updatedSubtasks };
+        });
+      }
+    } catch (error) {
+      console.error("❌ FAILURE: Could not link subtask.", error);
+    }
+  }
+};
   const handleUpdateItemDB = async (itemId, updates) => {
     const authToken = localStorage.getItem("authToken");
 
@@ -828,151 +855,132 @@ export default function BacklogPage() {
     }
   };
 
-  const handleFetchComments = async (taskId) => {
-    const authToken = localStorage.getItem("authToken");
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/tasks/${taskId}/activities/`,
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch comments.");
-      const activities = await response.json();
+ const handleFetchComments = async (taskId) => {
+  const authToken = localStorage.getItem("authToken");
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/tasks/${taskId}/activities/`,
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch comments.");
+    const activities = await response.json();
 
-      setBoardData((prev) => ({
-        ...prev,
-        items: {
-          ...prev.items,
-          [taskId]: { ...prev.items[taskId], activity_log: activities },
+    setBoardData((prev) => ({
+      ...prev,
+      items: {
+        ...prev.items,
+        [taskId]: { ...prev.items[taskId], activity_log: activities },
+      },
+    }));
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+  }
+};
+
+const handleAddComment = async (taskId, commentBody) => {
+  if (!commentBody.trim()) return;
+  const authToken = localStorage.getItem("authToken");
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
-      }));
-      if (selectedItem && selectedItem.id === taskId) {
-        setSelectedItem((prev) => ({ ...prev, activity_log: activities }));
+        body: JSON.stringify({ comment_body: commentBody }),
       }
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    }
-  };
+    );
+    if (!response.ok) throw new Error("Failed to post comment.");
+    const newActivity = await response.json();
 
-  const handleAddComment = async (taskId, commentBody) => {
-    if (!commentBody.trim()) return;
-    const authToken = localStorage.getItem("authToken");
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ comment_body: commentBody }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to post comment.");
-      const newActivity = await response.json();
-
-      setBoardData((prev) => {
-        const task = prev.items[taskId];
-        return {
-          ...prev,
-          items: {
-            ...prev.items,
-            [taskId]: {
-              ...task,
-              activity_log: [...(task.activity_log || []), newActivity],
-            },
-          },
-        };
-      });
-      if (selectedItem && selectedItem.id === taskId) {
-        setSelectedItem((prev) => ({
-          ...prev,
-          activity_log: [...(prev.activity_log || []), newActivity],
-        }));
-      }
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      setError("Could not post your comment.");
-    }
-  };
-
-  const handleUpdateComment = async (taskId, activityId, commentBody) => {
-    const authToken = localStorage.getItem("authToken");
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ comment_body: commentBody }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to update comment.");
-      const updatedActivity = await response.json();
-
-      const updateLog = (log) =>
-        log.map((act) => (act.id === activityId ? updatedActivity : act));
-      setBoardData((prev) => ({
+    setBoardData((prev) => {
+      const task = prev.items[taskId];
+      return {
         ...prev,
         items: {
           ...prev.items,
           [taskId]: {
-            ...prev.items[taskId],
-            activity_log: updateLog(prev.items[taskId].activity_log),
+            ...task,
+            activity_log: [...(task.activity_log || []), newActivity],
           },
         },
-      }));
-      if (selectedItem && selectedItem.id === taskId) {
-        setSelectedItem((prev) => ({
-          ...prev,
-          activity_log: updateLog(prev.activity_log),
-        }));
-      }
-    } catch (error) {
-      console.error("Error updating comment:", error);
-      setError("Could not update your comment.");
-    }
-  };
+      };
+    });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    setError("Could not post your comment.");
+  }
+};
 
-  const handleDeleteComment = async (taskId, activityId) => {
-    const authToken = localStorage.getItem("authToken");
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to delete comment.");
-
-      const filterLog = (log) => log.filter((act) => act.id !== activityId);
-      setBoardData((prev) => ({
-        ...prev,
-        items: {
-          ...prev.items,
-          [taskId]: {
-            ...prev.items[taskId],
-            activity_log: filterLog(prev.items[taskId].activity_log),
-          },
+const handleUpdateComment = async (taskId, activityId, commentBody) => {
+  const authToken = localStorage.getItem("authToken");
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
-      }));
-      if (selectedItem && selectedItem.id === taskId) {
-        setSelectedItem((prev) => ({
-          ...prev,
-          activity_log: filterLog(prev.activity_log),
-        }));
+        body: JSON.stringify({ comment_body: commentBody }),
       }
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      setError("Could not delete your comment.");
-    }
-  };
+    );
+    if (!response.ok) throw new Error("Failed to update comment.");
+    const updatedActivity = await response.json();
+
+    const updateLog = (log) =>
+      log.map((act) => (act.id === activityId ? updatedActivity : act));
+      
+    setBoardData((prev) => ({
+      ...prev,
+      items: {
+        ...prev.items,
+        [taskId]: {
+          ...prev.items[taskId],
+          activity_log: updateLog(prev.items[taskId].activity_log),
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    setError("Could not update your comment.");
+  }
+};
+
+const handleDeleteComment = async (taskId, activityId) => {
+  const authToken = localStorage.getItem("authToken");
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    );
+    if (!response.ok) throw new Error("Failed to delete comment.");
+
+    const filterLog = (log) => log.filter((act) => act.id !== activityId);
+
+    setBoardData((prev) => ({
+      ...prev,
+      items: {
+        ...prev.items,
+        [taskId]: {
+          ...prev.items[taskId],
+          activity_log: filterLog(prev.items[taskId].activity_log || []),
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    setError("Could not delete your comment.");
+  }
+};
 
   useEffect(() => {
     if (isCreatingSprint) newSprintInputRef.current?.focus();
@@ -980,9 +988,10 @@ export default function BacklogPage() {
     if (isEditingBacklogName) backlogNameInputRef.current?.focus();
     if (editingItemId) itemNameInputRef.current?.focus();
   }, [isCreatingSprint, editingSprintId, isEditingBacklogName, editingItemId]);
+  
 
-  const handleItemClick = (item) => setSelectedItem(item);
-  const handleCloseModal = () => setSelectedItem(null);
+ const handleItemClick = (item) => setSelectedItemId(item.id);
+const handleCloseModal = () => setSelectedItemId(null);
   const handleCloseEditSprintModal = () => setSprintToEdit(null);
   const handleCloseStartSprintModal = () => setSprintToStart(null);
   const handleCloseCreateEpicModal = () => setIsCreatingEpic(false);
@@ -1025,9 +1034,7 @@ export default function BacklogPage() {
       return { ...prevData, items: newItems };
     });
 
-    if (selectedItem && selectedItem.id === itemId) {
-      setSelectedItem((prev) => ({ ...prev, ...finalUpdates }));
-    }
+    
   };
 
   const handleStartRenameSprint = (sprintId) => setEditingSprintId(sprintId);
