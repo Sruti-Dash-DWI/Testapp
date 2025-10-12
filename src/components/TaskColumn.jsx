@@ -12,6 +12,7 @@ const TaskColumn = ({
   onAddTaskClick,
   onDeleteColumn,
   onMoveColumn,
+  onChangeColumnTitle,
   columnIndex,
   totalColumns,
   onEditTask
@@ -19,7 +20,10 @@ const TaskColumn = ({
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [editedTitle, setEditedTitle] = useState(title);
     const dropdownRef = useRef(null);
+    const titleInputRef = useRef(null);
     
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -34,6 +38,33 @@ const TaskColumn = ({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }, []);
+
+    // Focus input when editing starts
+    useEffect(() => {
+      if (isEditingTitle && titleInputRef.current) {
+        titleInputRef.current.focus();
+        titleInputRef.current.select();
+      }
+    }, [isEditingTitle]);
+
+    // Update local title when prop changes
+    useEffect(() => {
+      setEditedTitle(title);
+    }, [title]);
+
+    const handleSaveTitle = () => {
+      if (editedTitle.trim() && editedTitle !== title && onChangeColumnTitle) {
+        onChangeColumnTitle(columnId, editedTitle);
+      } else {
+        setEditedTitle(title); // Reset to original if empty or unchanged
+      }
+      setIsEditingTitle(false);
+    };
+
+    const handleCancelEdit = () => {
+      setEditedTitle(title);
+      setIsEditingTitle(false);
+    };
     
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -68,7 +99,25 @@ const TaskColumn = ({
             className={`bg-black/10 backdrop-blur-sm p-4 rounded-xl w-80 flex-shrink-0 max-h-[calc(100vh-200px)] flex flex-col transition-colors duration-300 ${isDraggingOver ? 'bg-blue-500/10' : ''}`}
         >
             <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-white/20">
-                <h3 className="font-bold text-lg text-gray-100">{title}</h3>
+                {isEditingTitle ? (
+                  <input
+                    ref={titleInputRef}
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    onBlur={handleSaveTitle}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveTitle();
+                      } else if (e.key === 'Escape') {
+                        handleCancelEdit();
+                      }
+                    }}
+                    className="font-bold text-lg text-gray-100 bg-white/20 border border-white/40 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1 mr-2"
+                  />
+                ) : (
+                  <h3 className="font-bold text-lg text-gray-100">{title}</h3>
+                )}
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-800 font-medium bg-white/60 rounded-full px-2 py-0.5">
                     {tasks.length}
@@ -118,11 +167,10 @@ const TaskColumn = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onMoveColumn(columnId, 'left');
+                            setIsEditingTitle(true);
                             setIsDropdownOpen(false);
                           }}
-                          disabled={columnIndex === 0}
-                          className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${columnIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'text-gray-200 hover:bg-white/10'}`}
+                          className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 text-gray-200 hover:bg-white/10"
                         >
                           <MdOutlineEdit className="w-4 h-4" />
                           Change title

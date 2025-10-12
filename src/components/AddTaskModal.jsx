@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons";
 
-const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, projectId }) => {
+const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, projectId, task, isEditMode = false }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
@@ -13,13 +13,27 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
 
   useEffect(() => {
     if (show) {
-      if (initialColumnId) {
-        setStatus(initialColumnId);
-      } else if (columns && columns.length > 0) {
-        setStatus(columns[0].id);
+      if (isEditMode && task) {
+        // Populate form with existing task data for editing
+        setTitle(task.title || "");
+        setDescription(task.description || "");
+        setStatus(task.status?.id || task.status || "");
+        setTaskType(task.task_type || "BUG");
+        setPriority(task.priority || "MEDIUM");
+      } else {
+        // Reset form for new task
+        setTitle("");
+        setDescription("");
+        setTaskType("BUG");
+        setPriority("MEDIUM");
+        if (initialColumnId) {
+          setStatus(initialColumnId);
+        } else if (columns && columns.length > 0) {
+          setStatus(columns[0].id);
+        }
       }
     }
-  }, [show, columns, initialColumnId]);
+  }, [show, columns, initialColumnId, task, isEditMode]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -82,26 +96,41 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
       status_id: status,
       task_type: taskType,
       priority,
-      project: projectId,
+      project: projectId || task?.project,
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/tasks/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify(taskData)
-      });
+      let response;
+      if (isEditMode && task) {
+        // Update existing task
+        response = await fetch(`http://localhost:8000/api/tasks/${task.id}/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(taskData)
+        });
+      } else {
+        // Create new task
+        response = await fetch('http://localhost:8000/api/tasks/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(taskData)
+        });
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
         const errorMessage = Object.entries(errorData)
           .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
           .join('; ');
-        throw new Error(errorMessage || 'Failed to create task');
+        throw new Error(errorMessage || `Failed to ${isEditMode ? 'update' : 'create'} task`);
       }
       
       if (onAddTask) {
@@ -117,8 +146,8 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
       onHide();
 
     } catch (error) {
-      console.error('Error creating task:', error);
-      setError(error.message || 'Failed to create task. Please check server connection.');
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} task:`, error);
+      setError(error.message || `Failed to ${isEditMode ? 'update' : 'create'} task. Please check server connection.`);
      } finally {
       setLoading(false);
     }
@@ -131,7 +160,7 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
       <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full max-w-md text-white">
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-white/20">
-          <h2 className="text-2xl font-bold">Add New Task</h2>
+          <h2 className="text-2xl font-bold">{isEditMode ? 'Edit Task' : 'Add New Task'}</h2>
           <button
             onClick={onHide}
             className="text-gray-300 hover:text-white transition"
@@ -267,7 +296,7 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
               disabled={loading}
               className="px-5 py-2 bg-blue-500/80 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Adding...' : 'Add Task'}
+              {loading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Task' : 'Add Task')}
             </button>
           </div>
         </form>

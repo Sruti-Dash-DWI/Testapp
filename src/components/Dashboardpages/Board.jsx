@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-//import { initialTasks } from '../../data/initial-data';
 import AddTaskModal from '../AddTaskModal';
-import EditTaskModal from '../EditTaskModal';
 import TaskColumn from '../TaskColumn';
 import {
   MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
@@ -253,6 +251,45 @@ const Board = () => {
     localStorage.setItem('columnOrder', JSON.stringify(columnOrder));
   };
 
+  const handleChangeColumnTitle = async (columnId, newTitle) => {
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) {
+      alert('Column title cannot be empty');
+      return;
+    }
+
+    // Optimistically update UI
+    const originalColumns = [...columns];
+    setColumns(prevColumns =>
+      prevColumns.map(col =>
+        col.id === columnId ? { ...col, title: trimmedTitle } : col
+      )
+    );
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/statuses/${columnId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ title: trimmedTitle }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update column title on the server.');
+      }
+
+      console.log(`Column ${columnId} title updated to "${trimmedTitle}"`);
+    } catch (err) {
+      console.error('Error updating column title:', err);
+      alert('Could not update the column title. Please try again.');
+      // Revert to original state on error
+      setColumns(originalColumns);
+    }
+  };
+
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
   const filteredTasks = tasks.filter((task) => {
@@ -291,18 +328,17 @@ const Board = () => {
   return (
     <div className="flex flex-col text-white p-4 md:p-6 h-full">
       <AddTaskModal
-        show={isModalOpen}
-        onHide={handleCloseModal}
+        show={isModalOpen || !!editingTask}
+        onHide={() => {
+          handleCloseModal();
+          setEditingTask(null);
+        }}
         onAddTask={handleAddTask}
         columns={columns}
         initialColumnId={newTaskColumnId}
         projectId={projectId}
-      />
-      <EditTaskModal
-        show={!!editingTask}
-        onHide={() => setEditingTask(null)}
-        onUpdateTask={handleUpdateTask}
         task={editingTask}
+        isEditMode={!!editingTask}
       />
       <header className="flex-shrink-0 flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
@@ -392,6 +428,7 @@ const Board = () => {
             onAddTaskClick={handleOpenAddTaskModal}
             onMoveColumn={handleMoveColumn}
             onDeleteColumn={handleDeleteColumn}
+            onChangeColumnTitle={handleChangeColumnTitle}
             onEditTask={setEditingTask}
             columnIndex={columns.findIndex(col => col.id === column.id)}
             totalColumns={columns.length}
