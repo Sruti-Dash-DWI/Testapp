@@ -60,8 +60,7 @@ const Board = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [taskRefetchTrigger, setTaskRefetchTrigger] = useState(0);
 
-  useEffect(() => {
-    const fetchAndOrderColumns = async () => {
+  const fetchAndOrderColumns = async () => {
       setColumnError(null);
       try {
         const authToken = localStorage.getItem('authToken');
@@ -90,6 +89,8 @@ const Board = () => {
         setColumnError('Could not load board columns. Please try again.');
       }
     };
+
+  useEffect(() => {
     fetchAndOrderColumns();
   }, []);
 
@@ -159,7 +160,7 @@ const Board = () => {
       }
 
       //refetch all columns to get the latest list
-      await fetchColumns();
+      await fetchAndOrderColumns();
 
     } catch (err) {
       console.error('Failed to save new column:', err);
