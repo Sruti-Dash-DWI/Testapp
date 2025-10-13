@@ -89,14 +89,14 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>
+    <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>
       {isNavOpen && window.innerWidth < 768 && (<div onClick={toggleNav} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>)}
       <div className="px-4 pt-4 md:px-6 md:pt-6">
         <Uppernavbar />
       </div>
       <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
         <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-          {/* --- ADDED: Prop to open the modal from the SideNav --- */}
+         
           <SideNav isOpen={isNavOpen} openInviteModal={openModal} />
         </div>
         <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
@@ -111,7 +111,7 @@ const DashboardLayout = () => {
             </>
           )}
           <div className="flex-1 overflow-y-auto mt-4">
-            {/* --- ADDED: Context to share modal state with child pages --- */}
+          
             <Outlet context={{ isInviteModalOpen, openModal, closeModal }} />
           </div>
         </div>

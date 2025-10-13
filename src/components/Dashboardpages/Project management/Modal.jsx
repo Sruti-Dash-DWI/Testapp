@@ -4,14 +4,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, X } from 'lucide-react';
 
-// A placeholder for your API base URL.
 const API_BASE_URL = 'http://localhost:8000/api';
 
 const Modal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [role, setRole] = useState('DEVELOPER'); // Matching backend roles
+    // const [firstName, setFirstName] = useState(''); 
+    // const [lastName, setLastName] = useState('');   
+    const [role, setRole] = useState('DEVELOPER'); 
     
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -19,11 +18,10 @@ const Modal = ({ isOpen, onClose }) => {
 
     const handleCloseAndReset = () => {
         onClose();
-        // Delay reset to allow exit animation to complete
         setTimeout(() => {
             setEmail('');
-            setFirstName('');
-            setLastName('');
+            // setFirstName(''); 
+            // setLastName('');  
             setRole('DEVELOPER');
             setError(null);
             setSuccess(false);
@@ -39,14 +37,12 @@ const Modal = ({ isOpen, onClose }) => {
 
         const invitationData = {
             email,
-            first_name: firstName,
-            last_name: lastName,
             role,
         };
         
         try {
             const authToken = localStorage.getItem('authToken');
-            const response = await fetch(`${API_BASE_URL}/admin/users/`, {
+            const response = await fetch(`${API_BASE_URL}/users/invite/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -57,7 +53,8 @@ const Modal = ({ isOpen, onClose }) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to send invitation.');
+                const errorMessage = errorData.detail || errorData.email?.[0] || 'Failed to send invitation.';
+                throw new Error(errorMessage);
             }
             
             setSuccess(true);
@@ -117,15 +114,19 @@ const Modal = ({ isOpen, onClose }) => {
                         {success ? (
                              <div className="text-center py-8">
                                 <h3 className="text-xl font-semibold text-green-700">Invitation Sent!</h3>
-                                <p className="text-gray-600 mt-2">The new member has been invited to the team.</p>
+                                <p className="text-gray-600 mt-2">An invitation has been sent to the user's email.</p>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 {error && <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-lg">{error}</p>}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                    <input type="text" placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="modal-input" />
-                                    <input type="text" placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="modal-input" />
+                                
+                             
+                                {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <input type="text" placeholder="First name (Optional)" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="modal-input" />
+                                    <input type="text" placeholder="Last name (Optional)" value={lastName} onChange={(e) => setLastName(e.target.value)} className="modal-input" />
                                 </div>
+                                */}
+
                                 <div className="mb-4">
                                     <input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} required className="modal-input" />
                                 </div>

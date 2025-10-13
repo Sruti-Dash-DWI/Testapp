@@ -1,3 +1,5 @@
+// src/components/Dashboardpages/Project management/Teammeberlist.jsx
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import TeamMemberCard from './Teamcard';
@@ -6,6 +8,19 @@ import { Info } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
+// NEW: A stylish skeleton component that mimics the TeamMemberCard layout.
+const TeamCardSkeleton = () => (
+    <div className="bg-white/50 backdrop-blur-md border border-white/30 rounded-xl p-4 flex items-center gap-4 shadow-lg animate-pulse">
+        <div className="w-16 h-16 rounded-full bg-gray-300/80 flex-shrink-0"></div>
+        <div className="flex-grow space-y-2">
+            <div className="h-4 bg-gray-300/80 rounded w-1/3"></div>
+            <div className="h-3 bg-gray-300/80 rounded w-1/2"></div>
+        </div>
+        <div className="h-6 w-20 bg-gray-300/80 rounded-full"></div>
+    </div>
+);
+
+
 const TeamMembersList = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,31 +28,38 @@ const TeamMembersList = () => {
     const [editingMember, setEditingMember] = useState(null);
 
     useEffect(() => {
-        const fetchMembers = async () => {
-            setLoading(true);
-            try {
-                const authToken = localStorage.getItem('authToken');
-                if (!authToken) throw new Error("Authentication token not found.");
-                const response = await fetch(`${API_BASE_URL}/users/`, {
-                    headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
-                });
-                if (!response.ok) throw new Error('Failed to fetch team members.');
-                const data = await response.json();
-                setMembers(data);
-                setError(null);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchMembers();
+        // Simulating a slightly longer load time to make the skeleton visible
+        setTimeout(() => {
+            const fetchMembers = async () => {
+                setLoading(true);
+                try {
+                    const authToken = localStorage.getItem('authToken');
+                    if (!authToken) throw new Error("Authentication token not found.");
+                    const response = await fetch(`${API_BASE_URL}/users/`, {
+                        headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+                    });
+                    if (!response.ok) throw new Error('Failed to fetch team members.');
+                    const data = await response.json();
+                    setMembers(data);
+                    setError(null);
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchMembers();
+        }, 500); // Small delay to ensure skeleton is visible
     }, []);
     
     const handleUserUpdate = (updatedMember) => {
         setMembers(prevMembers => 
             prevMembers.map(m => m.id === updatedMember.id ? updatedMember : m)
         );
+    };
+
+    const handleDeleteSuccess = (deletedUserId) => {
+        setMembers(prevMembers => prevMembers.filter(m => m.id !== deletedUserId));
     };
 
     const listVariants = {
@@ -51,8 +73,15 @@ const TeamMembersList = () => {
     };
     
     const renderContent = () => {
+        // THE FIX: When loading, show the new skeleton component.
         if (loading) {
-            return <p className="text-center mt-4 text-gray-600">Loading members...</p>;
+            return (
+                <div className="space-y-4">
+                    <TeamCardSkeleton />
+                    <TeamCardSkeleton />
+                    <TeamCardSkeleton />
+                </div>
+            );
         }
         
         if (error) {
@@ -100,6 +129,7 @@ const TeamMembersList = () => {
                 member={editingMember}
                 onClose={() => setEditingMember(null)}
                 onUpdate={handleUserUpdate}
+                onDeleteSuccess={handleDeleteSuccess}
             />
         </section>
     );

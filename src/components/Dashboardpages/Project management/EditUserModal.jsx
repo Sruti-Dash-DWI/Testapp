@@ -1,27 +1,29 @@
+// src/components/Dashboardpages/Project management/EditUserModal.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save } from 'lucide-react';
+import { X, Save, Trash2 } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
-const EditUserModal = ({ member, onClose, onUpdate }) => {
-    if (!member) {
-        return null;
-    }
+const EditUserModal = ({ member, onClose, onUpdate, onDeleteSuccess }) => { 
+    if (!member) return null;
 
     const [formData, setFormData] = useState({ ...member });
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+    useEffect(() => {
+        setFormData({ ...member });
+        setConfirmingDelete(false); 
+    }, [member]);
 
     const [debouncedFormData, setDebouncedFormData] = useState(formData);
     useEffect(() => {
         const handler = setTimeout(() => setDebouncedFormData(formData), 750);
         return () => clearTimeout(handler);
     }, [formData]);
-
-    useEffect(() => {
-        setFormData({ ...member });
-    }, [member]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -31,7 +33,6 @@ const EditUserModal = ({ member, onClose, onUpdate }) => {
     const autoSave = useCallback(async (dataToSave) => {
         try {
             const authToken = localStorage.getItem('authToken');
-
             const response = await fetch(`${API_BASE_URL}/users/${member.id}/`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
@@ -52,17 +53,14 @@ const EditUserModal = ({ member, onClose, onUpdate }) => {
         }
     }, [debouncedFormData, member, autoSave]);
 
-
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
         setError(null);
         let wasSuccessful = false;
-
+    
         try {
             const authToken = localStorage.getItem('authToken');
-
-            
             const payload = {
                 email: formData.email,
                 first_name: formData.first_name,
@@ -70,14 +68,14 @@ const EditUserModal = ({ member, onClose, onUpdate }) => {
                 role: formData.role,
                 phone: formData.phone,
             };
-
+    
             const response = await fetch(`${API_BASE_URL}/users/${member.id}/`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
                 body: JSON.stringify(payload)
             });
             if (!response.ok) throw new Error('Failed to save changes.');
-
+    
             const updatedMember = await response.json();
             onUpdate(updatedMember);
             wasSuccessful = true;
@@ -86,13 +84,39 @@ const EditUserModal = ({ member, onClose, onUpdate }) => {
         } finally {
             setIsSaving(false);
         }
-
+    
         if (wasSuccessful) {
             onClose();
         }
     };
     
-   
+    const handleDelete = async () => {
+        if (!confirmingDelete) {
+            setConfirmingDelete(true);
+            setTimeout(() => setConfirmingDelete(false), 3000); 
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const authToken = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/user/${member.id}/delete/`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
+
+            if (response.status === 204 || response.ok) {
+                onDeleteSuccess(member.id);
+                onClose();
+            } else {
+                 throw new Error('Failed to delete user.');
+            }
+        } catch (err) {
+            setError(err.message);
+            setIsSaving(false);
+        }
+    };
+
     const backdropVariants = { visible: { opacity: 1 }, hidden: { opacity: 0 } };
     const modalVariants = {
         hidden: { scale: 0.9, opacity: 0 },
@@ -122,9 +146,22 @@ const EditUserModal = ({ member, onClose, onUpdate }) => {
                                     <option value="DEVELOPER">Developer</option>
                                     <option value="MANAGER">Manager</option>
                                     <option value="OWNER">Owner</option>
+                                    <option value="TESTER">Tester</option>
                                 </select>
-                                <div className="flex justify-end items-center pt-4">
-                                    <motion.button type="submit" disabled={isSaving} className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-500 transition-colors disabled:bg-gray-500 flex items-center justify-center gap-2" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <div className="flex justify-between items-center pt-6">
+                                    <motion.button 
+                                        type="button"
+                                        onClick={handleDelete}
+                                        className={`flex items-center gap-2 font-semibold text-sm transition-colors ${confirmingDelete ? 'text-red-400' : 'text-gray-400 hover:text-red-400'}`}
+                                        whileHover={{ scale: 1.05 }} 
+                                        whileTap={{ scale: 0.95 }}
+                                        disabled={isSaving}
+                                    >
+                                        <Trash2 size={16} />
+                                        {confirmingDelete ? 'Confirm Delete?' : 'Delete User'}
+                                    </motion.button>
+                                    
+                                    <motion.button type="submit" disabled={isSaving} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-500 transition-colors disabled:bg-gray-500 flex items-center justify-center gap-2" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                         <Save size={18} /> {isSaving ? 'Saving...' : 'Save All Changes'}
                                     </motion.button>
                                 </div>
