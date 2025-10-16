@@ -13,15 +13,27 @@ const pathsWithInnerNav = [
 
 const DeveloperDashboardLayout = ({children}) => {
   const [isNavOpen, setIsNavOpen] = useState(window.innerWidth >= 768);
+  const [projectName, setProjectName] = useState('Scrum Project');
   const location = useLocation();
+
+  // --- ADDED: State for the Invite Member modal ---
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const openModal = () => setIsInviteModalOpen(true);
+    const closeModal = () => setIsInviteModalOpen(false);
+    // ---------------------------------------------
 
   const showinner = pathsWithInnerNav.some((path) =>
     location.pathname.startsWith(path)
   );
 
   useEffect(() => {
-    if (window.innerWidth < 768) setIsNavOpen(false);
-  }, [location]);
+    const activeProjectName = localStorage.getItem('activeProjectName');
+    if (activeProjectName) {
+      setProjectName(activeProjectName);
+    } else {
+      setProjectName('Scrum Project');
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -70,8 +82,7 @@ const DeveloperDashboardLayout = ({children}) => {
   );
 
   return (
-    <div
-      className="h-screen font-sans flex flex-col"
+    <div className="h-screen font-sans flex flex-col"
       style={{
         background: "linear-gradient(135deg, #134e5e 0%, #71b280 50%, #d4f1dd 100%)",
         backgroundAttachment: "fixed",
@@ -99,14 +110,14 @@ const DeveloperDashboardLayout = ({children}) => {
             isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
         >
-          <DeveloperSideNav isOpen={isNavOpen} />
+          <DeveloperSideNav isOpen={isNavOpen} openInviteModal={openModal} />
         </div>
 
         {/* Content area */}
         <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
           {showinner && (
             <>
-              <DeveloperDashboardheader />
+              <DeveloperDashboardheader projectName={projectName}/>
               <DeveloperDashboardinNav
                 navItems={navItems}
                 setNavItems={setNavItems}

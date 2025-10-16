@@ -30,6 +30,22 @@ import Projectmanager from "../components/Dashboardpages/Project management/Team
 
 // Developer imports 
 import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
+import DeveloperBacklogPage from "../components/developerDashboardpages/DeveloperBacklog.jsx";
+import DevelopersBoard from "../components/developerDashboardpages/DeveloperBoard.jsx";
+import DevelopersCalendar from "../components/developerDashboardpages/DeveloperCalendar.jsx";
+import DevelopersTimeline from "../components/developerDashboardpages/DeveloperTimeline.jsx";
+import DevelopersSummary from "../components/developerDashboardpages/DeveloperSummary.jsx";
+import DevelopersList from "../components/developerDashboardpages/DeveloperList.jsx";
+import DevelopersPageContent from "../components/developerDashboardpages/DeveloperPageContent.jsx";
+import Developerprojectmanager from "../components/developerDashboardpages/Project management developer/DevTeammanagement.jsx";
+import DevEditUserModal from "../components/developerDashboardpages/Project management developer/DevEditUserModal.jsx";
+
+//import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
+// import Statisticspage from "../../pages/developerPages/sidenav_pages/Statisticspage.jsx";
+// import Documents from "../../pages/developerPages/sidenav_pages/Documents.jsx";
+// import Notifications from "../../pages/developerPages/sidenav_pages/Notification.jsx";
+// import Wallet from "../../pages/developerPages/sidenav_pages/Wallet.jsx";
+// import Settings from "../../pages/developerPages/sidenav_pages/Settings.jsx";
 
 // Tester imports
 import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
@@ -87,8 +103,26 @@ const AppRouter = () => {
         </Route>
 
         {/* Developer Routes */}
-        <Route path="/developer/projects" element={<DeveloperProjects />} />
+          {/* <Route path="/developer/user-details" element={<Projectmanager />} />
+          
+          <Route path="/developer/statistics" element={<Statisticspage />} />
+          <Route path="/developer/documents" element={<Documents />} />
+          <Route path="/developer/notifications" element={<Notifications />} />
+          <Route path="/developer/wallet" element={<Wallet />} />
+          <Route path="/developer/settings" element={<Settings />} /> */}
 
+          <Route path="/developer/projects" element={<DeveloperProjects />} />
+          <Route path="/developer/backlog/:projectId" element={<DeveloperBacklogPage />} />
+          <Route path="/developer/board/:projectId" element={<DevelopersBoard />} />
+          <Route path="/developer/calendar/:projectId" element={<DevelopersCalendar />} />
+          <Route path="/developer/timeline/:projectId" element={<DevelopersTimeline />} />
+          <Route path="/developer/summary/:projectId" element={<DevelopersSummary />} />
+          <Route path="/developer/list/:projectId" element={<DevelopersList />} />
+          <Route path="/developer/page-content/:projectId" element={<DevelopersPageContent />} />
+          <Route path="/developer/dev-user-details" element={<Developerprojectmanager />} />
+          <Route path="/developer/dev-user-details/:memberId" element={<DevEditUserModal />} />
+        
+        
         {/* Tester Routes */}
         <Route path="/tester/projects" element={<TesterProjects />} />
         

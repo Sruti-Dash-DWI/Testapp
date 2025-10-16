@@ -282,4 +282,4 @@ const DeveloperSummary = () => {
     )
 }
 
-export default DeveloperSummary
+export default DeveloperSummary;

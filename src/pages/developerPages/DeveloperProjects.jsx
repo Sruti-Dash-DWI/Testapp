@@ -116,6 +116,46 @@ const DeveloperProjects = () => {
       setLoading(false);
     }
   };
+  const handleProjectClick= (project)=>
+  {
+    localStorage.setItem("activeProjectId",project.id);
+    localStorage.setItem("activeProjectName",project.name);
+  }
+
+  const handleDelete = async (e, activeProjectId) => {
+    e.preventDefault();
+    e.stopPropagation();
+ 
+    const userConfirmed = window.confirm(
+      "Are you sure you want to delete this project? This action cannot be undone."
+    );
+ 
+    if (userConfirmed) {
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch(`http://localhost:8000/api/projects/${activeProjectId}/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          },
+        });
+ 
+        if (response.ok) {
+          setProjects(currentProjects =>
+            currentProjects.filter(project => project.id !== activeProjectId)
+          );
+          console.log(`Project with ID ${activeProjectId} deleted successfully.`);
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to delete project:", errorData.message || response.statusText);
+          alert("Error: Could not delete the project.");
+        }
+      } catch (error) {
+        console.error("An error occurred during the delete request:", error);
+        alert("An error occurred. Please check your network and try again.");
+      }
+    }
+  };
 
   return (
     <DeveloperDashboardLayout> 
@@ -163,12 +203,12 @@ const DeveloperProjects = () => {
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-            <Link key={project.id} to={`/backlog/${project.id}`}>
+            <div key={project.id} className="relative"> {/* Use a relative div as a wrapper */}
+              <Link to={`/developer/backlog/${project.id}`} onClick={() => handleProjectClick(project)}>
               <div 
-                key={project.id} 
                 className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
               >
-                <div className="p-6">
+                <div className="p-6 flex-grow">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-xl font-bold text-gray-900 truncate pr-2">{project.name}</h3>
                     <span 
@@ -203,10 +243,22 @@ const DeveloperProjects = () => {
                     <span className="text-xs text-gray-500">
                       {project.created_at ? new Date(project.created_at).toLocaleDateString() : ''}
                     </span>
+                    </div>
                   </div>
                 </div>
-              </div> 
-          </Link>
+                </Link>
+              {/* --- DELETE BUTTON --- */}
+                <button
+                  onClick={(e) => handleDelete(e, project.id)}
+                  className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                  title="Delete Project"
+                >
+                  <span className="sr-only">Delete Project</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+            </div>
             ))}
           </div>
         ) : (
