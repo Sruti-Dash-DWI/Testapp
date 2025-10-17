@@ -14,9 +14,7 @@ import BacklogPage from "../components/Dashboardpages/BacklogPage.jsx";
 import PageContent from "../components/Dashboardpages/PageContent.jsx";
 import Summary from "../components/Dashboardpages/Summary.jsx";
 import List from "../components/Dashboardpages/List.jsx";
-// This path is wrong in your original file. It should probably be a page, not a component
-// For now, I'm assuming a placeholder component for Cart exists.
-// import Cart from "../pages/sidenav_pages/Cart.jsx";
+
 import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
@@ -25,10 +23,11 @@ import Settings from "../pages/sidenav_pages/Settings.jsx";
 import Board from "../components/Dashboardpages/Board.jsx";
 import Calendar from "../components/Dashboardpages/Calendar.jsx";
 import Timeline from "../components/Dashboardpages/Timeline.jsx";
-// The alias "Projectmanager" points to your Teammanagement component
-import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
 
-// Developer imports 
+import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
+import Pmprojectmanager from "../components/Dashboardpages/projectmanager/Project managementmg/PmTeammanagement.jsx"
+
+
 import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
 import DeveloperBacklogPage from "../components/developerDashboardpages/DeveloperBacklog.jsx";
 import DevelopersBoard from "../components/developerDashboardpages/DeveloperBoard.jsx";
@@ -47,9 +46,23 @@ import DevEditUserModal from "../components/developerDashboardpages/Project mana
 // import Wallet from "../../pages/developerPages/sidenav_pages/Wallet.jsx";
 // import Settings from "../../pages/developerPages/sidenav_pages/Settings.jsx";
 
-// Tester imports
+
 import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
 
+import PmProjects from "../pages/projectmanagerpages/PmProjects.jsx";
+import SetPasswordPage from "../components/Dashboardpages/Project management/Setpassword.jsx";
+import Pmdashboardlayout from "../layout/Pmdasboardlayout.jsx";
+import PmBacklogPage from "../components/Dashboardpages/projectmanager/pmpages/Pmbacklogpage.jsx";
+
+
+import PmDocuments from "../pages/projectmanagerpages/sidenav_pages/Documents.jsx";
+import PmNotifications from "../pages/projectmanagerpages/sidenav_pages/Notification.jsx";
+import PmSettings from "../pages/projectmanagerpages/sidenav_pages/Settings.jsx";
+import PmSummary from "../components/Dashboardpages/projectmanager/pmpages/Pmsummary.jsx";
+import PmList from "../components/Dashboardpages/projectmanager/pmpages/Pmlist.jsx";
+import PmBoard from "../components/Dashboardpages/projectmanager/pmpages/Pmboard.jsx";
+import PmTimeline from "../components/Dashboardpages/projectmanager/pmpages/Pmtimeline.jsx";
+import PmCalendar from "../components/Dashboardpages/projectmanager/pmpages/Pmcalendar.jsx";
 const AppRouter = () => {
   return (
     <Router>
@@ -61,10 +74,11 @@ const AppRouter = () => {
         <Route path="services" element={<Services />} />
         <Route path="/generic" element={<GenericPage title="Generic Page" />} />
 
+        <Route path="/set-password" element={<SetPasswordPage />} />
+
         
         <Route element={<DashboardLayout />}>
           
-          {/* OLD /cart ROUTE IS NOW /user-details */}
           <Route path="/user-details" element={<Projectmanager />} />
           
           <Route path="/statistics" element={<Statisticspage />} />
@@ -125,6 +139,23 @@ const AppRouter = () => {
         
         {/* Tester Routes */}
         <Route path="/tester/projects" element={<TesterProjects />} />
+
+       
+        <Route element={<Pmdashboardlayout />}>
+          <Route path="/pm/projects" element={<PmProjects />} />
+            <Route path="/pm/backlog/:projectId" element={<PmBacklogPage />} />
+
+           <Route path="/pm/documents" element={<PmDocuments />} />
+          <Route path="/pm/notifications" element={<PmNotifications />} />
+          <Route path="/pm/settings" element={<PmSettings />} />
+
+          <Route path="/pm/summary/:projectId" element={<PmSummary />} />
+          <Route path="/pm/list/:projectId" element={<PmList />} />
+          <Route path="/pm/board/:projectId" element={<PmBoard />} />
+          <Route path="/pm/timeline/:projectId" element={<PmTimeline />} />
+          <Route path="/pm/calendar/:projectId" element={<PmCalendar />} />
+          <Route path="/pm/user-details" element={<Pmprojectmanager />} />
+        </Route>
         
       </Routes>
     </Router>
