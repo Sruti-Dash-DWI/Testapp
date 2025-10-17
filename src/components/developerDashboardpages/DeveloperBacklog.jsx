@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
+
 
 // --- ICONS (Added TrashIcon) ---
 const SearchIcon = () => (
@@ -1155,6 +1157,7 @@ export default function DeveloperBacklogPage() {
 
     return (
         <>
+        <DeveloperDashboardLayout>
             <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
                 <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center space-x-4">
@@ -1394,7 +1397,9 @@ export default function DeveloperBacklogPage() {
                     onCreate={handleAddNewEpic}
                 />
              )}
+            </DeveloperDashboardLayout>
         </>
+        
     );
 }
 
