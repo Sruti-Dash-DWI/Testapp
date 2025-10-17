@@ -343,7 +343,7 @@ export default function BacklogView({
  const backlogStatusCounts = calculateStatusCounts(boardData.backlog.itemIds, filteredItems);
     return (
         <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50)'}}>
-            <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
+            <header className="sticky top-0 z-20 p-4 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
                  <div className="flex items-center space-x-4">
                     <div className="relative">
                         <BacklogSearchIcon /> 
@@ -372,7 +372,7 @@ export default function BacklogView({
                 </div>
             </header>
 
-            <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/50 backdrop-blur-sm border-b shadow-sm">
+            <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/95 backdrop-blur-sm border-b shadow-sm">
                 <span className="text-sm font-semibold mr-2 text-gray-600">Filter by Epic:</span>
                 <button
                     onClick={() => setSelectedEpicId(null)}

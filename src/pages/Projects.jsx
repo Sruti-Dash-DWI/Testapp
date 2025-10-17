@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
 import {Link} from "react-router-dom"
+import { MoreVertical } from 'lucide-react';
+import ManageTeamModal from '../components/ManageTeamModal';
+
 const Projects = () => {
   const [show, setShow] = useState(false);
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [managers, setManagers] = useState([]);
+  
+  // --- STATES ADDED FOR TEAM MODAL ---
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     owner: '',
-    status: 'PLANNED'
+    status: 'PLANNED',
+    project_manager_id: ''
+
   });
 
   
@@ -41,7 +52,6 @@ const Projects = () => {
 
       if (response.status === 401) {
         setError('Session expired. Please login again');
-        // Optionally redirect to login page or handle expired token
         return;
       }
 
@@ -49,7 +59,7 @@ const Projects = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const groupedData = await response.json();              
+      const groupedData = await response.json();           
       const allProjects = Object.values(groupedData).flat(); 
       setProjects(allProjects);
 
@@ -62,8 +72,51 @@ const Projects = () => {
     }
   };
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+ const fetchManagers = async () => {
+  try {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      console.warn('Auth token not found.');
+      return;
+    }
+
+    const response = await fetch('http://127.0.0.1:8000/api/users/list/?role=manager', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch managers. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const managerList = data.results || data; 
+    setManagers(managerList);
+  } catch (error) {
+    console.error('Error fetching managers:', error);
+  }
+};
+
+
+
+  const handleClose = () => {
+  setShow(false);
+  setFormData({
+    name: '',
+    description: '',
+    owner: '',
+    status: 'PLANNED',
+    project_manager_id: '', 
+  });
+};
+  const handleShow = () => {
+  fetchManagers(); 
+  setShow(true);
+};
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -105,11 +158,13 @@ const Projects = () => {
       fetchProjects();
       handleClose();
       setFormData({
-        name: '',
-        description: '',
-        owner: '',
-        status: 'PLANNED'
-      });
+  name: '',
+  description: '',
+  owner: '',
+  status: 'PLANNED',
+  project_manager_id: ''
+});
+
     } catch (error) {
       console.error('Error creating project:', error);
       setError('Failed to create project. Please check server connection.');
@@ -159,6 +214,19 @@ const Projects = () => {
     }
   };
   
+  // --- FUNCTIONS ADDED FOR TEAM MODAL ---
+  const handleOpenTeamModal = (project) => {
+    setSelectedProject(project);
+    setIsTeamModalOpen(true);
+  };
+
+  const handleCloseTeamModal = () => {
+    setIsTeamModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  
+
   return (
     <div className="min-h-screen bg-gradient-to-br p-6 md:p-8">
    
@@ -175,7 +243,7 @@ const Projects = () => {
         </button>
       </div>
 
-     
+      
       <div className="container mx-auto">
        
         {error && (
@@ -195,7 +263,7 @@ const Projects = () => {
                     className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col"
                   >
                     <div className="p-6 flex-grow">
-                      <div className="flex justify-between items-start mb-4 pr-7">
+                      <div className="flex justify-between items-start mb-4 pr-16">
                         <h3 className="text-xl font-bold text-gray-900 truncate pr-2">{project.name}</h3>
                         <span
                           className={`px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
@@ -214,7 +282,7 @@ const Projects = () => {
                         {project.description || 'No description provided'}
                       </p>
                     </div>
-                     
+                       
                     <div className="p-6 flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
                       <div className="flex items-center">
                         <div className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full font-medium">
@@ -233,17 +301,34 @@ const Projects = () => {
                     </div>
                   </div>
                 </Link>
-                {/* --- DELETE BUTTON --- */}
-                <button
-                  onClick={(e) => handleDelete(e, project.id)}
-                  className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                  title="Delete Project"
-                >
-                  <span className="sr-only">Delete Project</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+                
+                {/* --- ICON BUTTONS WRAPPER --- */}
+<div className="absolute top-4 right-4 flex items-center space-x-1 z-10">
+        
+       <button
+            onClick={(e) => handleDelete(e, project.id)}
+            className="p-2 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
+            title="Delete Project"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </button>
+
+        <button
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleOpenTeamModal(project);
+            }}
+            className="p-2 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+            title="Manage Team"
+        >
+            <MoreVertical size={20} />
+        </button>
+    </div>
+
+
               </div>
             ))}
           </div>
@@ -303,7 +388,7 @@ const Projects = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-         
+           
             <div 
               style={{
                 padding: '24px 24px 16px 24px',
@@ -378,14 +463,6 @@ const Projects = () => {
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.target.style.boxShadow = 'none';
-                  }}
                 />
               </div>
 
@@ -424,16 +501,31 @@ const Projects = () => {
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.target.style.boxShadow = 'none';
-                  }}
                 />
               </div>
+
+              <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-300 mb-1">
+    Select Project Manager
+  </label>
+  <select
+    name="project_manager_id"
+    value={formData.project_manager_id}
+    onChange={handleInputChange}
+    required
+    className="w-full bg-gray-700 text-white border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-[#6bd0c1]"
+  >
+    <option value="" disabled>
+      {managers.length ? 'Select a manager' : 'No managers available'}
+    </option>
+    {managers.map((manager) => (
+      <option key={manager.id} value={manager.id}>
+        {manager.first_name} {manager.last_name}
+      </option>
+    ))}
+  </select>
+</div>
+
 
               
               <div style={{ marginBottom: '32px' }}>
@@ -465,14 +557,6 @@ const Projects = () => {
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   <option value="PLANNED">Planned</option>
@@ -509,16 +593,6 @@ const Projects = () => {
                     transition: 'all 0.2s',
                     opacity: loading ? 0.6 : 1
                   }}
-                  onMouseOver={(e) => {
-                    if (!loading) {
-                      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.color = 'white';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.color = 'rgba(255, 255, 255, 0.8)';
-                  }}
                 >
                   Cancel
                 </button>
@@ -538,18 +612,6 @@ const Projects = () => {
                     opacity: loading ? 0.6 : 1,
                     boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
                   }}
-                  onMouseOver={(e) => {
-                    if (!loading) {
-                      e.target.style.backgroundColor = '#3b82f6';
-                      e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!loading) {
-                      e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.8)';
-                      e.target.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
-                    }
-                  }}
                 >
                   {loading ? 'Creating...' : 'Create'}
                 </button>
@@ -558,9 +620,17 @@ const Projects = () => {
           </div>
         </div>
       )}
+      
+      {/* --- RENDER THE TEAM MODAL --- */}
+      {isTeamModalOpen && (
+        <ManageTeamModal
+            project={selectedProject}
+            onClose={handleCloseTeamModal}
+        />
+      )}
     </div>
-   
   );
 };
 
 export default Projects;
+
