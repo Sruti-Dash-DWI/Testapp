@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X, AlertCircle } from 'lucide-react';
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
 
 import { ItemDetailModal, EditSprintModal } from "../developerDashboardpages/developerbacklog/DevBacklogModals";
@@ -620,7 +621,8 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     
     // --- RENDER ---
     return (
-        <div className="bg-gradient-to-br from-purple-50 via-white to-purple-100 min-h-screen">
+        <DeveloperDashboardLayout>
+        <div className="min-h-screen">
             {(showTypeDropdown || showStatusDropdown || showAssigneeDropdown || showMoreFiltersDropdown) && (<div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />)}
 
             <div className="flex items-center justify-between px-6 py-4 border-b border-purple-100 bg-white/95 backdrop-blur-sm relative z-20">
@@ -732,8 +734,8 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
             </div>
             
             <div className="flex flex-col">
-                <div className="grid grid-cols-7 border-b border-purple-100">
-                    {weekDays.map((day) => (<div key={day} className="p-4 text-center text-sm font-medium border-r border-purple-100 last:border-r-0 bg-purple-100 text-purple-700">{day}</div>))}
+                <div className="grid grid-cols-7 border border-green-100">
+                    {weekDays.map((day) => (<div key={day} className="p-4 text-center text-sm font-medium border-r border-green-100  bg-green-150 text-green-900">{day}</div>))}
                 </div>
                 <div className="flex-1">
                     {calendarDays.map((week, weekIndex) => (
@@ -746,8 +748,8 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
                                 today.setHours(0,0,0,0);
 
                                 return (
-                                    <div key={`${weekIndex}-${dayIndex}`} onClick={() => { if (day.isCurrentMonth) setShowTaskModal(true); setModalSelectedDate(day.fullDate) }} className={`border-r border-b border-purple-100 last:border-r-0 p-2 transition-all duration-200 cursor-pointer relative overflow-visible ${!day.isCurrentMonth ? 'bg-purple-50/40 text-gray-400' : 'bg-purple-50/70 hover:bg-purple-100/80'}`}>
-                                        <div className="text-sm font-medium text-purple-700">{day.date}</div>
+                                    <div key={`${weekIndex}-${dayIndex}`} onClick={() => { if (day.isCurrentMonth) setShowTaskModal(true); setModalSelectedDate(day.fullDate) }} className={`border-r border-b border-green-100 last:border-r-0 p-2 transition-all duration-200 cursor-pointer relative overflow-visible ${!day.isCurrentMonth ? 'bg-green-50/40 text-gray-400' : 'bg-green-50/70 hover:bg-green-100/80'}`}>
+                                        <div className="text-sm font-medium text-green-700">{day.date}</div>
                                         <div className="mt-1 space-y-1">
                                             {displayItems.map((item) => {
                                                 const isOverdue = item.itemType === 'task' && item.due_date && new Date(item.due_date) < today && item.status?.id !== 4;
@@ -896,12 +898,12 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
                 onUpdate={handleUpdateItemDB}
               
                 onCreateSubtask={handleCreateSubtask} 
-                 onFetchComments={handleFetchComments}
-    onAddComment={handleAddComment}
-    onUpdateComment={handleUpdateComment}
-    onDeleteComment={handleDeleteComment}
-    currentUserId={parseInt(localStorage.getItem("userId"), 10)}
-            />
+                onFetchComments={handleFetchComments}
+                onAddComment={handleAddComment}
+                onUpdateComment={handleUpdateComment}
+                onDeleteComment={handleDeleteComment}
+                currentUserId={parseInt(localStorage.getItem("userId"), 10)}
+                />
 
             <EditSprintModal
                 sprint={sprintToEdit}
@@ -910,6 +912,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
                 onUpdate={handleUpdateSprint}
             />
         </div>
+        </DeveloperDashboardLayout>
     );
 }
 

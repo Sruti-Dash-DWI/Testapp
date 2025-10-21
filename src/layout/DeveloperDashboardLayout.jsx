@@ -6,9 +6,9 @@ import DeveloperDashboardheader from "../components/developer/DeveloperDashboard
 import DeveloperUppernavbar from "../components/developer/DeveloperUppernavbar";
 
 const pathsWithInnerNav = [
-  '/projects', '/backlog', '/summary', '/list', '/board', '/timeline',
-  '/pages', '/code', '/forms', '/calendar', '/all-work', '/archived-work-items',
-  '/deployments', '/goals', '/on-call', '/releases', '/reports', '/security', '/shortcuts'
+  '/developer/projects', '/developer/backlog', '/developer/summary', '/developer/list', '/developer/board', '/developer/timeline',
+  '/developer/pages', '/developer/code', '/developer/forms', '/developer/calendar', '/developer/all-work', '/developer/archived-work-items',
+  '/developer/deployments', '/developer/goals', '/developer/on-call', '/developer/releases', '/developer/reports', '/developer/security', '/developer/shortcuts'
 ];
 
 const DeveloperDashboardLayout = ({children}) => {

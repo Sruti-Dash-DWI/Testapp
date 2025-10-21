@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
 import {
     Filter,
@@ -45,8 +46,8 @@ const DeveloperSummary = () => {
 
     return (
         <>
-            
-                 <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-purple-100 to-purple-50 p-6">
+        <DeveloperDashboardLayout>
+                 <div className="flex-1 flex flex-col p-6">
                     {/* Filter */}
                     <div className="relative mb-6">
                         <button 
@@ -60,7 +61,7 @@ const DeveloperSummary = () => {
 
                         {/* Filter Dropdown */}
                         {isFilterOpen && (
-                            <div className="absolute top-full left-0 mt-2 w-80 bg-purple-100 rounded-lg shadow-lg border border-gray-200 z-10">
+                            <div className="absolute top-full left-0 mt-2 w-80 bg-white/25 rounded-lg shadow-lg border border-gray-200 z-10">
                                 <div className="p-4">
                                     {/* Search */}
                                     <div className="relative mb-4">
@@ -277,7 +278,7 @@ const DeveloperSummary = () => {
                         </div>
                     </div>
                 </div>
-           
+           </DeveloperDashboardLayout>
         </>
     )
 }

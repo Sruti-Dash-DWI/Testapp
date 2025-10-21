@@ -6,10 +6,7 @@ import {
   MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
   FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons';
-// import DeveloperDashboardheader from '../developer/DeveloperDashboardheader';
-// import DeveloperDashboardinNav from '../developer/DeveloperDashboardinNav';
-// CRITICAL CHANGE: Removed the import for DashboardLayout
-// import DashboardLayout from '../../layout/DashboardLayout';
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
 const Dropdown = ({ button, children, align = 'right' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +32,8 @@ const Dropdown = ({ button, children, align = 'right' }) => {
       </button>
       {isOpen && (
         <div
-          className={`absolute mt-2 z-50 bg-black/70 backdrop-blur-md border border-white/20 rounded-lg shadow-xl py-1 w-56 overflow-hidden ${
-            align === 'right' ? 'right-0' : 'left-0'
-          }`}
+          className={`absolute mt-2 z-50 bg-black/70 backdrop-blur-md border border-white/20 rounded-lg shadow-xl py-1 w-56 overflow-hidden ${align === 'right' ? 'right-0' : 'left-0'
+            }`}
         >
           {children}
         </div>
@@ -49,21 +45,21 @@ const Dropdown = ({ button, children, align = 'right' }) => {
 
 const DeveloperBoard = () => {
   const { projectId } = useParams();
-    const [tasks, setTasks] = useState([]);
-    const [columns, setColumns] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [columnError, setColumnError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterTerm, setFilterTerm] = useState('all');
-    const [sortTerm, setSortTerm] = useState('default');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isLocalSearchOpen, setIsLocalSearchOpen] = useState(false);
-    const [newTaskColumnId, setNewTaskColumnId] = useState(null);
-    const [isAddingColumn, setIsAddingColumn] = useState(false);
-    const [newColumnTitle, setNewColumnTitle] = useState("");
-    const [editingTask, setEditingTask] = useState(null);
-    const [taskRefetchTrigger, setTaskRefetchTrigger] = useState(0);
+  const [tasks, setTasks] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [columnError, setColumnError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterTerm, setFilterTerm] = useState('all');
+  const [sortTerm, setSortTerm] = useState('default');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLocalSearchOpen, setIsLocalSearchOpen] = useState(false);
+  const [newTaskColumnId, setNewTaskColumnId] = useState(null);
+  const [isAddingColumn, setIsAddingColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [taskRefetchTrigger, setTaskRefetchTrigger] = useState(0);
 
   const fetchAndOrderColumns = async () => {
       setColumnError(null);
@@ -96,38 +92,44 @@ const DeveloperBoard = () => {
     };
 
   useEffect(() => {
-      fetchAndOrderColumns();
-    }, []);
-  
-    useEffect(() => {
-      const fetchTasks = async () => {
-        try {
-          const authToken = localStorage.getItem('authToken');
-          const response = await fetch('http://localhost:8000/api/tasks/', {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`,
-            },
-          });
-          if (!response.ok) {
-            throw new Error('Failed to fetch tasks.');
-          }
-          const data = await response.json();
-          console.log(data, "data of tasks");
-          setTasks(data);
-          setLoading(false);
-        } catch (err) {
-          console.error('Failed to fetch tasks:', err);
-          setError('Could not load tasks. Please try again.');
-        }
-      };
-      fetchTasks();
-    }, [taskRefetchTrigger]);
+    fetchAndOrderColumns();
+  }, []);
 
-  const handleOpenAddTaskModal = (status) => {
-    setNewTaskStatus(status);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:8000/api/tasks/', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch tasks.');
+        }
+        const data = await response.json();
+        console.log(data, "data of tasks");
+        setTasks(data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch tasks:', err);
+        setError('Could not load tasks. Please try again.');
+      }
+    };
+    fetchTasks();
+  }, [taskRefetchTrigger]);
+
+  const handleOpenAddTaskModal = (columnId) => {
+    setNewTaskColumnId(columnId);
     setIsModalOpen(true);
   };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewTaskColumnId(null);
+  };
+
 
   const handleAddTask = async () => {
     // After a new task is successfully added in the modal,
@@ -157,19 +159,18 @@ const DeveloperBoard = () => {
       if (!response.ok) {
         throw new Error('Failed to create the column on the server.');
       }
-      
-      // After successful creation, refetch all columns to get the latest list
+
+      //refetch all columns to get the latest list
       await fetchAndOrderColumns();
 
-      } catch (err) {
-        console.error('Failed to save new column:', err);
-        setColumnError('Failed to create the new column. Please try again.');
-      } finally {
-        // Reset the input form regardless of outcome
-        setNewColumnTitle("");
-        setIsAddingColumn(false);
-      }
-    };
+    } catch (err) {
+      console.error('Failed to save new column:', err);
+      setColumnError('Failed to create the new column. Please try again.');
+    } finally {
+      setNewColumnTitle("");
+      setIsAddingColumn(false);
+    }
+  };
 
   const handleUpdateTask = async (taskId, updatedData) => {
     const originalTast = [...tasks];
@@ -208,6 +209,7 @@ const DeveloperBoard = () => {
       setTasks(originalTasks);
     }
   };
+
 
   const handleDeleteColumn = async (columnIdToDelete) => {
     const columnToDelete = columns.find(col => col.id === columnIdToDelete);
@@ -324,10 +326,9 @@ const DeveloperBoard = () => {
   if (loading) return <div className="flex items-center justify-center h-full text-white text-xl">Loading tasks...</div>;
   if (error) return <div className="flex items-center justify-center h-full text-red-400 text-xl">Error loading tasks.</div>;
 
-  
-  return (<>
-  {/* <DeveloperDashboardheader> </DeveloperDashboardheader> */}
-  {/* <DeveloperDashboardinNav></DeveloperDashboardinNav> */}
+
+  return (
+    <DeveloperDashboardLayout>
     <div className="flex flex-col text-white p-4 md:p-6 h-full">
       <AddTaskModal
         show={isModalOpen || !!editingTask}
@@ -468,8 +469,9 @@ const DeveloperBoard = () => {
         </div>
       </div>
     </div>
-    </>
+    </DeveloperDashboardLayout>
   );
 };
 
 export default DeveloperBoard;
+

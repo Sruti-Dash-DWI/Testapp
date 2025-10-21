@@ -103,6 +103,7 @@ function Login() {
              
                 if (data.access) {
                     localStorage.setItem('authToken', data.access);
+                    //localStorage.setItem('firstName', data.first_name);
                     const decodedToken = parseJwt(data.access);
                     if (decodedToken && decodedToken.user_id) {
                         localStorage.setItem('userId', decodedToken.user_id);

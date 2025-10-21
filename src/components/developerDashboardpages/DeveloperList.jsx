@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 import {
     Search,
     Filter,
@@ -64,10 +65,11 @@ const DeveloperList = () => {
     };
 
     return (
-        <div className="min-h-screen bg-purple-200 py-4 px-4">
+        <DeveloperDashboardLayout>
+        <div className="min-h-screen py-4 px-4">
             <div className="w-full max-w-7xl mx-auto">
                 {/* Search and Controls Bar */}
-                <div className="flex items-center gap-2 mb-4 bg-purple-200 p-2">
+                <div className="flex items-center gap-2 mb-4 p-2">
                     {/* Search */}
                     <div className="relative w-60">
                         <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
@@ -344,6 +346,7 @@ const DeveloperList = () => {
                 </div>
             </div>
         </div>
+        </DeveloperDashboardLayout>
     )
 }
 

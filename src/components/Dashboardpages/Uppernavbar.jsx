@@ -36,9 +36,9 @@ const PlusIcon = () => (
 
 const PlansIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12.0001 2L8.00006 6L12.0001 10L16.0001 6L12.0001 2Z" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 6L4 10L12 18L20 10L16 6" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M4 10L12 22L20 10" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12.0001 2L8.00006 6L12.0001 10L16.0001 6L12.0001 2Z" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 6L4 10L12 18L20 10L16 6" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M4 10L12 22L20 10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -66,7 +66,27 @@ export default function UpperNavbar() {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  
+  useEffect(() => {
+    const getUserDetails = async () => {
+      const userId = localStorage.getItem('userId');
+      const authToken = localStorage.getItem('authToken');
+
+      const response = await fetch(`http://localhost:8000/api/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authToken}` 
+          },
+        });
+
+        const user = await response.json();
+        const userNameInitial = user.first_name.charAt(0);
+        setUserInitial(userNameInitial);
+      };
+      getUserDetails();
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -87,7 +107,6 @@ export default function UpperNavbar() {
 
   return (
     <nav className="flex items-center justify-between py-3 px-6 bg-white/70 backdrop-blur-md border-b border-gray-200/30 rounded-xl shadow-lg text-gray-700 relative z-10">
-    
       <div className="flex items-center gap-3">
         <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="App switcher">
           <GridIcon />
@@ -119,10 +138,10 @@ export default function UpperNavbar() {
 
     
       <div className="flex items-center gap-3">
-        <button className="create-button flex items-center gap-2 py-2.5 px-5 bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl text-sm font-semibold relative z-10">
+        <button className="create-button flex items-center gap-2 py-2.5 px-5 bg-blue-600 text-white rounded-xl text-sm font-semibold relative z-10">
             <PlusIcon /> Create
           </button>
-          <button className="plans-button flex items-center gap-2 py-2.5 px-5 bg-white text-emerald-600 border-2 border-emerald-400 rounded-xl text-sm font-semibold">
+          <button className="plans-button flex items-center gap-2 py-2.5 px-5 bg-blue-600 text-white rounded-xl text-sm font-semibold relative z-10">
             <PlansIcon /> See plans
           </button>
           <button className="icon-button p-2.5 rounded-full text-teal-700 hover:text-teal-900 relative" aria-label="Notifications">
