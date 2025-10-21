@@ -1,21 +1,98 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Users, X, AlertTriangle, Loader2, ShieldCheck, CheckSquare, Square } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Users, X, AlertTriangle, Loader2, ShieldCheck, CheckSquare, Square, Search } from 'lucide-react';
+
+// Custom hook to detect clicks outside of a component
+const useClickOutside = (ref, handler) => {
+    useEffect(() => {
+        const listener = (event) => {
+            if (!ref.current || ref.current.contains(event.target)) {
+                return;
+            }
+            handler(event);
+        };
+        document.addEventListener('mousedown', listener);
+        document.addEventListener('touchstart', listener);
+        return () => {
+            document.removeEventListener('mousedown', listener);
+            document.removeEventListener('touchstart', listener);
+        };
+    }, [ref, handler]);
+};
+
+// Unified Searchable Dropdown Component
+const SearchableDropdown = ({ allMembers, selectedDeveloperIds, selectedTesterIds, onSelect }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    useClickOutside(dropdownRef, () => setIsOpen(false));
+
+    const filteredMembers = allMembers.filter(member =>
+        `${member.first_name} ${member.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const getSelectedMembers = () => {
+        const selectedDevs = allMembers.filter(m => m.role === 'developer' && selectedDeveloperIds.includes(m.id));
+        const selectedTesters = allMembers.filter(m => m.role === 'tester' && selectedTesterIds.includes(m.id));
+        return [...selectedDevs, ...selectedTesters];
+    };
+
+    return (
+        <div className="flex-1" ref={dropdownRef}>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                <Users className="mr-2 h-5 w-5 text-indigo-700" />
+                Assign Developers or Testers
+            </h3>
+            <div className="relative">
+                <div 
+                    onClick={() => setIsOpen(prev => !prev)} 
+                    className="bg-white/60 rounded-lg p-2 flex flex-wrap gap-2 items-center cursor-text min-h-[44px]"
+                >
+                    {getSelectedMembers().map(member => (
+                        <span key={member.id} className="bg-indigo-600 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                            {member.first_name}
+                            <X onClick={(e) => { e.stopPropagation(); onSelect(member, member.role); }} className="ml-1 h-3 w-3 cursor-pointer" />
+                        </span>
+                    ))}
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsOpen(true)}
+                        placeholder="Search for developers or testers..."
+                        className="flex-grow bg-transparent outline-none text-gray-900 placeholder-gray-700 text-sm"
+                    />
+                </div>
+
+                {isOpen && (
+                    <div className="absolute top-full mt-2 w-full bg-white/90 backdrop-blur-md rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
+                        {filteredMembers.length > 0 ? filteredMembers.map(member => {
+                            const isSelected = selectedDeveloperIds.includes(member.id) || selectedTesterIds.includes(member.id);
+                            return (
+                                <div key={member.id} onClick={() => onSelect(member, member.role)} className={`flex items-center justify-between p-3 cursor-pointer text-gray-900 hover:bg-indigo-100 transition-colors ${isSelected ? 'font-semibold' : ''}`}>
+                                    <span>{member.first_name} {member.last_name} <span className="text-gray-500 text-xs">({member.role})</span></span>
+                                    {isSelected ? <CheckSquare className="h-5 w-5 text-indigo-600" /> : <Square className="h-5 w-5 text-gray-400" />}
+                                </div>
+                            );
+                        }) : <p className="text-sm text-gray-700 p-3">No members found.</p>}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 const AssignMembersModal = ({ project, onClose }) => {
   const [assignedMembers, setAssignedMembers] = useState([]);
-  const [developers, setDevelopers] = useState([]);
-  const [testers, setTesters] = useState([]);
-  // CHANGED: State now holds arrays for multiple selections
+  const [allAvailableMembers, setAllAvailableMembers] = useState([]);
   const [selectedDevelopers, setSelectedDevelopers] = useState([]);
   const [selectedTesters, setSelectedTesters] = useState([]);
-  
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showWarning, setShowWarning] = useState(false);
 
   const fetchData = useCallback(async () => {
-    // ... this function remains the same ...
     if (!project) return;
     setLoading(true);
     setError('');
@@ -33,8 +110,14 @@ const AssignMembersModal = ({ project, onClose }) => {
       const devData = await devResponse.json();
       const testerData = await testerResponse.json();
       setAssignedMembers(assignedData.results || assignedData);
-      setDevelopers(devData);
-      setTesters(testerData);
+
+      // Combine developers and testers into a single list with a 'role' property
+      const combined = [
+          ...devData.map(d => ({...d, role: 'developer'})),
+          ...testerData.map(t => ({...t, role: 'tester'})),
+      ];
+      setAllAvailableMembers(combined);
+
     } catch (err) {
       setError(err.message || 'An error occurred while fetching data.');
     } finally {
@@ -46,53 +129,34 @@ const AssignMembersModal = ({ project, onClose }) => {
     fetchData();
   }, [fetchData]);
 
-  // NEW: Rewritten handleSelect for multi-select and exclusive roles
   const handleSelect = (user, role) => {
-    setShowWarning(false); // Hide warning on any new selection attempt
+    setShowWarning(false);
     if (role === 'developer') {
-      // If user tries to select a dev while testers are selected
       if (selectedTesters.length > 0) {
-        setSelectedTesters([]); // Clear tester selections
-        setShowWarning(true);   // Show the warning
+        setSelectedTesters([]);
+        setShowWarning(true);
       }
-      // Toggle the developer selection
-      setSelectedDevelopers(prev => 
-        prev.includes(user.id) 
-          ? prev.filter(id => id !== user.id) 
-          : [...prev, user.id]
-      );
+      setSelectedDevelopers(prev => prev.includes(user.id) ? prev.filter(id => id !== user.id) : [...prev, user.id]);
     } 
-    
     if (role === 'tester') {
-      // If user tries to select a tester while devs are selected
       if (selectedDevelopers.length > 0) {
-        setSelectedDevelopers([]); // Clear developer selections
-        setShowWarning(true);      // Show the warning
+        setSelectedDevelopers([]);
+        setShowWarning(true);
       }
-      // Toggle the tester selection
-      setSelectedTesters(prev => 
-        prev.includes(user.id) 
-          ? prev.filter(id => id !== user.id) 
-          : [...prev, user.id]
-      );
+      setSelectedTesters(prev => prev.includes(user.id) ? prev.filter(id => id !== user.id) : [...prev, user.id]);
     }
   };
   
-  // CHANGED: handleSubmit now sends arrays
   const handleSubmit = async () => {
     const hasDevs = selectedDevelopers.length > 0;
     const hasTesters = selectedTesters.length > 0;
-
     if (!hasDevs && !hasTesters) return;
-
     setSubmitting(true);
     setError('');
     const authToken = localStorage.getItem('authToken');
-    
     try {
       let endpoint = '';
       let body = {};
-
       if (hasDevs) {
         endpoint = `http://localhost:8000/api/projects/${project.id}/members/bulk-assign/developer/`;
         body = { user_ids: selectedDevelopers };
@@ -100,22 +164,18 @@ const AssignMembersModal = ({ project, onClose }) => {
         endpoint = `http://localhost:8000/api/projects/${project.id}/members/bulk-assign/tester/`;
         body = { user_ids: selectedTesters };
       }
-
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
         body: JSON.stringify(body)
       });
-
       if (!response.ok) {
         throw new Error('An error occurred during assignment.');
       }
-      
       setSelectedDevelopers([]);
       setSelectedTesters([]);
       setShowWarning(false);
       await fetchData();
-
     } catch (err) {
       setError(err.message || 'Failed to assign members.');
     } finally {
@@ -123,33 +183,8 @@ const AssignMembersModal = ({ project, onClose }) => {
     }
   };
 
-  // CHANGED: MemberList now shows checkboxes
-  const MemberList = ({ title, members, selectedIds, onSelect, role }) => (
-    <div className="flex-1">
-      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-        <Users className="mr-2 h-5 w-5 text-indigo-700" />
-        {title}
-      </h3>
-      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-        {members.map(member => {
-          const isSelected = selectedIds.includes(member.id);
-          return (
-            <div key={member.id} onClick={() => onSelect(member, role)} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${ isSelected ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/60 hover:bg-white/90 text-gray-700' }`}>
-              <div>
-                <p className="font-medium">{member.first_name} {member.last_name}</p>
-                <p className={`text-xs ${isSelected ? 'text-indigo-200' : 'text-gray-500'}`}>{member.email}</p>
-              </div>
-              {isSelected ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5 text-gray-500" />}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm" onClick={onClose}>
-      {/* CHANGED: Gradient colors updated with transparency (0.95 alpha) */}
       <div className="rounded-2xl shadow-2xl w-full max-w-3xl m-4" style={{ background: 'linear-gradient(135deg, rgba(255, 205, 178, 0.95) 0%, rgba(255, 180, 162, 0.95) 30%, rgba(229, 152, 155, 0.95) 70%, rgba(181, 130, 140, 0.95) 100%)' }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b border-white/30">
           <div>
@@ -179,8 +214,12 @@ const AssignMembersModal = ({ project, onClose }) => {
                 </div>
               </div>
               <div className="flex flex-col md:flex-row gap-8">
-                <MemberList title="Available Developers" members={developers} selectedIds={selectedDevelopers} onSelect={handleSelect} role="developer" />
-                <MemberList title="Available Testers" members={testers} selectedIds={selectedTesters} onSelect={handleSelect} role="tester" />
+                <SearchableDropdown 
+                    allMembers={allAvailableMembers} 
+                    selectedDeveloperIds={selectedDevelopers} 
+                    selectedTesterIds={selectedTesters} 
+                    onSelect={handleSelect}
+                />
               </div>
             </>
           )}
@@ -190,7 +229,6 @@ const AssignMembersModal = ({ project, onClose }) => {
               <AlertTriangle className="h-5 w-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-amber-800">Important Note</h4>
-                {/* CHANGED: Warning message is updated */}
                 <p className="text-sm text-amber-700">You can assign multiple developers OR multiple testers at once, but not both. Your previous selections for the other role have been cleared.</p>
               </div>
             </div>
@@ -211,3 +249,4 @@ const AssignMembersModal = ({ project, onClose }) => {
 };
 
 export default AssignMembersModal;
+

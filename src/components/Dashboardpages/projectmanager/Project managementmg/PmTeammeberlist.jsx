@@ -1,4 +1,4 @@
-// src/components/Dashboardpages/Project management/Teammeberlist.jsx
+
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -8,7 +8,7 @@ import { Info } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
-// NEW: A stylish skeleton component that mimics the TeamMemberCard layout.
+
 const TeamCardSkeleton = () => (
     <div className="bg-white/50 backdrop-blur-md border border-white/30 rounded-xl p-4 flex items-center gap-4 shadow-lg animate-pulse">
         <div className="w-16 h-16 rounded-full bg-gray-300/80 flex-shrink-0"></div>
@@ -28,14 +28,14 @@ const PmTeamMembersList = () => {
     const [editingMember, setEditingMember] = useState(null);
 
     useEffect(() => {
-        // Simulating a slightly longer load time to make the skeleton visible
+        
         setTimeout(() => {
             const fetchMembers = async () => {
                 setLoading(true);
                 try {
                     const authToken = localStorage.getItem('authToken');
                     if (!authToken) throw new Error("Authentication token not found.");
-                    const response = await fetch(`${API_BASE_URL}/users/`, {
+                    const response = await fetch(`${API_BASE_URL}/users/manager-team-list/`, {
                         headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
                     });
                     if (!response.ok) throw new Error('Failed to fetch team members.');
@@ -49,7 +49,7 @@ const PmTeamMembersList = () => {
                 }
             };
             fetchMembers();
-        }, 500); // Small delay to ensure skeleton is visible
+        }, 500); 
     }, []);
     
     const handleUserUpdate = (updatedMember) => {
@@ -73,7 +73,7 @@ const PmTeamMembersList = () => {
     };
     
     const renderContent = () => {
-        // THE FIX: When loading, show the new skeleton component.
+       
         if (loading) {
             return (
                 <div className="space-y-4">

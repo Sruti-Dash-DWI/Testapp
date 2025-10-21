@@ -32,7 +32,7 @@ const SetPasswordPage = () => {
         setSuccess(false);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/set-password/`, { 
+            const response = await fetch(`${API_BASE_URL}/users/set-password/`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
