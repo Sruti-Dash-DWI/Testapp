@@ -1,5 +1,5 @@
 import React from 'react';
-import NavItem from '../NavItem.jsx';
+import NavItem from './DevNavitem.jsx';
 import AddItemDropdown from '../AddItemDropdown.jsx';
 
 const DeveloperDashboardinNav = ({ navItems, setNavItems, availableOptions }) => {

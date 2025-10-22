@@ -18,7 +18,7 @@ const Dashboardheader = ({projectName}) => {
         } else {
             document.exitFullscreen();
         }
-    };
+    };{}
 
     return (
         <header className="flex items-center rounded-t-2xl justify-between p-4 border-b border-gray-200/80 bg-white/50 backdrop-blur-sm flex-shrink-0">

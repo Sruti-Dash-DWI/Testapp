@@ -19,13 +19,6 @@ const MailIcon = () => (
   </svg>
 );
 
-const LogoIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20ZM10.5 7L14.5 11L10.5 15V7Z" fill="#2684FF"/>
-        <path d="M10.5 7L14.5 11L10.5 15V7Z" fill="white" stroke="white" strokeWidth="0.5" strokeLinejoin="round"/>
-    </svg>
-);
-
 
 const SearchIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -43,9 +36,9 @@ const PlusIcon = () => (
 
 const PlansIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12.0001 2L8.00006 6L12.0001 10L16.0001 6L12.0001 2Z" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 6L4 10L12 18L20 10L16 6" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M4 10L12 22L20 10" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12.0001 2L8.00006 6L12.0001 10L16.0001 6L12.0001 2Z" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 6L4 10L12 18L20 10L16 6" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M4 10L12 22L20 10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -69,10 +62,31 @@ const HelpIcon = () => (
 export default function UpperNavbar() {
   const [userInitial, setUserInitial] = useState('A');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  
+  useEffect(() => {
+    const getUserDetails = async () => {
+      const userId = localStorage.getItem('userId');
+      const authToken = localStorage.getItem('authToken');
+
+      const response = await fetch(`http://localhost:8000/api/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authToken}` 
+          },
+        });
+
+        const user = await response.json();
+        const userNameInitial = user.first_name.charAt(0);
+        setUserInitial(userNameInitial);
+      };
+      getUserDetails();
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -93,7 +107,6 @@ export default function UpperNavbar() {
 
   return (
     <nav className="flex items-center justify-between py-3 px-6 bg-white/70 backdrop-blur-md border-b border-gray-200/30 rounded-xl shadow-lg text-gray-700 relative z-10">
-    
       <div className="flex items-center gap-3">
         <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="App switcher">
           <GridIcon />
@@ -109,30 +122,35 @@ export default function UpperNavbar() {
 
       
       <div className="relative flex items-center flex-grow max-w-xl mx-6">
-        <div className="absolute left-3 pointer-events-none">
-          <SearchIcon />
+        <div className="absolute left-4 pointer-events-none transition-all duration-300" style={{
+            transform: searchFocused ? 'scale(1.1)' : 'scale(1)'
+        }}>          
+        <SearchIcon />
         </div>
         <input 
           type="text" 
           placeholder="Search" 
           className="w-full py-2 pl-10 pr-3 border border-gray-300 rounded-lg bg-gray-50 text-base transition duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40" 
-        />
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+          />
       </div>
 
     
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 py-2 px-4 bg-blue-600 text-white rounded-md text-sm font-medium transition duration-200 hover:bg-blue-700 hover:shadow-md">
-          <PlusIcon /> Create
-        </button>
-        <button className="flex items-center gap-2 py-2 px-4 bg-white text-violet-500 border border-violet-500 rounded-md text-sm font-medium transition duration-200 hover:bg-violet-50">
-          <PlansIcon /> See plans
-        </button>
-        <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="Notifications">
-          <BellIcon />
-        </button>
-        <button className="p-2 rounded-full text-gray-600 hover:bg-black/5 transition-colors duration-200" aria-label="Help">
-          <HelpIcon />
-        </button>
+        <button className="create-button flex items-center gap-2 py-2.5 px-5 bg-blue-600 text-white rounded-xl text-sm font-semibold relative z-10">
+            <PlusIcon /> Create
+          </button>
+          <button className="plans-button flex items-center gap-2 py-2.5 px-5 bg-blue-600 text-white rounded-xl text-sm font-semibold relative z-10">
+            <PlansIcon /> See plans
+          </button>
+          <button className="icon-button p-2.5 rounded-full text-teal-700 hover:text-teal-900 relative" aria-label="Notifications">
+            <BellIcon />
+            <span className="notification-dot"></span>
+          </button>
+          <button className="icon-button p-2.5 rounded-full text-teal-700 hover:text-teal-900" aria-label="Help">
+            <HelpIcon />
+          </button>
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}

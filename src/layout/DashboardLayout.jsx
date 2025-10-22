@@ -38,9 +38,9 @@ const DashboardLayout = () => {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (window.innerWidth < 768) setIsNavOpen(false);
-  }, [location]);
+  // useEffect(() => {
+  //   if (window.innerWidth < 768) setIsNavOpen(false);
+  // }, [location]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -96,7 +96,6 @@ const DashboardLayout = () => {
       </div>
       <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
         <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-         
           <SideNav isOpen={isNavOpen} openInviteModal={openModal} />
         </div>
         <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
