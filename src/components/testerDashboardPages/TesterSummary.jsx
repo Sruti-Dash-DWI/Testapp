@@ -11,6 +11,7 @@ import {
     ChevronDown,
     Search,
 } from "lucide-react";
+import TesterDashboardLayout from '../../layout/TesterDashboardLayout';
 
 const Summary = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -45,8 +46,9 @@ const Summary = () => {
 
     return (
         <>
+        <TesterDashboardLayout>
             
-                 <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-purple-100 to-purple-50 p-6">
+                 <div className="flex-1 flex flex-col bg-gradient-to-l from-[#6366f1] via-[#a5b4fc] to-[#e0e7ff] p-6">
                     {/* Filter */}
                     <div className="relative mb-6">
                         <button 
@@ -60,7 +62,7 @@ const Summary = () => {
 
                         {/* Filter Dropdown */}
                         {isFilterOpen && (
-                            <div className="absolute top-full left-0 mt-2 w-80 bg-purple-100 rounded-lg shadow-lg border border-gray-200 z-10">
+                            <div className="absolute top-full left-0 mt-2 w-80 bg-indigo-100 rounded-lg shadow-lg border border-gray-200 z-10">
                                 <div className="p-4">
                                     {/* Search */}
                                     <div className="relative mb-4">
@@ -68,7 +70,7 @@ const Summary = () => {
                                         <input
                                             type="text"
                                             placeholder="Search more filters"
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                         />
                                     </div>
 
@@ -80,7 +82,7 @@ const Summary = () => {
                                                     type="checkbox"
                                                     checked={selectedFilters[option.key]}
                                                     onChange={() => handleFilterToggle(option.key)}
-                                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                                                 />
                                                 <span className="text-sm text-gray-700">{option.label}</span>
                                             </label>
@@ -94,9 +96,9 @@ const Summary = () => {
                     {/* Stats */}
                     <div className="grid grid-cols-4 gap-4 mb-8">
                         {/* Completed */}
-                        <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                            <div className="bg-purple-100 p-2 rounded">
-                                <CheckCircle className="w-6 h-6 text-purple-700" />
+                        <div className="bg-indigo-100 p-4 rounded-lg shadow border border-indigo-200 flex items-center space-x-3">
+                            <div className="bg-indigo-100 p-2 rounded">
+                                <CheckCircle className="w-6 h-6 text-indigo-700" />
                             </div>
                             <div>
                                 <div className="text-lg font-semibold">0 completed</div>
@@ -105,9 +107,9 @@ const Summary = () => {
                         </div>
 
                         {/* Created */}
-                        <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                            <div className="bg-purple-100 p-2 rounded">
-                                <FileText className="w-6 h-6 text-purple-700" />
+                        <div className="bg-indigo-100 p-4 rounded-lg shadow border border-indigo-200 flex items-center space-x-3">
+                            <div className="bg-indigo-100 p-2 rounded">
+                                <FileText className="w-6 h-6 text-indigo-700" />
                             </div>
                             <div>
                                 <div className="text-lg font-semibold">2 created</div>
@@ -116,9 +118,9 @@ const Summary = () => {
                         </div>
 
                         {/* Updated */}
-                        <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                            <div className="bg-purple-100 p-2 rounded">
-                                <Clock className="w-6 h-6 text-purple-700" />
+                        <div className="bg-indigo-100 p-4 rounded-lg shadow border border-indigo-200 flex items-center space-x-3">
+                            <div className="bg-indigo-100 p-2 rounded">
+                                <Clock className="w-6 h-6 text-indigo-700" />
                             </div>
                             <div>
                                 <div className="text-lg font-semibold">2 updated</div>
@@ -127,9 +129,9 @@ const Summary = () => {
                         </div>
 
                         {/* Due Soon */}
-                        <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                            <div className="bg-purple-100 p-2 rounded">
-                                <Calendar className="w-6 h-6 text-purple-700" />
+                        <div className="bg-indigo-100 p-4 rounded-lg shadow border border-indigo-200 flex items-center space-x-3">
+                            <div className="bg-indigo-100 p-2 rounded">
+                                <Calendar className="w-6 h-6 text-indigo-700" />
                             </div>
                             <div>
                                 <div className="text-lg font-semibold">0 due soon</div>
@@ -141,7 +143,7 @@ const Summary = () => {
                     {/* Main Grid */}
                     <div className="grid grid-cols-2 gap-6">
                         {/* Status Overview */}
-                        <div className="bg-purple-100 p-6 rounded-lg shadow border border-purple-200">
+                        <div className="bg-indigo-100 p-6 rounded-lg shadow border border-indigo-200">
                             <h3 className="text-lg font-medium mb-1">Status overview</h3>
                             <p className="text-sm text-gray-600 mb-6">
                                 Get a snapshot of the status of your work items
@@ -215,7 +217,7 @@ const Summary = () => {
                         </div>
 
                         {/* Recent Activity */}
-                        <div className="bg-purple-100 p-6 rounded-lg shadow border border-purple-200">
+                        <div className="bg-indigo-100 p-6 rounded-lg shadow border border-indigo-200">
                             <h3 className="text-lg font-medium mb-1">Recent activity</h3>
                             <p className="text-sm text-gray-600 mb-4">
                                 Stay up to date with what's happening across the project.
@@ -277,9 +279,10 @@ const Summary = () => {
                         </div>
                     </div>
                 </div>
-           
+           </TesterDashboardLayout>
         </>
     )
 }
 
-export default Summary
+export default Summary;
+

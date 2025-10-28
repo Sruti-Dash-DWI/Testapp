@@ -6,9 +6,9 @@ import TesterDashboardheader from "../components/tester/TesterDashboardheader";
 import TesterUppernavbar from "../components/tester/TesterUppernavbar";
 
 const pathsWithInnerNav = [
-  '/projects', '/backlog', '/summary', '/list', '/board', '/timeline',
-  '/pages', '/code', '/forms', '/calendar', '/all-work', '/archived-work-items',
-  '/deployments', '/goals', '/on-call', '/releases', '/reports', '/security', '/shortcuts'
+  '/tester/projects', '/tester/backlog', '/tester/summary', '/tester/list', '/tester/board', '/tester/timeline',
+  '/tester/pages', '/tester/code', '/tester/forms', '/tester/calendar', '/tester/all-work', '/tester/archived-work-items',
+  '/tester/deployments', '/tester/goals', '/tester/on-call', '/tester/releases', '/tester/reports', '/tester/security', '/tester/shortcuts'
 ];
 
 const TesterDashboardLayout = ({children}) => {

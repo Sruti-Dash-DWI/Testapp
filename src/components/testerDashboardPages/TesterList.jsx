@@ -17,6 +17,7 @@ import {
     FileText,
     PieChart
 } from 'lucide-react'
+import TesterDashboardLayout from '../../layout/TesterDashboardLayout';
 
 const List = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -64,7 +65,8 @@ const List = () => {
     };
 
     return (
-        <div className="min-h-screen bg-purple-200 py-4 px-4">
+        <TesterDashboardLayout>
+        <div className="min-h-screen bg-gradient-to-br from-[#A8C0FF] to-[#3F2B96] py-4 px-4">
             <div className="w-full max-w-7xl mx-auto">
                 {/* Search and Controls Bar */}
                 <div className="flex items-center gap-2 mb-4 bg-purple-200 p-2">
@@ -344,6 +346,7 @@ const List = () => {
                 </div>
             </div>
         </div>
+        </TesterDashboardLayout>
     )
 }
 

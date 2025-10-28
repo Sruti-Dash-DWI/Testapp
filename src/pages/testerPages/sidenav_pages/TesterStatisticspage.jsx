@@ -1,11 +1,13 @@
 import React from 'react'
-import DashboardLayout from '../../layout/DashboardLayout'
+import TesterDashboardLayout from '../../../layout/TesterDashboardLayout'
 
 const Statisticspage = () => {
   return (
     <>
+    <TesterDashboardLayout>
    
         <h1>Statistics</h1>
+    </TesterDashboardLayout>    
    
     </>
   )

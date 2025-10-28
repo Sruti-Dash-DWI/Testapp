@@ -1,12 +1,14 @@
 import React from 'react'
-import DashboardLayout from '../../layout/DashboardLayout'
+import TesterDashboardLayout from '../../../layout/TesterDashboardLayout'
 
 const Documents = () => {
   return (
     <>
+    <TesterDashboardLayout>
                            
       <h1>Documents</h1>
       <p>Manage your project documentation and files.</p>
+      </TesterDashboardLayout>
     
     </>
   )

@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { initialTasks } from '../../data/initial-data';
+import { Link, useParams } from 'react-router-dom';
 import AddTaskModal from '../AddTaskModal';
-import EditTaskModal from '../EditTaskModal';
 import TaskColumn from '../TaskColumn';
 import {
   MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
   FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons';
-// CRITICAL CHANGE: Removed the import for DashboardLayout
-// import DashboardLayout from '../../layout/DashboardLayout';
+import TesterDashboardLayout from '../../layout/TesterDashboardLayout';
 
 const Dropdown = ({ button, children, align = 'right' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +23,7 @@ const Dropdown = ({ button, children, align = 'right' }) => {
   }, []);
 
   return (
+    <TesterDashboardLayout>
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
@@ -35,20 +33,20 @@ const Dropdown = ({ button, children, align = 'right' }) => {
       </button>
       {isOpen && (
         <div
-          className={`absolute mt-2 z-50 bg-black/70 backdrop-blur-md border border-white/20 rounded-lg shadow-xl py-1 w-56 overflow-hidden ${
-            align === 'right' ? 'right-0' : 'left-0'
-          }`}
+          className={`absolute mt-2 z-50 bg-black/70 backdrop-blur-md border border-white/20 rounded-lg shadow-xl py-1 w-56 overflow-hidden ${align === 'right' ? 'right-0' : 'left-0'
+            }`}
         >
           {children}
         </div>
       )}
     </div>
+    </TesterDashboardLayout>
   );
 };
 
 
 const Board = () => {
-  // All your existing state and logic remains the same...
+  const { projectId } = useParams();
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,68 +57,87 @@ const Board = () => {
   const [sortTerm, setSortTerm] = useState('default');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLocalSearchOpen, setIsLocalSearchOpen] = useState(false);
-  const [newTaskStatus, setNewTaskStatus] = useState(null);
+  const [newTaskColumnId, setNewTaskColumnId] = useState(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
-  const [draggingTaskId, setDraggingTaskId] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const [taskRefetchTrigger, setTaskRefetchTrigger] = useState(0);
 
-  const fetchColumns = async () => {
-    setColumnError(null);
-    try {
-      const authToken = localStorage.getItem('authToken'); // Ensure you have auth token logic
-      const response = await fetch('http://localhost:8000/api/tasks/statuses/', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch columns from server.');
-      }
-      const data = await response.json();
-      setColumns(data); // Update state with fetched columns
-    } catch (err) {
-      console.error(err);
-      setColumnError('Could not load board columns. Please try again.');
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      await fetchColumns();
-
+  const fetchAndOrderColumns = async () => {
+      setColumnError(null);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setTasks(initialTasks);
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:8000/api/statuses/', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch columns from server.');
+        }
+        const data = await response.json();
+        const savedOrder = JSON.parse(localStorage.getItem('columnOrder'));
+        if (savedOrder) {
+          const orderedColumns = data.sort((a, b) => {
+            return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
+          });
+          setColumns(orderedColumns);
+        } else {
+          setColumns(data);
+        }
+
       } catch (err) {
-        setError(err);
-        console.error('Failed to fetch tasks:', err);
-      } finally {
-        setLoading(false);
+        console.error(err);
+        setColumnError('Could not load board columns. Please try again.');
       }
     };
-    fetchData();
+
+  useEffect(() => {
+    fetchAndOrderColumns();
   }, []);
 
-  const handleOpenAddTaskModal = (status) => {
-    setNewTaskStatus(status);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:8000/api/tasks/', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch tasks.');
+        }
+        const data = await response.json();
+        console.log(data, "data of tasks");
+        setTasks(data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch tasks:', err);
+        setError('Could not load tasks. Please try again.');
+      }
+    };
+    fetchTasks();
+  }, [taskRefetchTrigger]);
+
+  const handleOpenAddTaskModal = (columnId) => {
+    setNewTaskColumnId(columnId);
     setIsModalOpen(true);
   };
 
-  const handleAddTask = async (newTaskData) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const addedTask = {
-        ...newTaskData,
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-      };
-      setTasks((prevTasks) => [...prevTasks, addedTask]);
-    } catch (err) {
-      console.error('Failed to add task', err);
-    }
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewTaskColumnId(null);
+  };
+
+
+  const handleAddTask = async () => {
+    // After a new task is successfully added in the modal,
+    // we just need to refresh our list of tasks from the server.
+    //await fetchTasks();
+    setTaskRefetchTrigger(prev => prev + 1);
   };
 
   const handleSaveNewColumn = async () => {
@@ -144,46 +161,148 @@ const Board = () => {
       if (!response.ok) {
         throw new Error('Failed to create the column on the server.');
       }
-      
-      // After successful creation, refetch all columns to get the latest list
-      await fetchColumns();
 
-      } catch (err) {
-        console.error('Failed to save new column:', err);
-        setColumnError('Failed to create the new column. Please try again.');
-      } finally {
-        // Reset the input form regardless of outcome
-        setNewColumnTitle("");
-        setIsAddingColumn(false);
-      }
-    };
+      //refetch all columns to get the latest list
+      await fetchAndOrderColumns();
 
-  const handleUpdateTask = (taskId, updatedData) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id.toString() === taskId ? { ...task, ...updatedData } : task
-      )
-    );
+    } catch (err) {
+      console.error('Failed to save new column:', err);
+      setColumnError('Failed to create the new column. Please try again.');
+    } finally {
+      setNewColumnTitle("");
+      setIsAddingColumn(false);
+    }
   };
 
-  const handleMoveColumn = (columnStatus, direction) => {
-    setColumns(prevColumns => {
-      const newColumns = [...prevColumns];
-      const currentIndex = newColumns.findIndex(col => col.status === columnStatus);
-      if (direction === 'left' && currentIndex > 0) {
-        [newColumns[currentIndex - 1], newColumns[currentIndex]] =
-        [newColumns[currentIndex], newColumns[currentIndex - 1]];
-      } else if (direction === 'right' && currentIndex < newColumns.length - 1) {
-        [newColumns[currentIndex], newColumns[currentIndex + 1]] =
-        [newColumns[currentIndex + 1], newColumns[currentIndex]];
+  const handleUpdateTask = async (taskId, updatedData) => {
+    const originalTast = [...tasks];
+    const newColumn = columns.find(col => col.id === updatedData.status);
+    if (!newColumn) {
+      console.error('Column not found');
+      return;
+    }
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id.toString() === taskId
+          ? { ...task, status: newColumn }
+          : task
+      )
+    );
+    try {
+      const authToken = localStorage.getItem('authToken');
+      // Use PATCH for partial updates, targeting the specific task by its ID.
+      const response = await fetch(`http://localhost:8000/api/tasks/${taskId}/status/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update task on the server.');
       }
-      return newColumns;
-    });
+
+    } catch (err) {
+      console.error('Error updating task:', err);
+      // If the API call fails, revert the UI change to its original state.
+      alert('Could not move the task. Please try again.');
+      setTasks(originalTasks);
+    }
+  };
+
+
+  const handleDeleteColumn = async (columnIdToDelete) => {
+    const columnToDelete = columns.find(col => col.id === columnIdToDelete);
+    if (!columnToDelete) return;
+    const statusToDelete = columnToDelete.status;
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/statuses/${columnIdToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete the column from the server.');
+      }
+
+      console.log(`Column with ID ${columnIdToDelete} deleted successfully.`);
+      setColumns(prevColumns => prevColumns.filter(col => col.id !== columnIdToDelete));
+      setTasks(prevTasks => prevTasks.filter(task => task.status !== statusToDelete));
+
+    } catch (err) {
+      console.error('Error deleting column:', err);
+      setError('Could not delete the column. Please try again.');
+    }
+  };
+
+  const handleMoveColumn = (columnId, direction) => {
+    const newColumns = [...columns];
+    const currentIndex = newColumns.findIndex(col => col.id === columnId);
+    if (currentIndex === -1) return;
+    if (direction === 'left' && currentIndex === 0) return;
+    if (direction === 'right' && currentIndex === newColumns.length - 1) return;
+    const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+
+    [newColumns[currentIndex], newColumns[targetIndex]] = [newColumns[targetIndex], newColumns[currentIndex]];
+    setColumns(newColumns);
+    const columnOrder = newColumns.map(col => col.id);
+    localStorage.setItem('columnOrder', JSON.stringify(columnOrder));
+  };
+
+  const handleChangeColumnTitle = async (columnId, newTitle) => {
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) {
+      alert('Column title cannot be empty');
+      return;
+    }
+
+    // Optimistically update UI
+    const originalColumns = [...columns];
+    setColumns(prevColumns =>
+      prevColumns.map(col =>
+        col.id === columnId ? { ...col, title: trimmedTitle } : col
+      )
+    );
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/statuses/${columnId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ title: trimmedTitle }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update column title on the server.');
+      }
+
+      console.log(`Column ${columnId} title updated to "${trimmedTitle}"`);
+    } catch (err) {
+      console.error('Error updating column title:', err);
+      alert('Could not update the column title. Please try again.');
+      // Revert to original state on error
+      setColumns(originalColumns);
+    }
   };
 
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
   const filteredTasks = tasks.filter((task) => {
+
+    const matchesProject = task.project?.toString() === projectId;
+    if (!matchesProject) {
+      return false;
+    }
+
     const matchesSearch =
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -209,21 +328,21 @@ const Board = () => {
   if (loading) return <div className="flex items-center justify-center h-full text-white text-xl">Loading tasks...</div>;
   if (error) return <div className="flex items-center justify-center h-full text-red-400 text-xl">Error loading tasks.</div>;
 
-  
+
   return (
-    <div className="flex flex-col text-white p-4 md:p-6 h-full">
+    <div className="flex flex-col text-white p-4 md:p-6 h-full bg-gradient-to-br from-[#A8C0FF] to-[#3F2B96]">
       <AddTaskModal
-        show={isModalOpen}
-        onHide={() => setIsModalOpen(false)}
+        show={isModalOpen || !!editingTask}
+        onHide={() => {
+          handleCloseModal();
+          setEditingTask(null);
+        }}
         onAddTask={handleAddTask}
         columns={columns}
-        initialStatus={newTaskStatus}
-      />
-      <EditTaskModal
-        show={!!editingTask}
-        onHide={() => setEditingTask(null)}
-        onUpdateTask={handleUpdateTask}
+        initialColumnId={newTaskColumnId}
+        projectId={projectId}
         task={editingTask}
+        isEditMode={!!editingTask}
       />
       <header className="flex-shrink-0 flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
@@ -253,7 +372,7 @@ const Board = () => {
           </Dropdown>
         </div>
         <div className="hidden lg:flex flex-1 justify-center px-8 ">
-          <input type="text" placeholder="Search tasks, projects..." value={searchTerm} onChange={handleSearchChange} className="w-full max-w-lg p-2.5 border border-white/30 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm bg-white/20 backdrop-blur-sm text-white placeholder:text-gray-700"/>
+          <input type="text" placeholder="Search tasks, projects..." value={searchTerm} onChange={handleSearchChange} className="w-full max-w-lg p-2.5 border border-white/30 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm bg-white/20 backdrop-blur-sm text-white placeholder:text-gray-700" />
         </div>
         <div className="flex items-center gap-2 md:gap-5">
           <button className="hidden md:flex items-center gap-2 p-2 rounded-lg text-gray-600 hover:bg-black/20">
@@ -264,7 +383,7 @@ const Board = () => {
             <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
           </button>
           <Link to="/login" className="p-1 rounded-full text-gray-600 hover:bg-black/40">
-            <AdminIcon className="h-7 w-7"/>
+            <AdminIcon className="h-7 w-7" />
           </Link>
         </div>
       </header>
@@ -284,16 +403,16 @@ const Board = () => {
               </div>
             ))}
           </Dropdown>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-white/30">
+          <button onClick={() => { setIsModalOpen(true); setNewTaskColumnId(null) }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-white/30">
             <span className="text-lg font-bold text-gray-600">+</span> <span className="text-gray-700">Add Task</span>
           </button>
         </div>
         <div className="flex items-center gap-3 self-end w-full md:w-auto justify-end">
           <div className="relative">
-            {isLocalSearchOpen ? (<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearchChange} className="w-48 p-2 rounded-lg border border-black/40 bg-white/10 backdrop-blur-sm text-gray-700 placeholder:text-gray-700 focus:ring-2 focus:ring-gray-400 focus:outline-none"/>
+            {isLocalSearchOpen ? (<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearchChange} className="w-48 p-2 rounded-lg border border-black/40 bg-white/10 backdrop-blur-sm text-gray-700 placeholder:text-gray-700 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
             ) : (<button onClick={() => setIsLocalSearchOpen(true)} className="p-2.5 rounded-lg bg-black/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-black/30">
-                <SearchIcon />
-              </button>
+              <SearchIcon />
+            </button>
             )}
           </div>
           <button className="p-2 rounded-lg bg-black/20 backdrop-blur-sm border border-white/30 text-gray-200 hover:bg-black/30">
@@ -306,30 +425,26 @@ const Board = () => {
           <TaskColumn
             key={column.id}
             title={column.title}
-            tasks={sortedTasks.filter(task => task.status === column.status)}
+            tasks={sortedTasks.filter(task => task.status?.id === column.id)}
             status={column.status}
+            columnId={column.id}
             onUpdateTask={handleUpdateTask}
             onAddTaskClick={handleOpenAddTaskModal}
             onMoveColumn={handleMoveColumn}
-            onDeleteColumn={(status) => {
-              // Replaced window.confirm with a direct action for this fix.
-              // Consider implementing a custom modal for confirmation.
-              setTasks(tasks.filter(task => task.status !== status));
-              setColumns(columns.filter(col => col.status !== status));
-            }}
+            onDeleteColumn={handleDeleteColumn}
+            onChangeColumnTitle={handleChangeColumnTitle}
             onEditTask={setEditingTask}
-            columnIndex={columns.findIndex(col => col.status === column.status)}
+            columnIndex={columns.findIndex(col => col.id === column.id)}
             totalColumns={columns.length}
-            draggingTaskId={draggingTaskId}
-            setDraggingTaskId={setDraggingTaskId}
           />
         ))}
+        
         <div className="w-80 flex-shrink-0">
           {isAddingColumn ? (
             <div className="bg-black/20 p-4 rounded-xl">
               <input
                 type="text"
-                value={newColumnTitle}
+                value={newColumnTitle} // <--- FIX: Use the correct state variable
                 onChange={(e) => setNewColumnTitle(e.target.value)}
                 onBlur={handleSaveNewColumn}
                 onKeyDown={(e) => {
@@ -359,3 +474,4 @@ const Board = () => {
 };
 
 export default Board;
+

@@ -1,13 +1,15 @@
 import React from 'react'
-import DashboardLayout from '../../layout/DashboardLayout'
-
+import TesterDashboardLayout from '../../../layout/TesterDashboardLayout'
 const Cart = () => {
   return (
     <>
+    <TesterDashboardLayout>
     
         
       <h1>Shoping cart</h1>
               
+    
+    </TesterDashboardLayout>
     </>
   )
 }

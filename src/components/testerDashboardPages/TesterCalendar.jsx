@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, Calendar, MoreHorizontal, Plus, ChevronDown, X, Check } from 'lucide-react';
+import TesterDashboardLayout from '../../layout/TesterDashboardLayout';
 
 export default function CalendarUI() {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1)); // September 2025
@@ -141,7 +142,8 @@ export default function CalendarUI() {
   );
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-white to-purple-100 min-h-screen">
+    <TesterDashboardLayout>
+    <div className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-[#f59e0b] via-[#fcd34d] to-[#fef9c3] min-h-screen">
       {/* Backdrop for closing dropdowns */}
       {(showTypeDropdown || showStatusDropdown || showAssigneeDropdown || showMoreFiltersDropdown) && (
         <div
@@ -151,7 +153,7 @@ export default function CalendarUI() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-purple-100 bg-white/95 backdrop-blur-sm relative z-20">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-amber-200 bg-white/95 backdrop-blur-sm relative z-20">
         {/* Left side - Search and Filters */}
         <div className="flex items-center space-x-4">
           <div className="relative">
@@ -159,7 +161,7 @@ export default function CalendarUI() {
             <input
               type="text"
               placeholder="Search calendar"
-              className="pl-10 pr-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64 bg-white"
+              className="pl-10 pr-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent w-64 bg-white"
             />
           </div>
 
@@ -171,23 +173,23 @@ export default function CalendarUI() {
                   closeAllDropdowns();
                   setShowAssigneeDropdown(!showAssigneeDropdown);
                 }}
-                className="flex items-center px-3 py-2 border border-pink-300 rounded-lg hover:bg-gradient-to-r hover:from-pink-100 hover:to-rose-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-sm shadow-sm text-pink-600"
+                className="flex items-center px-3 py-2 border border-amber-300 rounded-lg hover:bg-gradient-to-r hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-amber-50/90 backdrop-blur-sm shadow-sm text-amber-600"
               >
                 Assignee
                 <ChevronDown className="ml-1 w-4 h-4" />
               </button>
               {showAssigneeDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30">
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white/95 backdrop-blur-sm border border-amber-200 rounded-lg shadow-lg z-30">
                   <div className="p-3">
                     <div className="relative mb-2">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Search Assignee"
-                        className="pl-9 pr-3 py-2 w-full border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="pl-9 pr-3 py-2 w-full border border-amber-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
-                    <div className="text-xs text-purple-500">No assignees found</div>
+                    <div className="text-xs text-amber-500">No assignees found</div>
                   </div>
                 </div>
               )}
@@ -200,40 +202,40 @@ export default function CalendarUI() {
                   closeAllDropdowns();
                   setShowTypeDropdown(!showTypeDropdown);
                 }}
-                className="flex items-center px-3 py-2 border border-blue-200 rounded-lg hover:bg-gradient-to-r hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-sm shadow-sm text-blue-700"
+                className="flex items-center px-3 py-2 border border-yellow-200 rounded-lg hover:bg-gradient-to-r hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300 bg-gradient-to-r from-white/90 to-yellow-50/90 backdrop-blur-sm shadow-sm text-yellow-700"
               >
                 Type
                 <ChevronDown className="ml-1 w-4 h-4" />
               </button>
               {showTypeDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30">
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-amber-200 rounded-lg shadow-lg z-30">
                   <div className="p-3">
                     <div className="relative mb-2">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Search Type"
-                        className="pl-9 pr-3 py-2 w-full border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="pl-9 pr-3 py-2 w-full border border-amber-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer">
+                      <label className="flex items-center space-x-2 p-2 hover:bg-amber-50 rounded cursor-pointer">
                         <input type="checkbox" className="rounded" />
-                        <span className="text-purple-500">✨</span>
+                        <span className="text-amber-600">✨</span>
                         <span className="text-sm">Epic</span>
                       </label>
-                      <label className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer">
+                      <label className="flex items-center space-x-2 p-2 hover:bg-amber-50 rounded cursor-pointer">
                         <input type="checkbox" className="rounded" />
-                        <span className="text-purple-500">🔗</span>
+                        <span className="text-amber-600">🔗</span>
                         <span className="text-sm">Subtask</span>
                       </label>
-                      <label className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer bg-purple-100">
+                      <label className="flex items-center space-x-2 p-2 hover:bg-amber-50 rounded cursor-pointer bg-amber-100">
                         <input type="checkbox" className="rounded" defaultChecked />
-                        <span className="text-purple-500">✓</span>
+                        <span className="text-amber-600">✓</span>
                         <span className="text-sm">Task</span>
                       </label>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-purple-200 text-xs text-purple-600 text-center">
+                    <div className="mt-2 pt-2 border-t border-amber-200 text-xs text-amber-600 text-center">
                       3 of 3
                     </div>
                   </div>
@@ -254,30 +256,30 @@ export default function CalendarUI() {
                 <ChevronDown className="ml-1 w-4 h-4" />
               </button>
               {showStatusDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30">
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white/95 backdrop-blur-sm border border-amber-200 rounded-lg shadow-lg z-30">
                   <div className="p-3">
                     <div className="relative mb-2">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Search Status"
-                        className="pl-9 pr-3 py-2 w-full border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="pl-9 pr-3 py-2 w-full border border-amber-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                     <div className="space-y-1">
                       {statusOptions.map((status) => (
-                        <label key={status.id} className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer">
+                        <label key={status.id} className="flex items-center space-x-2 p-2 hover:bg-amber-50 rounded cursor-pointer">
                           <input type="checkbox" className="rounded" />
                           <span className={`text-xs px-2 py-1 rounded font-medium ${status.color === 'green' ? 'bg-green-100 text-green-800' :
-                              status.color === 'blue' ? 'bg-purple-100 text-purple-800' :
-                                'bg-purple-100 text-purple-800'
+                              status.color === 'blue' ? 'bg-amber-100 text-amber-800' :
+                                'bg-amber-100 text-amber-800'
                             }`}>
                             {status.name}
                           </span>
                         </label>
                       ))}
                     </div>
-                    <div className="mt-2 pt-2 border-t border-purple-200 text-xs text-purple-600 text-center">
+                    <div className="mt-2 pt-2 border-t border-amber-200 text-xs text-amber-600 text-center">
                       3 of 3
                     </div>
                   </div>
@@ -292,20 +294,20 @@ export default function CalendarUI() {
                   closeAllDropdowns();
                   setShowMoreFiltersDropdown(!showMoreFiltersDropdown);
                 }}
-                className="flex items-center px-3 py-2 border border-purple-200 rounded-lg hover:bg-gradient-to-r hover:from-purple-100 hover:to-violet-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-purple-50/90 backdrop-blur-sm shadow-sm text-purple-700"
+                className="flex items-center px-3 py-2 border border-amber-200 rounded-lg hover:bg-gradient-to-r hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-amber-50/90 backdrop-blur-sm shadow-sm text-amber-700"
               >
                 More filters
                 <ChevronDown className="ml-1 w-4 h-4" />
               </button>
               {showMoreFiltersDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto">
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white/95 backdrop-blur-sm border border-amber-200 rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto">
                   <div className="p-3">
                     <div className="relative mb-3">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-400 w-4 h-4" />
                       <input
                         type="text"
                         placeholder="Search more filters"
-                        className="pl-9 pr-3 py-2 w-full border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="pl-9 pr-3 py-2 w-full border border-amber-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                     <div className="space-y-1">
@@ -335,7 +337,7 @@ export default function CalendarUI() {
                         'Versions',
                         'Watchers'
                       ].map((filter) => (
-                        <label key={filter} className="flex items-center space-x-2 p-2 hover:bg-purple-50 rounded cursor-pointer">
+                        <label key={filter} className="flex items-center space-x-2 p-2 hover:bg-amber-50 rounded cursor-pointer">
                           <input type="checkbox" className="rounded w-4 h-4" />
                           <span className="text-sm">{filter}</span>
                         </label>
@@ -352,7 +354,7 @@ export default function CalendarUI() {
         <div className="flex items-center space-x-4">
           <button
             onClick={goToToday}
-            className="px-4 py-2 border border-orange-200 rounded-lg hover:bg-gradient-to-r hover:from-orange-100 hover:to-amber-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm text-orange-700 font-medium"
+            className="px-4 py-2 border border-amber-300 rounded-lg hover:bg-gradient-to-r hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 bg-gradient-to-r from-white/90 to-amber-50/90 backdrop-blur-sm shadow-sm text-amber-700 font-medium"
           >
             Today
           </button>
@@ -360,32 +362,32 @@ export default function CalendarUI() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => navigateMonth(-1)}
-              className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm"
+              className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm"
             >
-              <ChevronLeft className="w-5 h-5 text-violet-600" />
+              <ChevronLeft className="w-5 h-5 text-amber-600" />
             </button>
 
-            <span className="text-xl font-bold min-w-32 text-center bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold min-w-32 text-center bg-gradient-to-r from-amber-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </span>
 
             <button
               onClick={() => navigateMonth(1)}
-              className="p-2 hover:bg-gradient-to-r hover:from-violet-200 hover:to-purple-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-violet-50/80 shadow-sm"
+              className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm"
             >
-              <ChevronRight className="w-5 h-5 text-violet-600" />
+              <ChevronRight className="w-5 h-5 text-amber-600" />
             </button>
           </div>
 
           <div className="flex items-center space-x-2">
-            <button className="p-2 hover:bg-gradient-to-r hover:from-cyan-200 hover:to-blue-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-cyan-50/80 shadow-sm">
-              <Calendar className="w-5 h-5 text-cyan-600" />
+            <button className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm">
+              <Calendar className="w-5 h-5 text-amber-600" />
             </button>
             <button
               onClick={() => setShowTaskModal(true)}
-              className="p-2 hover:bg-gradient-to-r hover:from-rose-200 hover:to-pink-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-rose-50/80 shadow-sm"
+              className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm"
             >
-              <Plus className="w-5 h-5 text-rose-600" />
+              <Plus className="w-5 h-5 text-amber-600" />
             </button>
             <button className="p-2 hover:bg-gradient-to-r hover:from-amber-200 hover:to-yellow-200 rounded-full transition-all duration-300 bg-gradient-to-r from-white/80 to-amber-50/80 shadow-sm">
               <MoreHorizontal className="w-5 h-5 text-amber-600" />
@@ -397,11 +399,11 @@ export default function CalendarUI() {
       {/* Calendar Grid */}
       <div className="flex flex-col h-full">
         {/* Week headers */}
-        <div className="grid grid-cols-7 border-b border-purple-100">
+        <div className="grid grid-cols-7 border-b border-amber-200">
           {weekDays.map((day) => (
             <div
               key={day}
-              className="p-4 text-center text-sm font-medium border-r border-purple-100 last:border-r-0 bg-purple-100 text-purple-700"
+              className="p-4 text-center text-sm font-medium border-r border-amber-200 last:border-r-0 bg-amber-100 text-amber-700"
             >
               {day}
             </div>
@@ -414,14 +416,14 @@ export default function CalendarUI() {
             <div key={weekIndex} className="grid grid-cols-7 h-32">
               {week.map((day, dayIndex) => (
                 <div
-                  key={`${weekIndex}-${dayIndex}`} // Fixed template literal syntax
+                  key={`${weekIndex}-${dayIndex}`}
                   onClick={() => handleDayClick(day)}
-                  className={`border-r border-b border-purple-100 last:border-r-0 p-3 transition-all duration-200 cursor-pointer relative overflow-hidden ${!day.isCurrentMonth
-                      ? 'bg-purple-50/40 text-gray-400'
-                      : 'bg-purple-50/70 hover:bg-purple-100/80'
+                  className={`border-r border-b border-amber-200 last:border-r-0 p-3 transition-all duration-200 cursor-pointer relative overflow-hidden ${!day.isCurrentMonth
+                      ? 'bg-amber-50/40 text-gray-400'
+                      : 'bg-amber-50/70 hover:bg-amber-100/80'
                   }`}
                 >
-                  <div className="text-sm font-medium text-purple-700">
+                  <div className="text-sm font-medium text-amber-700">
                     {day.date}
                   </div>
                   
@@ -435,9 +437,9 @@ export default function CalendarUI() {
                           toggleTaskCompletion(task.id);
                         }}
                         className={`text-sm p-1 rounded-sm cursor-pointer transition-all duration-200 flex items-center space-x-1 ${
-                          task.type === 'Epic' ? 'bg-purple-200 text-purple-800' :
-                          task.type === 'Subtask' ? 'bg-blue-200 text-blue-900' :
-                          'bg-blue-100 text-blue-700'
+                          task.type === 'Epic' ? 'bg-amber-300 text-amber-900' :
+                          task.type === 'Subtask' ? 'bg-yellow-300 text-yellow-900' :
+                          'bg-yellow-200 text-yellow-700'
                         } ${task.completed ? 'opacity-50 line-through' : 'hover:bg-opacity-80'}`}
                       >
                         <input
@@ -462,12 +464,12 @@ export default function CalendarUI() {
       {showTaskModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
            <div className="bg-white rounded-lg shadow-xl w-96 max-w-md mx-4">
-            <div className="p-4 border-b border-purple-200">
+            <div className="p-4 border-b border-amber-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-purple-800">Create New Item</h3>
+                  <h3 className="text-lg font-semibold text-amber-800">Create New Item</h3>
                   {selectedDate && (
-                    <p className="text-sm text-purple-600 mt-1">
+                    <p className="text-sm text-amber-600 mt-1">
                       {selectedDate.toLocaleDateString('en-US', { 
                         weekday: 'long', 
                         year: 'numeric', 
@@ -483,9 +485,9 @@ export default function CalendarUI() {
                     setTaskInput('');
                     setSelectedDate(null);
                   }}
-                  className="text-purple-400 hover:text-purple-600"
+                  className="text-amber-400 hover:text-amber-600"
                 >
-                  <X className="w-7 h-7 text-purple-800" />
+                  <X className="w-7 h-7 text-amber-800" />
                 </button>
               </div>
             </div>
@@ -496,7 +498,7 @@ export default function CalendarUI() {
                 placeholder="What needs to be done?"
                 value={taskInput}
                 onChange={(e) => setTaskInput(e.target.value)}
-                className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 bg-white/90 backdrop-blur-sm"
+                className="w-full p-3 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent mb-4 bg-white/90 backdrop-blur-sm"
                 autoFocus
               />
 
@@ -504,15 +506,15 @@ export default function CalendarUI() {
                 <div className="relative">
                   <button
                     onClick={() => setShowTaskTypeMenu(!showTaskTypeMenu)}
-                    className="flex items-center space-x-2 px-3 py-2 border border-purple-300 rounded-lg hover:bg-purple-50 bg-white/90 backdrop-blur-sm"
+                    className="flex items-center space-x-2 px-3 py-2 border border-amber-300 rounded-lg hover:bg-amber-50 bg-white/90 backdrop-blur-sm"
                   >
-                    <Check className="w-4 h-4 text-purple-600" />
-                    <span className="text-purple-700">{selectedTaskType}</span>
-                    <ChevronDown className="w-4 h-4 text-purple-600" />
+                    <Check className="w-4 h-4 text-amber-600" />
+                    <span className="text-amber-700">{selectedTaskType}</span>
+                    <ChevronDown className="w-4 h-4 text-amber-600" />
                   </button>
 
                   {showTaskTypeMenu && (
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-white/95 backdrop-blur-sm border border-amber-200 rounded-lg shadow-lg z-10">
                       <div className="p-2">
                         {taskTypes.map((type) => (
                           <button
@@ -521,14 +523,14 @@ export default function CalendarUI() {
                               setSelectedTaskType(type.name);
                               setShowTaskTypeMenu(false);
                             }}
-                            className="w-full flex items-center space-x-2 p-2 hover:bg-purple-50 rounded text-left"
+                            className="w-full flex items-center space-x-2 p-2 hover:bg-amber-50 rounded text-left"
                           >
                             <span>{type.icon}</span>
                             <span>{type.name}</span>
                           </button>
                         ))}
-                        <div className="border-t border-purple-200 pt-2 mt-2">
-                          <button className="w-full text-left p-2 hover:bg-purple-50 rounded text-sm text-purple-600">
+                        <div className="border-t border-amber-200 pt-2 mt-2">
+                          <button className="w-full text-left p-2 hover:bg-amber-50 rounded text-sm text-amber-600">
                             Manage types
                           </button>
                         </div>
@@ -540,7 +542,7 @@ export default function CalendarUI() {
                 <button
                   onClick={handleCreateTask}
                   disabled={!taskInput.trim()}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:bg-purple-300 disabled:cursor-not-allowed transition-all duration-300"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-lg hover:from-amber-600 hover:to-yellow-600 disabled:bg-amber-300 disabled:cursor-not-allowed transition-all duration-300"
                 >
                   Create
                 </button>
@@ -550,5 +552,6 @@ export default function CalendarUI() {
         </div>
       )}
     </div>
+    </TesterDashboardLayout>
   );
 }
