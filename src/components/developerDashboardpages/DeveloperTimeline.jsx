@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronRight, MoreHorizontal, Grid3X3, User } from 'lucide-react';
 import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
@@ -10,6 +10,26 @@ const DeveloperTimeline = () => {
   const [showInput, setShowInput] = useState(false);
   const [epicText, setEpicText] = useState('');
   const [epics, setEpics] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEpics = async () => {
+      try {
+        setError(null); 
+        // Replace with your actual GET endpoint
+        const response = await fetch('http://localhost:8000/api/epics/'); 
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`); 
+        }
+        const data = await response.json();
+        setEpics(data);
+      } catch (error) {
+        console.error("Failed to fetch epics:", error);
+        setError(error.message); 
+      }
+    };
+    fetchEpics();
+  }, []);
 
   const viewOptions = ['Today', 'Weeks', 'Months', 'Quarters'];
 
@@ -29,17 +49,37 @@ const DeveloperTimeline = () => {
     setEpicText(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = async (e) => {
     if (e.key === 'Enter' && epicText.trim()) {
-      const newEpic = {
-        id: Date.now(),
+      const epicPayload = {
         title: epicText,
-        status: 'To Do',
-        createdAt: new Date().toLocaleDateString()
+        status: 'To Do', 
       };
-      setEpics([...epics, newEpic]);
-      setEpicText('');
-      setShowInput(false);
+
+      try {
+        setError(null); // <-- Clear previous errors
+        // Replace with your actual POST endpoint
+        const response = await fetch('http://localhost:8000/api/epics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(epicPayload),
+        });
+
+        if (!response.ok) {
+           throw new Error(`Failed to create epic: ${response.statusText}`); // <-- Better error
+        }
+
+        const newEpicFromDb = await response.json();
+        setEpics([...epics, newEpicFromDb]);
+        setEpicText('');
+        setShowInput(false);
+
+      } catch (error) {
+        console.error("Failed to create epic:", error);
+        setError(error.message); // <-- SET THE ERROR STATE
+      }
     }
   };
 
@@ -266,6 +306,11 @@ const DeveloperTimeline = () => {
 
           {/* Epics List */}
           <div className="flex-1 p-4">
+            {error && (
+              <div className="p-3 mb-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
             {epics.length > 0 ? (
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">Epics</h3>
