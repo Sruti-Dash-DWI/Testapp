@@ -1,12 +1,14 @@
 import React from 'react'
-import DashboardLayout from '../../layout/DashboardLayout'
+import TesterDashboardLayout from '../../../layout/TesterDashboardLayout'
 
 const Wallet = () => {
   return (
     <>
+    <TesterDashboardLayout>
                          
       <h1>Wallet</h1>
       <p>Manage your project wallet and transactions.</p>
+    </TesterDashboardLayout>  
    
     </>
   )

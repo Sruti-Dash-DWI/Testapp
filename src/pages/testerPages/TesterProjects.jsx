@@ -148,7 +148,7 @@ const TesterProjects = () => {
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-            <Link key={project.id} to={`/backlog/${project.id}`}>
+            <Link key={project.id} to={`/tester/backlog/${project.id}`}>
               <div 
                 key={project.id} 
                 className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
