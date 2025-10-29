@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, ChevronDown, ChevronRight, Settings, Calendar, User, Target, Zap, BarChart3, Eye, EyeOff, Expand, Minimize, Plus, Loader2, Edit, Trash2, X } from 'lucide-react'
+import { useTheme } from '../../context/ThemeContext';
 
 const List = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -24,6 +25,7 @@ const List = () => {
     const [commentText, setCommentText] = useState('');
     const [editComments, setEditComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
+    const { theme, toggleTheme, colors } = useTheme();
 
     const filterButtonRef = useRef(null);
     const filterDropdownRef = useRef(null);
@@ -673,13 +675,12 @@ const List = () => {
     };
 
     return (
-        <div className="min-h-screen bg-purple-200 py-4 px-4">
-            <style>{`
-                .table-scroll::-webkit-scrollbar { height: 10px; }
-                .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-                .table-scroll::-webkit-scrollbar-thumb { background: #9333ea; border-radius: 10px; }
-                .table-scroll::-webkit-scrollbar-thumb:hover { background: #7e22ce; }
-            `}</style>
+        <div className="min-h-screen bg-purple-200 py-4 px-4"
+        style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border,
+        }}>
 
             <div className="w-full max-w-7xl mx-auto">
                 {error && (
@@ -689,22 +690,12 @@ const List = () => {
                     </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4 bg-purple-200 p-2">
-                    <div className="relative w-60">
-                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search list"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                    </div>
+                <div className="flex items-center gap-2 mb-4 bg-white p-2">
 
                     <div className="relative">
                         <button
                             ref={filterButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-50"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-200"
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                         >
                             <Filter className="w-4 h-4" />
@@ -743,10 +734,21 @@ const List = () => {
                         )}
                     </div>
 
+                    <div className="relative w-170 pl-50">
+                        <Search className="w-4 h-4 absolute left-53 top-3 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search list"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-8 pr-4 py-2 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        />
+                    </div>
+
                     <div className="relative ml-auto">
                         <button
                             ref={groupButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-50"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-200"
                             onClick={() => setIsGroupOpen(!isGroupOpen)}
                         >
                             Group
@@ -790,7 +792,7 @@ const List = () => {
                     <div className="relative">
                         <button
                             ref={settingsButtonRef}
-                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-50"
+                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-200"
                             onClick={() => setIssettingsOpen(!issettingsOpen)}
                         >
                             <Settings className="w-4 h-4" />
@@ -876,15 +878,15 @@ const List = () => {
                                         </div>
                                     )}
 
-                                    <div className="grid text-sm font-medium text-gray-700 bg-gray-200" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Task Type</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3">Summary</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Status</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Due Date</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Priority</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Assignee</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Comments</div>
-                                        <div className="border-b border-purple-300 px-3 py-3 text-center">Actions</div>
+                                    <div className="grid text-sm font-medium text-gray-700 bg-gray-50" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Task Type</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3">Summary</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Status</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Due Date</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Priority</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Assignee</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Comments</div>
+                                        <div className="border-b border-gray-300 px-3 py-3 text-center">Actions</div>
                                     </div>
 
                                     <div>
@@ -901,10 +903,10 @@ const List = () => {
                             ))}
                         </div>
 
-                        <div className="p-2 border-t border-purple-200 bg-purple-50">
+                        <div className="p-2 border-t border-blue-200 bg-blue-100">
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="flex items-center text-purple-600 hover:text-purple-800 text-sm font-medium"
+                                className="flex items-center text-gray-500 hover:text-gray-800 text-sm font-medium"
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

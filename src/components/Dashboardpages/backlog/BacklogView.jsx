@@ -19,76 +19,76 @@ import {
 } from '../../Icons';
 
 const calculateStatusCounts = (itemIds, allItems) => {
-  const counts = {
-    todo: 0,
-    inProgress: 0,
-    done: 0,
-  };
+    const counts = {
+        todo: 0,
+        inProgress: 0,
+        done: 0,
+    };
 
-  itemIds.forEach(id => {
-    const item = allItems[id];
-    if (!item || !item.status || !item.status.title) {
-      return; 
-    }
+    itemIds.forEach(id => {
+        const item = allItems[id];
+        if (!item || !item.status || !item.status.title) {
+            return;
+        }
 
-    const status = item.status.title.toUpperCase();
+        const status = item.status.title.toUpperCase();
 
-    if (status === 'DONE') {
-      counts.done += 1;
-    } else if (['IN PROGRESS', 'IN REVIEW', 'TESTING'].includes(status)) {
-      counts.inProgress += 1;
-    } else { 
-      counts.todo += 1;
-    }
-  });
+        if (status === 'DONE') {
+            counts.done += 1;
+        } else if (['IN PROGRESS', 'IN REVIEW', 'TESTING'].includes(status)) {
+            counts.inProgress += 1;
+        } else {
+            counts.todo += 1;
+        }
+    });
 
-  return counts;
+    return counts;
 };
 
 
 
 
 const StatusSummaryDots = ({ todo, inProgress, done }) => (
-  <div className="flex items-center space-x-1">
-    
-    <div className="relative group flex items-center">
-     
-      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+    <div className="flex items-center space-x-1">
+
+        <div className="relative group flex items-center">
+
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
                        bg-gray-800 text-white text-xs rounded py-1 px-2 
                        opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        {`${todo} To Do`}
-      </span>
-      
-      <span className="text-xs font-bold bg-gray-200 text-gray-700 w-6 h-5 flex items-center justify-center rounded-full">
-        {todo}
-      </span>
-    </div>
+                {`${todo} To Do`}
+            </span>
 
-    
-    <div className="relative group flex items-center">
-      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+            <span className="text-xs font-bold bg-gray-200 text-gray-700 w-6 h-5 flex items-center justify-center rounded-full">
+                {todo}
+            </span>
+        </div>
+
+
+        <div className="relative group flex items-center">
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
                        bg-gray-800 text-white text-xs rounded py-1 px-2 
                        opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        {`${inProgress} In Progress`}
-      </span>
-      <span className="text-xs font-bold bg-blue-100 text-blue-800 w-6 h-5 flex items-center justify-center rounded-full">
-        {inProgress}
-      </span>
-    </div>
+                {`${inProgress} In Progress`}
+            </span>
+            <span className="text-xs font-bold bg-blue-100 text-blue-800 w-6 h-5 flex items-center justify-center rounded-full">
+                {inProgress}
+            </span>
+        </div>
 
-    
-    <div className="relative group flex items-center">
-      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
+
+        <div className="relative group flex items-center">
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap 
                        bg-gray-800 text-white text-xs rounded py-1 px-2 
                        opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        {`${done} Done`}
-      </span>
-      <span className="text-xs font-bold bg-green-100 text-green-800 w-6 h-5 flex items-center justify-center rounded-full">
-        {done}
-      </span>
-    </div>
+                {`${done} Done`}
+            </span>
+            <span className="text-xs font-bold bg-green-100 text-green-800 w-6 h-5 flex items-center justify-center rounded-full">
+                {done}
+            </span>
+        </div>
 
-  </div>
+    </div>
 );
 
 // --- Side Panel Components ---
@@ -97,7 +97,7 @@ const InsightsPanel = ({ onClose }) => (
         <div className="flex justify-between items-center mb-6 flex-shrink-0">
             <h3 className="text-lg font-bold text-gray-800">Backlog insights</h3>
             <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
             </button>
         </div>
         <div className="space-y-4 flex-grow overflow-y-auto pr-2">
@@ -107,13 +107,13 @@ const InsightsPanel = ({ onClose }) => (
                 <p className="text-sm text-gray-600 mt-2">This insight compares how much effort was allocated to a sprint against how much was completed.</p>
                 <a href="#" className="text-sm text-blue-600 hover:underline mt-2 inline-block">Learn more</a>
             </div>
-             <div className="p-4 border rounded-lg bg-white shadow-sm">
+            <div className="p-4 border rounded-lg bg-white shadow-sm">
                 <h4 className="font-semibold text-gray-700">Work type breakdown</h4>
                 <p className="text-sm text-gray-500 mt-1">Your top work item type to focus on in this sprint.</p>
                 <div className="mt-3">
                     <span className="text-sm text-gray-600">Task</span>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                        <div className="bg-blue-600 h-2.5 rounded-full" style={{width: '75%'}}></div>
+                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '75%' }}></div>
                     </div>
                 </div>
             </div>
@@ -128,7 +128,7 @@ const ToggleSwitch = ({ label, defaultChecked = false }) => (
     <div className="flex items-center justify-between">
         <span className="text-sm text-gray-700">{label}</span>
         <label className="inline-flex items-center cursor-pointer">
-            <input type="checkbox" value="" className="sr-only peer" defaultChecked={defaultChecked}/>
+            <input type="checkbox" value="" className="sr-only peer" defaultChecked={defaultChecked} />
             <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
         </label>
     </div>
@@ -139,28 +139,28 @@ const ViewSettingsPanel = ({ onClose }) => (
         <div className="flex justify-between items-center mb-6 flex-shrink-0">
             <h3 className="text-lg font-bold text-gray-800">View settings</h3>
             <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
             </button>
         </div>
         <div className="space-y-6 flex-grow overflow-y-auto pr-2">
             <div>
                 <ToggleSwitch label="Epic panel" />
                 <div className="mt-3">
-                   <ToggleSwitch label="Empty sprints" defaultChecked={true} />
+                    <ToggleSwitch label="Empty sprints" defaultChecked={true} />
                 </div>
             </div>
             <div>
                 <h4 className="font-bold text-gray-800 mb-2">Density</h4>
                 <div className="space-y-2">
-                    <label className="flex items-center"><input type="radio" name="density" className="form-radio" defaultChecked/> <span className="ml-2 text-sm text-gray-700">Default</span></label>
-                    <label className="flex items-center"><input type="radio" name="density" className="form-radio"/> <span className="ml-2 text-sm text-gray-700">Compact</span></label>
+                    <label className="flex items-center"><input type="radio" name="density" className="form-radio" defaultChecked /> <span className="ml-2 text-sm text-gray-700">Default</span></label>
+                    <label className="flex items-center"><input type="radio" name="density" className="form-radio" /> <span className="ml-2 text-sm text-gray-700">Compact</span></label>
                 </div>
             </div>
             <div>
                 <h4 className="font-bold text-gray-800 mb-2">Fields</h4>
                 <div className="space-y-3">
                     {['Work type', 'Work item key', 'Epic', 'Status', 'Estimate', 'Priority', 'Assignee'].map(field => (
-                       <ToggleSwitch key={field} label={field} defaultChecked={true} />
+                        <ToggleSwitch key={field} label={field} defaultChecked={true} />
                     ))}
                 </div>
             </div>
@@ -191,7 +191,7 @@ export default function BacklogView({
     isEditingBacklogName,
     isCreatingSprint,
     newSprintName,
-    
+
     // State Ref Props
     sprintNameInputRef,
     backlogNameInputRef,
@@ -225,7 +225,7 @@ export default function BacklogView({
     setNewSprintName,
     handleAddNewSprint
 }) {
-    
+
     const formatDate = (dateString) => {
         if (!dateString) return null;
         return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -234,7 +234,7 @@ export default function BacklogView({
     if (!boardData) {
         return <div>Loading...</div>;
     }
-    
+
     const moreMenuOptions = [
         { value: 'manage-filters', label: 'Manage custom filters' }
     ];
@@ -252,7 +252,7 @@ export default function BacklogView({
         };
         const formattedStartDate = formatDate(sprint.startDate);
         const formattedEndDate = formatDate(sprint.endDate);
-       
+
         return (
             <div key={sprint.id} className="mb-4">
                 <div className={`p-3 rounded-md shadow-sm border ${sprint.is_ended ? 'bg-gray-100' : 'bg-[#f0eaff]/60 backdrop-blur-sm border-white/30'}`} onDragOver={handleDragOver} onDrop={(e) => !sprint.is_ended && handleDrop(e, sprint.id)}>
@@ -271,17 +271,17 @@ export default function BacklogView({
                                     type="text"
                                     defaultValue={sprint.name}
                                     onBlur={(e) => handleRenameSprint(sprint.id, e.target.value)}
-                                    onKeyDown={(e) => { if(e.key === 'Enter') handleRenameSprint(sprint.id, e.target.value) }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleRenameSprint(sprint.id, e.target.value) }}
                                     className="font-bold text-gray-800 bg-white border rounded px-1"
                                 />
                             )}
                             {formattedStartDate && formattedEndDate && <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>}
                             <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
-                            <StatusSummaryDots 
-                        todo={statusCounts.todo} 
-                        inProgress={statusCounts.inProgress} 
-                        done={statusCounts.done} 
-                    />
+                            <StatusSummaryDots
+                                todo={statusCounts.todo}
+                                inProgress={statusCounts.inProgress}
+                                done={statusCounts.done}
+                            />
                         </div>
                         <div className="flex items-center gap-4">
                             {!sprint.is_ended && (
@@ -298,10 +298,10 @@ export default function BacklogView({
                             )}
                         </div>
                     </div>
-                    <div className={`min-h-[80px] rounded p-2 border-2 border-dashed ${sprint.is_ended ? 'bg-gray-50 border-gray-200' : 'bg-purple-100/40 border-purple-200/50'}`}>
+                    <div className={`min-h-[80px] rounded p-2 border-2 border-dashed ${sprint.is_ended ? 'bg-gray-50 border-gray-200' : 'bg-blue-100 border-blue-200'}`}>
                         {sprintItems.map((item) => (
                             <div key={item.id} data-item-id={item.id} draggable={!sprint.is_ended} onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
-                                 <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
+                                <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
                                 <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
                                 <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
                                     {editingItemId === item.id ? (
@@ -325,7 +325,7 @@ export default function BacklogView({
                                 </span>
                                 <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
                                     <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
-                                    <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
+                                    <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true} />
                                     <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
                                     <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <ActionTrashIcon />
@@ -340,13 +340,13 @@ export default function BacklogView({
         );
     };
 
- const backlogStatusCounts = calculateStatusCounts(boardData.backlog.itemIds, filteredItems);
+    const backlogStatusCounts = calculateStatusCounts(boardData.backlog.itemIds, filteredItems);
     return (
-        <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50)'}}>
+        <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{ background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50)' }}>
             <header className="sticky top-0 z-20 p-4 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
-                 <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
                     <div className="relative">
-                        <BacklogSearchIcon /> 
+                        <BacklogSearchIcon />
                         <input
                             type="text"
                             placeholder="Search backlog"
@@ -355,8 +355,8 @@ export default function BacklogView({
                             className="pl-9 pr-4 py-1.5 text-sm border rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </div>
                     <div className="flex items-center space-x-2 border-l pl-4">
-                        <UserAvatar user={users && users[0]} /> 
-                        <Dropdown options={epicOptions} onSelect={(value) => { if(value === 'create') setIsCreatingEpic(true)}}>
+                        <UserAvatar user={users && users[0]} />
+                        <Dropdown options={epicOptions} onSelect={(value) => { if (value === 'create') setIsCreatingEpic(true) }}>
                             <button className="flex items-center space-x-1 text-sm font-medium p-1 hover:bg-gray-200 rounded">
                                 <span>Epic</span><DropdownChevronIcon />
                             </button>
@@ -367,7 +367,7 @@ export default function BacklogView({
                     <button onClick={() => handlePanelToggle('insights')} className={`p-2 rounded ${activePanel === 'insights' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><NewInsightsIcon /></button>
                     <button onClick={() => handlePanelToggle('view-settings')} className={`p-2 rounded ${activePanel === 'view-settings' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}><FiltersIcon /></button>
                     <Dropdown options={moreMenuOptions} onSelect={() => console.log("Manage filters selected")}>
-                         <button className="p-2 hover:bg-gray-200 rounded"><MoreHorizontalIcon /></button>
+                        <button className="p-2 hover:bg-gray-200 rounded"><MoreHorizontalIcon /></button>
                     </Dropdown>
                 </div>
             </header>
@@ -393,12 +393,12 @@ export default function BacklogView({
 
             <div className="flex flex-grow overflow-hidden">
                 <main className={`flex-grow transition-all duration-300 ease-in-out overflow-y-auto p-6 ${activePanel ? 'w-2/3' : 'w-full'}`}>
-                    
+
                     {uncompletedSprints.map(sprint => (
                         <SprintSection key={sprint.id} sprint={sprint} />
                     ))}
 
-                    <div className="bg-[#fff0f9]/50 backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
+                    <div className="backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
                         <div className="flex justify-between items-center mb-3">
                             <div className="flex items-center gap-4">
                                 <input type="checkbox" className="form-checkbox h-4 w-4" />
@@ -408,7 +408,7 @@ export default function BacklogView({
                                         type="text"
                                         defaultValue={boardData.backlog.name}
                                         onBlur={(e) => handleRenameBacklog(e.target.value)}
-                                        onKeyDown={(e) => { if(e.key === 'Enter') handleRenameBacklog(e.target.value) }}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleRenameBacklog(e.target.value) }}
                                         className="font-bold text-gray-800 bg-white border rounded px-1"
                                     />
                                 ) : (
@@ -417,15 +417,15 @@ export default function BacklogView({
                                         <button onClick={handleStartRenameBacklog} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>
                                     </div>
                                 )}
-                               <span className="text-sm text-gray-500">{backlogItems.length} work items</span>
+                                <span className="text-sm text-gray-500">{backlogItems.length} work items</span>
                             </div>
                             <div className="flex items-center gap-4">
-                              <StatusSummaryDots 
-                        todo={backlogStatusCounts.todo}
-                        inProgress={backlogStatusCounts.inProgress}
-                        done={backlogStatusCounts.done}
-                    />
-                               {!isCreatingSprint && <button onClick={() => setIsCreatingSprint(true)} className="bg-gray-200 text-gray-800 px-3 py-1.5 text-sm font-semibold rounded hover:bg-gray-300">Create sprint</button>}
+                                <StatusSummaryDots
+                                    todo={backlogStatusCounts.todo}
+                                    inProgress={backlogStatusCounts.inProgress}
+                                    done={backlogStatusCounts.done}
+                                />
+                                {!isCreatingSprint && <button onClick={() => setIsCreatingSprint(true)} className="bg-blue-300 text-black px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-400">Create sprint</button>}
                             </div>
                         </div>
                         {isCreatingSprint && (
@@ -444,7 +444,7 @@ export default function BacklogView({
                                 </div>
                             </form>
                         )}
-                        <div className="min-h-[120px] bg-pink-100/30 rounded p-2 border-2 border-dashed border-pink-200/50">
+                        <div className="min-h-[120px] bg-blue-100 rounded p-2 border-blue-200">
                             {backlogItems.map((item) => (
                                 <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
                                     <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
@@ -471,7 +471,7 @@ export default function BacklogView({
                                     </span>
                                     <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
                                         <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
-                                        <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true}/>
+                                        <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true} />
                                         <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
                                         <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <ActionTrashIcon />
@@ -480,7 +480,7 @@ export default function BacklogView({
                                 </div>
                             ))}
                         </div>
-                        <button onClick={() => handleCreateItem('backlog')} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>
+                        <button onClick={() => handleCreateItem('backlog')} className="mt-3 text-sm font-semibold text-black border border-blue-400 bg-blue-400 hover:bg-blue-400 px-3 py-1.5 rounded">+ Create Backlog</button>
                     </div>
 
                     {completedSprints.length > 0 && (
@@ -493,11 +493,11 @@ export default function BacklogView({
                     )}
                 </main>
 
-                {activePanel && ( 
+                {activePanel && (
                     <aside className="w-1/3 border-l border-gray-200/50 transition-all duration-300 ease-in-out">
-                       {activePanel === 'insights' && <InsightsPanel onClose={() => handlePanelToggle(null)} />}
-                       {activePanel === 'view-settings' && <ViewSettingsPanel onClose={() => handlePanelToggle(null)} />}
-                    </aside> 
+                        {activePanel === 'insights' && <InsightsPanel onClose={() => handlePanelToggle(null)} />}
+                        {activePanel === 'view-settings' && <ViewSettingsPanel onClose={() => handlePanelToggle(null)} />}
+                    </aside>
                 )}
             </div>
         </div>

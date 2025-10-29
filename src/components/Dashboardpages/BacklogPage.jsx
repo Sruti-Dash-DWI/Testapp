@@ -1199,17 +1199,11 @@ const handleCloseModal = () => setSelectedItemId(null);
   }, [selectedEpicId, boardData]);
 
   if (isLoading) {
-return (
- <div
-className="flex flex-col items-center justify-center h-screen"
- style={{ background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 100%)"}}
- >
-     
-      <div className="w-12 h-12 border-4 border-white border-solid rounded-full border-t-transparent animate-spin"></div>
-      
-    
-      <p className="mt-4 text-lg font-semibold text-white">Loading...</p>
- </div>
+  return (
+  <div className="flex flex-col items-center justify-center h-screen">
+        <div className="w-12 h-12 border-4 border-white border-solid rounded-full border-t-transparent animate-spin"></div>
+        <p className="mt-4 text-lg font-semibold text-white">Loading...</p>
+  </div>
  );
 }
 
