@@ -128,7 +128,7 @@ const TaskColumn = ({
                         e.stopPropagation();
                         setIsDropdownOpen(!isDropdownOpen);
                       }}
-                      className="p-1 rounded-lg hover:bg-white/20 text-gray-300 hover:text-white transition-colors"
+                      className="p-1 rounded-lg hover:bg-white/20 text-gray-100 hover:text-white transition-colors"
                     >
                       <DotsVerticalIcon className="w-5 h-5" />
                     </button>

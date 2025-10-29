@@ -20,7 +20,7 @@ const Projects = () => {
     description: '',
     owner: '',
     status: 'PLANNED',
-    project_manager_id: ''
+    project_manager_id: '' 
 
   });
 
