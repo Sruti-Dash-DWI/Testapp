@@ -42,12 +42,12 @@ const TaskCard = ({ task, onUpdateTask }) => {
                     <h4 className="font-semibold text-gray-100 mb-1">{task.title}</h4>
                 )}
                 <div className="flex items-center gap-2">
-                    <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-white"><EditIcon /></button>
-                    <button className="text-gray-400 hover:text-white"><KebabMenuIcon /></button>
+                    <button onClick={() => setIsEditing(true)} className="text-gray-100 hover:text-black"><EditIcon /></button>
+                    <button className="text-gray-100 hover:text-black"><KebabMenuIcon /></button>
                 </div>
             </div>
             <p className="text-sm text-gray-300 mb-3">{task.description}</p>
-            <div className="text-sm text-gray-400 mb-3 flex items-center">
+            <div className="text-sm text-gray-100 mb-3 flex items-center">
                 <CalendarIcon />
                 <span>{new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</span>
             </div>
