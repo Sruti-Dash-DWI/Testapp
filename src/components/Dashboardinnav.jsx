@@ -1,8 +1,10 @@
 import React from 'react';
 import NavItem from './NavItem.jsx';
 import AddItemDropdown from './AddItemDropdown.jsx';
+import { useTheme } from '../context/ThemeContext';
 
 const Dashbordinnav = ({ navItems, setNavItems, availableOptions }) => {
+    const { theme, colors } = useTheme();
 
     const handleDragStart = (e, id) => {
         e.dataTransfer.setData('text/plain', id);
@@ -49,7 +51,13 @@ const Dashbordinnav = ({ navItems, setNavItems, availableOptions }) => {
     };
 
     return (
-        <nav className="flex items-center border-b border-gray-200/80 bg-white/50 backdrop-blur-sm px-4 flex-shrink-0 z-50">
+        <nav 
+            className="flex items-center border-b backdrop-blur-sm px-4 flex-shrink-0 z-50 transition-colors duration-300"
+            style={{
+                backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+                borderColor: colors.border
+            }}
+        >
             <div className="flex items-center flex-wrap">
                 {navItems.map(item => (
                     <NavItem

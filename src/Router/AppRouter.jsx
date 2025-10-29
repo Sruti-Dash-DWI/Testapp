@@ -1,3 +1,5 @@
+// src/router/AppRouter.jsx
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "../pages/HomePage.jsx";
@@ -42,8 +44,23 @@ import DevDocuments from "../pages/developerPages/sidenav_pages/DevDocuments.jsx
 import DevNotification from "../pages/developerPages/sidenav_pages/DevNotification.jsx";
 import DevSettings from "../pages/developerPages/sidenav_pages/DevSettings.jsx";
 
-
+// Tester imports
 import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
+import TesterDocuments from "../pages/testerPages/sidenav_pages/TesterDocuments.jsx";
+
+import TesterNotification from "../pages/testerPages/sidenav_pages/TesterNotification.jsx";
+import TesterSettings from "../pages/testerPages/sidenav_pages/TesterSettings.jsx"; 
+// import TesterDashboardLayout from "../layout/TesterDashboardLayout.jsx";  
+
+
+
+import TesterBacklog from "../components/testerDashboardPages/TesterBacklog.jsx";
+import TesterSummary from "../components/testerDashboardPages/TesterSummary.jsx";
+import TesterBoard from "../components/testerDashboardPages/TesterBoard.jsx";
+import TesterCalendar from "../components/testerDashboardPages/TesterCalendar.jsx";
+import TesterTimeline from "../components/testerDashboardPages/TesterTimeline.jsx";
+import TesterList from "../components/testerDashboardPages/TesterList.jsx";
+import TesterPageContent from "../components/testerDashboardPages/TesterPageContent.jsx";
 
 import PmProjects from "../pages/projectmanagerpages/PmProjects.jsx";
 import SetPasswordPage from "../components/Dashboardpages/Project management/Setpassword.jsx";
@@ -131,6 +148,21 @@ const AppRouter = () => {
         
         {/* Tester Routes */}
         <Route path="/tester/projects" element={<TesterProjects />} />
+        {/* <Route element={<TesterDashboardLayout />}> */}
+
+        <Route path="/tester/documents" element={<TesterDocuments />} /> 
+        <Route path="/tester/notifications" element={<TesterNotification />} />
+        <Route path="/tester/settings" element={<TesterSettings />} />
+        
+        <Route path="/tester/backlog/:projectId" element={<TesterBacklog />} />
+        <Route path="/tester/board/:projectId" element={<TesterBoard />} />
+        <Route path="/tester/calendar/:projectId" element={<TesterCalendar />} />
+        <Route path="/tester/timeline/:projectId" element={<TesterTimeline />} /> 
+        <Route path="/tester/summary/:projectId" element={<TesterSummary/>} />
+        <Route path="/tester/list/:projectId" element={<TesterList/>} />
+        <Route path="/tester/pagecontent/:projectId" element={<TesterPageContent/>} />
+        {/* </Route> */}
+
 
        
         <Route element={<Pmdashboardlayout />}>

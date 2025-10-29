@@ -37,10 +37,8 @@ html, body, #root {
   scrollbar-color: rgba(107, 208, 193, 0.6) rgba(255, 255, 255, 0.05);
 }
 
-/* src/index.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import Tailwind CSS core */
+@import "tailwindcss";
 
 @layer components {
   /* Style for the LIGHT "Invite Member" modal */
@@ -98,4 +96,3 @@ html, body, #root {
         background-color: rgba(255, 255, 255, 0.2);
     }
 }
-

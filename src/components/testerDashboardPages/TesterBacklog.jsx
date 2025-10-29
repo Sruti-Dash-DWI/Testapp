@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import TesterDashboardLayout from '../../layout/TesterDashboardLayout';
 
 // --- ICONS (Added TrashIcon) ---
 const SearchIcon = () => (
@@ -1146,7 +1147,7 @@ export default function BacklogPage() {
 
     // --- RENDER LOGIC ---
     if (isLoading) {
-        return <div className="flex items-center justify-center h-full text-lg font-semibold" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>Loading backlog for project {projectId}...</div>;
+        return <div className="flex items-center justify-center h-full text-lg font-semibold" style={{background: 'linear-gradient(135deg, rgb(168,192,255) 0%, rgb(63,43,150) 100%)'}}>Loading backlog for project {projectId}...</div>;
     }
     
     if (error) {
@@ -1155,7 +1156,8 @@ export default function BacklogPage() {
 
     return (
         <>
-            <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50%, #ffffff 100%)'}}>
+        <TesterDashboardLayout>
+            <div className="h-full flex flex-col font-sans text-[#172B4D] bg-gradient-to-br from-[#A8C0FF] to-[#3F2B96]" >
                 <header className="sticky top-0 z-20 p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center space-x-4">
                         <div className="relative">
@@ -1394,7 +1396,25 @@ export default function BacklogPage() {
                     onCreate={handleAddNewEpic}
                 />
              )}
+        </TesterDashboardLayout>
         </>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
