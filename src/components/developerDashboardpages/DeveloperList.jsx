@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, ChevronDown, ChevronRight, Settings, Calendar, User, Target, Zap, BarChart3, Eye, EyeOff, Expand, Minimize, Plus, Loader2, Edit, Trash2, X } from 'lucide-react'
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
 const List = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -443,6 +444,7 @@ const List = () => {
         const showCreateSubtask = creatingSubtaskFor === task.id;
 
         return (
+            
             <React.Fragment key={task.id}>
                 <div className="grid text-sm hover:bg-purple-50 border-b border-purple-100" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
                     <div className="border-r border-purple-200 px-2 py-3 flex items-center justify-center gap-1">
@@ -590,7 +592,8 @@ const List = () => {
     };
 
     return (
-        <div className="min-h-screen bg-purple-200 py-4 px-4">
+        <DeveloperDashboardLayout>
+        <div className="min-h-screen py-4 px-4">
             <style>{`
                 .table-scroll::-webkit-scrollbar { height: 10px; }
                 .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -606,15 +609,15 @@ const List = () => {
                     </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4 bg-purple-200 p-2">
+                <div className="flex items-center gap-2 mb-4 p-2">
                     <div className="relative w-60">
-                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-700" />
                         <input
                             type="text"
                             placeholder="Search list"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                     </div>
 
@@ -818,10 +821,10 @@ const List = () => {
                             ))}
                         </div>
 
-                        <div className="p-2 border-t border-purple-200 bg-purple-50">
+                        <div className="p-2 border-t border-gray-700 bg-gray-100">
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="flex items-center text-purple-600 hover:text-purple-800 text-sm font-medium"
+                                className="flex items-center text-gray-600 hover:text-gray-800 text-sm font-medium"
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -1042,6 +1045,7 @@ const List = () => {
                 )}
             </div>
         </div>
+        </DeveloperDashboardLayout>
     )
 }
 
