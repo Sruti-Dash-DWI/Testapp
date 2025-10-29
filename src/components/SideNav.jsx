@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-
+import { useTheme } from '../context/ThemeContext';
 
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
 const UserManagementIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
@@ -17,6 +17,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [error, setError] = useState(null);
+    const { theme, colors } = useTheme();
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -52,20 +53,36 @@ const SideNav = ({ isOpen, openInviteModal }) => {
     
 
     const staticNavItems = [
-     
         { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
         { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
         { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
 
     return (
-        <div className={`transition-all duration-300 bg-black/20 backdrop-blur-md rounded-3xl shadow-lg border border-white/20 h-full flex flex-col p-5 text-white overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 ${isOpen ? 'w-70' : 'w-20 items-center'}`}>
-            <ul className="flex flex-col gap-2 flex-grow">
+        <div 
+            className={`transition-all duration-300 border-r h-full flex flex-col p-5 overflow-y-hidden scrollbar-thin ${isOpen ? 'w-70' : 'w-20 items-center'}`}
+            style={{
+                backgroundColor: colors.background,
+                color: colors.text,
+                borderColor: colors.border,
+            }}
+        >
+            <ul className="flex flex-col gap-4 flex-grow">
                 
                 <li>
                     <button 
                         onClick={() => setIsProjectsOpen(!isProjectsOpen)}
-                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-white/10 ${!isOpen && 'justify-center'}`}
+                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
+                        style={{
+                            backgroundColor: theme === 'dark' ? 'transparent' : 'transparent',
+                            color: colors.text,
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
                     >
                         <ProjectsIcon />
                         {isOpen && <span className="flex-grow text-left">Projects</span>}
@@ -74,12 +91,30 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         )}
                     </button>
                     {isOpen && isProjectsOpen && (
-                        
-                        <ul className="mt-2 space-y-1 pl-8 border-l border-white/20 ml-5 max-h-48 overflow-y-auto">
+                        <ul 
+                            className="mt-2 space-y-1 pl-8 ml-5 max-h-48 overflow-x-hidden overflow-y-hidden"
+                            style={{
+                                borderLeft: `1px solid ${colors.border}`,
+                            }}
+                        >
                             <li>
                                 <NavLink 
                                     to="/projects"
-                                    className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-colors hover:bg-white/10 ${isActive ? 'bg-white/20 font-semibold' : 'text-white/80'}`}
+                                    className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    style={({ isActive }) => ({
+                                        backgroundColor: isActive ? undefined : 'transparent',
+                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                    })}
+                                    onMouseEnter={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = 'transparent';
+                                        }
+                                    }}
                                 >
                                     View All Projects
                                 </NavLink>
@@ -90,7 +125,21 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                                         to={`/backlog/${project.id}`}
                                         title={project.name}
                                         onClick={() => handleProjectClick(project)}
-                                        className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-colors hover:bg-white/10 ${isActive ? 'bg-white/20 font-semibold' : 'text-white/80'}`}
+                                        className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                        style={({ isActive }) => ({
+                                            backgroundColor: isActive ? undefined : 'transparent',
+                                            color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                        })}
+                                        onMouseEnter={(e) => {
+                                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                            }
+                                        }}
                                     >
                                         {project.name}
                                     </NavLink>
@@ -104,7 +153,17 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                 <li>
                     <button 
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-white/10 ${!isOpen && 'justify-center'}`}
+                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
+                        style={{
+                            backgroundColor: 'transparent',
+                            color: colors.text,
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
                     >
                         <UserManagementIcon />
                         {isOpen && <span className="flex-grow text-left">User Management</span>}
@@ -113,11 +172,30 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         )}
                     </button>
                     {isOpen && isUserMenuOpen && (
-                        <ul className="mt-2 space-y-1 pl-8 border-l border-white/20 ml-5">
+                        <ul 
+                            className="mt-2 space-y-1 pl-8 ml-5"
+                            style={{
+                                borderLeft: `1px solid ${colors.border}`,
+                            }}
+                        >
                             <li>
                                 <NavLink 
                                     to="/user-details"
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors hover:bg-white/10 ${isActive ? 'bg-white/20 font-semibold' : 'text-white/80'}`}
+                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    style={({ isActive }) => ({
+                                        backgroundColor: isActive ? undefined : 'transparent',
+                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                    })}
+                                    onMouseEnter={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = 'transparent';
+                                        }
+                                    }}
                                 >
                                     <UserDetailsIcon />
                                     <span>User Details</span>
@@ -126,7 +204,17 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                              <li>
                                 <button 
                                     onClick={openInviteModal}
-                                    className="flex items-center gap-3 w-full px-3 py-2 text-sm text-left rounded-md transition-colors text-white/80 hover:bg-white/10"
+                                    className="flex items-center gap-3 w-full px-3 py-2 text-sm text-left rounded-md transition-all duration-200 hover:scale-105"
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        color: theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                    }}
                                 >
                                    <InviteIcon />
                                    <span>Invite</span>
@@ -142,7 +230,21 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         <NavLink 
                             to={`/${item.path}`} 
                             title={item.name} 
-                            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-white/10 ${isActive ? 'bg-white/20 font-semibold' : ''} ${!isOpen && 'justify-center'}`}
+                            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''} ${!isOpen && 'justify-center'}`}
+                            style={({ isActive }) => ({
+                                backgroundColor: isActive ? undefined : 'transparent',
+                                color: isActive ? undefined : colors.text,
+                            })}
+                            onMouseEnter={(e) => {
+                                if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                }
+                            }}
                         >
                             {item.icon}
                             {isOpen && <span>{item.name}</span>}
