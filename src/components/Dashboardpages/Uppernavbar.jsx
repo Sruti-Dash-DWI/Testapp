@@ -70,8 +70,8 @@ export default function UpperNavbar() {
     const getUserDetails = async () => {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
-
-      const response = await fetch(`http://localhost:8000/api/users/${userId}`, {
+//  added "/" after ${userId} to fix fetch issue
+      const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
