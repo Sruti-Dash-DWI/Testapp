@@ -507,12 +507,12 @@ const List = () => {
                                     <div onClick={() => assignUserToTask(task.id, null)} className="px-3 py-2 hover:bg-purple-50 rounded cursor-pointer text-sm transition-colors">
                                         Unassigned
                                     </div>
-                                    {availableUsers.map(user => (
-                                        <div key={user.id} onClick={() => assignUserToTask(task.id, user.id)} className="px-3 py-2 hover:bg-purple-50 rounded cursor-pointer text-sm flex items-center gap-2 transition-colors">
+                                    {availableUsers.map(member => (
+                                        <div key={member.id} onClick={() => assignUserToTask(task.id, member.id)} className="px-3 py-2 hover:bg-purple-50 rounded cursor-pointer text-sm flex items-center gap-2 transition-colors">
                                             <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">
-                                                {user.email?.charAt(0).toUpperCase()}
+                                                {member.user.email?.charAt(0).toUpperCase()}
                                             </div>
-                                            {user.email}
+                                            {member.user.email}
                                         </div>
                                     ))}
                                 </div>
@@ -899,8 +899,8 @@ const List = () => {
                                         className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
                                         <option value="">Unassigned</option>
-                                        {availableUsers.map(user => (
-                                            <option key={user.id} value={user.id}>{user.email}</option>
+                                        {availableUsers.map(member => (
+                                            <option key={member.id} value={member.id}>{member.user.email}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -1000,8 +1000,8 @@ const List = () => {
                                         className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
                                         <option value="">Unassigned</option>
-                                        {availableUsers.map(user => (
-                                            <option key={user.id} value={user.id}>{user.email}</option>
+                                        {availableUsers.map(member => (
+                                            <option key={member.id} value={member.id}>{member.user.email}</option>
                                         ))}
                                     </select>
                                 </div>
