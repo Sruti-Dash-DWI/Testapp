@@ -321,107 +321,99 @@ const handleDeleteComment = async (taskId, activityId) => {
     }
 };
 
+const formatDateForAPI = (date) => {
+    if (!date) return null;
+    // If date is already a string in 'YYYY-MM-DD' format, return it
+    if (typeof date === 'string') {
+        return date.split('T')[0];
+    }
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
+const handleCreateTask = async () => {
+    if (!taskInput.trim()) return;
+    if (selectedTaskType !== 'Epic' && !modalSelectedDate) {
+        alert("Please select a due date for the item.");
+        return;
+    }
+    if (selectedTaskType === 'Subtask' && !selectedParentTaskId) {
+        alert("Please select a parent task for the subtask.");
+        return;
+    }
+    
+    const authToken = localStorage.getItem("authToken");
+    const currentUserId = parseInt(localStorage.getItem("userId"), 10);
+    const currentUserMembership = projectMembers.find(m => m.user.id === currentUserId);
+    
+    if (!currentUserMembership) {
+        setError("You are not a member of this project and cannot create items.");
+        return;
+    }
 
+    try {
+        if (selectedTaskType === 'Epic') {
+            const payload = { title: taskInput, project: parseInt(projectId, 10) };
+            const response = await fetch(`http://127.0.0.1:8000/api/epics/`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) throw new Error("Failed to create epic.");
+            console.log("Epic created successfully!");
 
-
-
-
-
-    const formatDateForAPI = (date) => {
-        if (!date) return null;
-        // If date is already a string in 'YYYY-MM-DD' format, return it
-        if (typeof date === 'string') {
-            return date.split('T')[0];
-        }
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
-    const handleCreateTask = async () => {
-        if (!taskInput.trim()) return;
-        if (selectedTaskType !== 'Epic' && !modalSelectedDate) {
-            alert("Please select a due date for the item.");
-            return;
-        }
-        if (selectedTaskType === 'Subtask' && !selectedParentTaskId) {
-            alert("Please select a parent task for the subtask.");
-            return;
-        }
-        
-        const authToken = localStorage.getItem("authToken");
-        const currentUserId = parseInt(localStorage.getItem("userId"), 10);
-        const currentUserMembership = projectMembers.find(m => m.user.id === currentUserId);
-        
-        if (!currentUserMembership) {
-            setError("You are not a member of this project and cannot create items.");
-            return;
-        }
-
-        try {
-            if (selectedTaskType === 'Epic') {
-                const payload = { title: taskInput, project: parseInt(projectId, 10) };
-                const response = await fetch(`http://127.0.0.1:8000/api/epics/`, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) throw new Error("Failed to create epic.");
-                console.log("Epic created successfully!");
-
-            } else {
-                const taskPayload = {
-                    title: taskInput,
-                    project: parseInt(projectId, 10),
-                    reporter: currentUserMembership.id,
-                    due_date: formatDateForAPI(modalSelectedDate),
-                    status_id: 1, 
-                    priority: "MEDIUM",
-                    task_type: 'FEATURE',
-                };
-                
-                const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                    body: JSON.stringify(taskPayload),
-                });
-
-                const createdTask = await taskResponse.json();
-                if (!taskResponse.ok) {
-                    throw new Error(JSON.stringify(createdTask) || "Failed to create task.");
-                }
-
-                let finalTask = createdTask;
-
-                if (selectedTaskType === 'Subtask') {
-                    const linkPayload = { parent_task: parseInt(selectedParentTaskId, 10) };
-                    const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
-                        method: "PATCH",
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-                        body: JSON.stringify(linkPayload),
-                    });
-                    if (!linkResponse.ok) throw new Error("Task created, but failed to link to parent.");
-                    finalTask = await linkResponse.json(); 
-                }
-
-                setTasks(prev => [...prev, finalTask]);
-            }
+        } else {
+            const taskPayload = {
+                title: taskInput,
+                project: parseInt(projectId, 10),
+                reporter: currentUserMembership.id,
+                due_date: formatDateForAPI(modalSelectedDate),
+                status_id: 1, 
+                priority: "MEDIUM",
+                task_type: 'FEATURE',
+            };
             
-            setShowTaskModal(false);
-            setTaskInput('');
-            setModalSelectedDate(null);
-            setSelectedTaskType('Task');
-            setSelectedParentTaskId('');
-        } catch (error) {
-            console.error("Error creating item:", error);
-            setError(error.message);
+            const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                body: JSON.stringify(taskPayload),
+            });
+
+            const createdTask = await taskResponse.json();
+            if (!taskResponse.ok) {
+                throw new Error(JSON.stringify(createdTask) || "Failed to create task.");
+            }
+
+            let finalTask = createdTask;
+
+            if (selectedTaskType === 'Subtask') {
+                const linkPayload = { parent_task: parseInt(selectedParentTaskId, 10) };
+                const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
+                    method: "PATCH",
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+                    body: JSON.stringify(linkPayload),
+                });
+                if (!linkResponse.ok) throw new Error("Task created, but failed to link to parent.");
+                finalTask = await linkResponse.json(); 
+            }
+
+            setTasks(prev => [...prev, finalTask]);
         }
-    };
+        
+        setShowTaskModal(false);
+        setTaskInput('');
+        setModalSelectedDate(null);
+        setSelectedTaskType('Task');
+        setSelectedParentTaskId('');
+    } catch (error) {
+        console.error("Error creating item:", error);
+        setError(error.message);
+    }
+};
 
    
-
 const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
     if (!subtaskTitle.trim() || !parentItemId) return;
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Filter, CheckCircle, FileText, Clock, Calendar, User, ChevronDown, Search } from "lucide-react";
+import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
 
 const Summary = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -262,6 +263,7 @@ const Summary = () => {
     }
 
     return (
+        <DeveloperDashboardLayout>
         <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-purple-100 to-purple-50 p-6">
             {error && (
                 <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -474,7 +476,8 @@ const Summary = () => {
                 </div>
             </div>
         </div>
-    )
+        </DeveloperDashboardLayout>
+    )   
 }
 
 export default Summary;
