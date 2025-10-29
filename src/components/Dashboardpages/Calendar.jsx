@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X, AlertCircle, Grid } from 'lucide-react';
 
 import { ItemDetailModal, EditSprintModal } from "../Dashboardpages/backlog/BacklogModals";
+import { useTheme } from '../../context/ThemeContext';
 
 
 
@@ -55,6 +56,7 @@ export default function CalendarUI() {
     const selectedItem = useMemo(() => tasks.find(t => t.id === selectedItemId) || null, [tasks, selectedItemId]);
     const [popover, setPopover] = useState({ type: null, data: null, style: {} });
     const popoverRef = useRef(null);
+    const { theme, toggleTheme, colors } = useTheme();
 
     
     const usersWithUnassigned = useMemo(() => [{ id: null, name: "Unassigned" }, ...projectMembers.map(m => ({ id: m.user.id, name: `${m.user.first_name || ''} ${m.user.last_name || ''}`.trim() || m.user.email }))], [projectMembers]);
@@ -620,10 +622,14 @@ return (
     
    
     return (
-        <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
+        <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8" style={{
+        backgroundColor: colors.background,
+        color: colors.text,
+        borderColor: colors.border,
+      }}>
             {(showTypeDropdown || showStatusDropdown || showAssigneeDropdown || showMoreFiltersDropdown) && (<div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />)}
 
-            <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-full mx-auto">
+            <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-full mx-auto" >
             
                 <div className="flex items-center justify-between mb-6 gap-4 flex-nowrap">
                    
