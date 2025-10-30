@@ -1,6 +1,7 @@
 // ReusableComponents.jsx
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
+import { useTheme } from '../../../context/ThemeContext';
 
 
 import {
@@ -12,6 +13,7 @@ import {
   PriorityLowIcon,
   PriorityLowestIcon,
 } from '../../Icons';
+
 
 
 export const Dropdown = ({
@@ -245,6 +247,7 @@ export const StatusDropdown = ({ currentStatus, onItemUpdate, menuAlign }) => {
 export const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = false }) => {
   const priorities = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
   const priorityOptions = priorities.map((p) => ({ value: p, label: p }));
+  const { theme, toggleTheme, colors } = useTheme();
 
   const priorityIcons = {
     Highest: <PriorityHighestIcon />,
@@ -258,7 +261,7 @@ export const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = f
 
   return (
     <Dropdown options={priorityOptions} onSelect={handleSelect} customClasses="w-36" maxHeight="12rem">
-      <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer">
+      <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer"  style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.textSubtle }} >
         {priorityIcons[currentPriority] || <PriorityMediumIcon />}
         {!isIconOnly && <span>{currentPriority || 'Medium'}</span>}
       </div>
@@ -268,6 +271,7 @@ export const PriorityDropdown = ({ currentPriority, onItemUpdate, isIconOnly = f
 
 
 export const UserSelector = ({ selectedUserId, users = [], onUpdate }) => {
+  const { theme, toggleTheme, colors } = useTheme();
   const selectedUser = users.find((u) => u && u.id === selectedUserId) || null;
   const userOptions = users.map((u) => ({ value: u.id, label: u.name || '—' }));
   const hasNullUser = users.some((u) => u && (u.id === null || u.id === undefined));
@@ -285,7 +289,7 @@ export const UserSelector = ({ selectedUserId, users = [], onUpdate }) => {
 
   return (
     <Dropdown options={userOptions} onSelect={handleSelect} customClasses="w-48" maxHeight="14rem">
-      <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer">
+      <div className="flex items-center gap-2 text-sm text-gray-800 hover:bg-gray-200 p-1 rounded cursor-pointer"  style={{ backgroundColor: colors.card, color: colors.textSubtle, borderColor: colors.border }} >
         <UserAvatar user={selectedUser} />
         <span>{selectedUser ? selectedUser.name : 'Unassigned'}</span>
       </div>

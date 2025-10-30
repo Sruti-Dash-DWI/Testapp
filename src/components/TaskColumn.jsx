@@ -89,7 +89,7 @@ const TaskColumn = ({
     console.log(columnId,"columnId");
     
     return (
-      <div className="flex flex-col items-center bg-blue-100 rounded-xl p-2 border-blue-200 ">
+      <div className="flex flex-col items-center rounded-xl p-2 border-blue-200 ">
         <div 
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -97,7 +97,7 @@ const TaskColumn = ({
             onDragLeave={handleDragLeave}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`bg-white backdrop-blur-sm p-4 rounded-xl w-80 flex-shrink-0 max-h-[calc(100vh-200px)] flex flex-col transition-colors duration-300 ${isDraggingOver ? 'bg-blue-500/10' : ''}`}
+            className={`bg-sky-100 backdrop-blur-sm p-4 rounded-xl w-80 flex-shrink-0 max-h-[calc(100vh-250px)] flex flex-col transition-colors duration-300 ${isDraggingOver ? 'bg-blue-500/10' : ''}`}
         >
             <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-gray-300">
                 {isEditingTitle ? (
@@ -194,7 +194,7 @@ const TaskColumn = ({
                 </div>
               </div>
 
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 scrollbar-hide">
+            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 scrollbar-hide pb-2">
                 {tasks.map(task => (
                   <div 
                     key={task.id} 
@@ -208,7 +208,7 @@ const TaskColumn = ({
             {onAddTaskClick && isHovered && (
                 <button 
                     onClick={() => onAddTaskClick(columnId)}
-                    className="mt-4 p-2 w-full rounded-lg bg-white/10 text-gray-300 hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="mt-4 w-full rounded-lg bg-white/10 text-gray-300 hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                     <span className="text-lg font-bold text-gray-700">+</span> <span className="text-gray-700">Create</span>
                 </button>

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getIcon } from '../assets/icons.jsx';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -13,20 +14,21 @@ const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, on
     const contextMenuRef = useRef(null);
     const location = useLocation();
 
-    
+
     const activeProjectId = localStorage.getItem('activeProjectId');
 
-   
+
     const slug = item.text.toLowerCase().replace(/\s+/g, '-');
 
-    
+
     const routePath = activeProjectId ? `/${slug}/${activeProjectId}` : '/projects';
 
-   
+
     const basePath = `/${slug}`;
     const isActive = location.pathname.startsWith(basePath);
+    const { theme, colors } = useTheme();
 
- 
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -51,7 +53,7 @@ const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, on
             setIsEditing(false);
         }
     };
-    
+
     const handleRenameBlur = () => {
         onRename(item.id, editText);
         setIsEditing(false);
@@ -72,11 +74,13 @@ const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, on
             onDrop={(e) => onDrop(e, item.id)}
         >
             <Link
-                
                 to={routePath}
                 draggable
                 onDragStart={(e) => onDragStart(e, item.id)}
-                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:bg-gray-400'}`}
+                style={{
+                    color: isActive ? colors.accent || '#3b82f6' : colors.text,
+                }}
             >
                 {getIcon(item.text)}
                 {isEditing ? (
@@ -87,7 +91,7 @@ const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, on
             </Link>
 
             {isHovered && !isEditing && (
-                <button onClick={handleMenuToggle} className="absolute top-1/2 right-2 -translate-y-1/2 p-1 rounded-full focus:outline-none z-10" aria-label="Item options">
+                <button onClick={handleMenuToggle} className="absolute top-1/2 right-2 -translate-y-1/2 p-1 rounded-full focus:outline-none z-10" aria-label="Item options" >
                     <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                 </button>
             )}

@@ -25,7 +25,7 @@ const List = () => {
     const [commentText, setCommentText] = useState('');
     const [editComments, setEditComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
-    const { theme, toggleTheme, colors } = useTheme();
+    const { theme, toggleTheme, colors, isDark } = useTheme();
 
     const filterButtonRef = useRef(null);
     const filterDropdownRef = useRef(null);
@@ -410,25 +410,49 @@ const List = () => {
 
     const getStatusBadge = (status) => {
         const statusTitle = status?.title || 'Unknown';
+        
+        // Use theme-aware colors. These are just examples; adjust as needed.
+        if (isDark) {
+            const statusMap = {
+                'To Do': 'bg-gray-700 text-gray-200',
+                'In Progress': 'bg-blue-800 text-blue-100',
+                'In Review': 'bg-purple-800 text-purple-100',
+                'Done': 'bg-green-800 text-green-100',
+                'Testing': 'bg-yellow-800 text-yellow-100',
+            };
+            return statusMap[statusTitle] || 'bg-gray-700 text-gray-200';
+        }
+
+        // Light mode (original)
         const statusMap = {
             'To Do': 'bg-gray-200 text-gray-700',
             'In Progress': 'bg-blue-100 text-blue-800',
             'In Review': 'bg-purple-100 text-purple-800',
-            Done: 'bg-green-100 text-green-800',
-            Testing: 'bg-yellow-100 text-yellow-800',
+            'Done': 'bg-green-100 text-green-800',
+            'Testing': 'bg-yellow-100 text-yellow-800',
         };
         return statusMap[statusTitle] || 'bg-gray-100 text-gray-800';
     };
 
     const getPriorityBadge = (priority) => {
-        const priorityMap = {
-            'HIGHEST': { class: 'bg-red-50 text-red-900', icon: '⇈' },
-            'HIGH': { class: 'bg-red-50 text-red-700', icon: '↑' },
-            'MEDIUM': { class: 'bg-yellow-50 text-yellow-700', icon: '=' },
-            'LOW': { class: 'bg-green-50 text-green-700', icon: '↓' },
-            'LOWEST': { class: 'bg-green-50 text-green-900', icon: '⇊' },
+        const lightModeMap = {
+            'HIGHEST': { class: 'bg-red-100 text-red-900', icon: '⇈' },
+            'HIGH': { class: 'bg-red-100 text-red-700', icon: '↑' },
+            'MEDIUM': { class: 'bg-yellow-100 text-yellow-800', icon: '=' },
+            'LOW': { class: 'bg-green-100 text-green-700', icon: '↓' },
+            'LOWEST': { class: 'bg-green-100 text-green-900', icon: '⇊' },
         };
-        return priorityMap[priority] || priorityMap['MEDIUM'];
+        
+        const darkModeMap = {
+            'HIGHEST': { class: 'bg-red-800 text-red-100', icon: '⇈' },
+            'HIGH': { class: 'bg-red-700 text-red-100', icon: '↑' },
+            'MEDIUM': { class: 'bg-yellow-700 text-yellow-100', icon: '=' },
+            'LOW': { class: 'bg-green-700 text-green-100', icon: '↓' },
+            'LOWEST': { class: 'bg-green-800 text-green-100', icon: '⇊' },
+        };
+
+        const map = isDark ? darkModeMap : lightModeMap;
+        return map[priority] || map['MEDIUM'];
     };
 
     const formatDate = (dateString) => {
@@ -555,15 +579,15 @@ const List = () => {
                             </button>
                         )}
                     </div>
-                    <div className="border-r border-purple-200 px-3 py-3 flex items-center text-gray-900">
-                        <span className={`truncate ${isSubtask ? 'ml-8 text-gray-700' : 'font-medium'}`}>{task.title}</span>
+                    <div className="border-r border-purple-200 px-3 py-3 flex items-center">
+                        <span className={`truncate ${isSubtask ? 'ml-8' : 'font-medium'}`}>{task.title}</span>
                     </div>
                     <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center">
                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(task.status)}`}>
                             {task.status?.title || 'Unknown'}
                         </span>
                     </div>
-                    <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center text-gray-600">
+                    <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center text-gray-600" style={{ color: colors.text }}>
                         <Calendar className="w-4 h-4 mr-1" />
                         <span className="text-xs">{formatDate(task.due_date)}</span>
                     </div>
@@ -587,8 +611,8 @@ const List = () => {
                             </button>
                         )}
                         {assigneeDropdown === task.id && (
-                            <div className="absolute top-full left-0 mt-1 bg-white shadow-lg border border-purple-200 rounded-lg z-50 w-56">
-                                <div className="p-2 max-h-48 overflow-y-auto">
+                            <div className="absolute top-full left-0 mt-1 bg-white shadow-lg border border-purple-200 rounded-lg z-50 w-56" style={{ color: colors.text }}>
+                                <div className="p-2 max-h-48 overflow-y-auto" style={{ color: colors.text }}>
                                     <div onClick={() => assignUserToTask(task.id, null)} className="px-3 py-2 hover:bg-purple-50 rounded cursor-pointer text-sm transition-colors">
                                         Unassigned
                                     </div>
@@ -690,12 +714,17 @@ const List = () => {
                     </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4 bg-white p-2">
+                <div className="flex items-center gap-2 mb-4 p-2">
 
-                    <div className="relative">
+                    <div className="relative"
+                    style={{
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                    }}>
                         <button
                             ref={filterButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-200"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-400"
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                         >
                             <Filter className="w-4 h-4" />
@@ -748,7 +777,7 @@ const List = () => {
                     <div className="relative ml-auto">
                         <button
                             ref={groupButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-200"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-400"
                             onClick={() => setIsGroupOpen(!isGroupOpen)}
                         >
                             Group
@@ -792,10 +821,10 @@ const List = () => {
                     <div className="relative">
                         <button
                             ref={settingsButtonRef}
-                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-200"
+                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-400"
                             onClick={() => setIssettingsOpen(!issettingsOpen)}
                         >
-                            <Settings className="w-4 h-4" />
+                            <Settings className="w-5 h-5" />
                         </button>
 
                         {issettingsOpen && (
@@ -868,32 +897,37 @@ const List = () => {
                 )}
 
                 {!loading && (
-                    <div className="bg-white rounded-lg shadow-sm border border-purple-200 overflow-hidden">
+                    <div className="rounded-lg shadow-sm border overflow-hidden"
+                    style={{
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                    }}>
                         <div className="table-scroll overflow-x-auto">
                             {Object.entries(groupedTasks).map(([groupName, groupTasks]) => (
                                 <div key={groupName}>
                                     {groupBy && (
-                                        <div className="bg-purple-100 px-4 py-2 font-semibold text-gray-700 border-b border-purple-200">
+                                        <div className="bg-purple-100 px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">
                                             {groupName} ({groupTasks.length})
                                         </div>
                                     )}
 
-                                    <div className="grid text-sm font-medium text-gray-700 bg-gray-50" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Task Type</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3">Summary</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Status</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Due Date</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Priority</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Assignee</div>
-                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center">Comments</div>
-                                        <div className="border-b border-gray-300 px-3 py-3 text-center">Actions</div>
+                                    <div className="grid text-sm font-medium" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Task Type</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3" style={{ color: colors.text }}>Summary</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Status</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Due Date</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Priority</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Assignee</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Comments</div>
+                                        <div className="border-b border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Actions</div>
                                     </div>
 
                                     <div>
                                         {groupTasks.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500" style={{ minWidth: '1200px' }}>
-                                                <p className="text-lg mb-2">No tasks found</p>
-                                                <p className="text-sm">Create your first task to get started</p>
+                                                <p className="text-lg mb-2" style={{ color: colors.text }}>No tasks found</p>
+                                                <p className="text-sm" style={{ color: colors.text }}>Create your first task to get started</p>
                                             </div>
                                         ) : (
                                             groupTasks.map(task => renderTaskRow(task))
@@ -980,7 +1014,7 @@ const List = () => {
                                                 assignees: userId ? [parseInt(userId)] : []
                                             });
                                         }}
-                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" style={{ color: colors.text }}
                                     >
                                         <option value="">Unassigned</option>
                                         {availableUsers.map(member => (
@@ -1105,7 +1139,7 @@ const List = () => {
                                     ) : (
                                         <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
                                             {editComments.length === 0 ? (
-                                                <p className="text-sm text-gray-500 text-center py-4">No comments yet</p>
+                                                <p className="text-sm text-gray-500 text-center py-4" style={{ color: colors.text }}>No comments yet</p>
                                             ) : (
                                                 editComments.map((comment) => (
                                                     <div key={comment.id} className="bg-purple-50 rounded-lg p-3 border border-purple-200">
@@ -1115,7 +1149,7 @@ const List = () => {
                                                                     <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">
                                                                         {comment.author?.user?.email?.charAt(0).toUpperCase() || 'U'}
                                                                     </div>
-                                                                    <span className="text-xs font-medium text-gray-700">
+                                                                    <span className="text-xs font-medium text-gray-700" style={{ color: colors.text }}>
                                                                         {comment.author?.user?.email || 'Unknown User'}
                                                                     </span>
                                                                     <span className="text-xs text-gray-500">

@@ -17,6 +17,10 @@ import {
     ActionTrashIcon,
     UserAvatar,
 } from '../../Icons';
+import { useTheme } from '../../../context/ThemeContext';
+
+
+
 
 const calculateStatusCounts = (itemIds, allItems) => {
     const counts = {
@@ -92,37 +96,45 @@ const StatusSummaryDots = ({ todo, inProgress, done }) => (
 );
 
 // --- Side Panel Components ---
-const InsightsPanel = ({ onClose }) => (
-    <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm">
-        <div className="flex justify-between items-center mb-6 flex-shrink-0">
-            <h3 className="text-lg font-bold text-gray-800">Backlog insights</h3>
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
-            </button>
-        </div>
-        <div className="space-y-4 flex-grow overflow-y-auto pr-2">
-            <div className="p-4 border rounded-lg bg-white shadow-sm">
-                <h4 className="font-semibold text-gray-700">Sprint commitment</h4>
-                <p className="text-sm text-gray-500 mt-1">Add estimates to plan sprints with more accuracy.</p>
-                <p className="text-sm text-gray-600 mt-2">This insight compares how much effort was allocated to a sprint against how much was completed.</p>
-                <a href="#" className="text-sm text-blue-600 hover:underline mt-2 inline-block">Learn more</a>
+const InsightsPanel = ({ onClose }) => {
+
+    const { theme, toggleTheme, colors } = useTheme();
+
+
+
+    return (
+        <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+            <div className="flex justify-between items-center mb-6 flex-shrink-0" >
+                <h3 className="text-lg font-bold text-gray-800" style={{ color: colors.text }}>Backlog insights</h3>
+                <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
+                </button>
             </div>
-            <div className="p-4 border rounded-lg bg-white shadow-sm">
-                <h4 className="font-semibold text-gray-700">Work type breakdown</h4>
-                <p className="text-sm text-gray-500 mt-1">Your top work item type to focus on in this sprint.</p>
-                <div className="mt-3">
-                    <span className="text-sm text-gray-600">Task</span>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '75%' }}></div>
+            <div className="space-y-4 flex-grow overflow-y-auto pr-2" >
+                <div className="p-4 border rounded-lg bg-white shadow-sm" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <h4 className="font-semibold text-gray-700" style={{ color: colors.text }}>Sprint commitment</h4>
+                    <p className="text-sm text-gray-500 mt-1" style={{ color: colors.text }}>Add estimates to plan sprints with more accuracy.</p>
+                    <p className="text-sm text-gray-600 mt-2" style={{ color: colors.text }}>This insight compares how much effort was allocated to a sprint against how much was completed.</p>
+                    <a href="#" className="text-sm text-blue-600 hover:underline mt-2 inline-block">Learn more</a>
+                </div>
+                <div className="p-4 border rounded-lg bg-white shadow-sm" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <h4 className="font-semibold text-gray-700" style={{ color: colors.text }}>Work type breakdown</h4>
+                    <p className="text-sm text-gray-500 mt-1" style={{ color: colors.text }}>Your top work item type to focus on in this sprint.</p>
+                    <div className="mt-3">
+                        <span className="text-sm text-gray-600" style={{ color: colors.text }}>Task</span>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                            {/* This inline style is perfectly fine! */}
+                            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '75%' }}></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="p-4 border rounded-lg bg-white shadow-sm mt-auto">
-                <button className="text-sm text-gray-600 w-full text-left">Give feedback</button>
+                <div className="p-4 border rounded-lg bg-white shadow-sm mt-auto" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <button className="text-sm text-gray-600 w-full text-left" style={{ color: colors.text }}>Give feedback</button>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ToggleSwitch = ({ label, defaultChecked = false }) => (
     <div className="flex items-center justify-between">
@@ -134,43 +146,61 @@ const ToggleSwitch = ({ label, defaultChecked = false }) => (
     </div>
 );
 
-const ViewSettingsPanel = ({ onClose }) => (
-    <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm">
-        <div className="flex justify-between items-center mb-6 flex-shrink-0">
-            <h3 className="text-lg font-bold text-gray-800">View settings</h3>
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
-            </button>
+const ViewSettingsPanel = ({ onClose }) => {
+
+    const { theme, toggleTheme, colors } = useTheme();
+
+
+    return (
+
+        <div className="p-4 flex flex-col h-full bg-white/80 backdrop-blur-sm" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+            <div className="flex justify-between items-center mb-6 flex-shrink-0">
+
+                <h3 className="text-lg font-bold text-gray-800" style={{ color: colors.text }}>View settings</h3>
+                <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200" style={{ color: colors.text }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708 .708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" /></svg>
+                </button>
+            </div>
+            <div className="space-y-6 flex-grow overflow-y-auto pr-2">
+                <div>
+                    <ToggleSwitch label={<span style={{ color: colors.text }}>Epic Panel</span>} />
+                    <div className="mt-3">
+                        <ToggleSwitch label={<span style={{ color: colors.text }}>Empty sprints</span>} defaultChecked={true} />
+                    </div>
+                </div>
+                <div>
+
+                    <h4 className="font-bold text-gray-800 mb-2" style={{ color: colors.text }}>Density</h4>
+                    <div className="space-y-2">
+
+                        <label className="flex items-center"><input type="radio" name="density" className="form-radio" defaultChecked /> <span className="ml-2 text-sm text-gray-700" style={{ color: colors.text }}>Default</span></label>
+
+                        <label className="flex items-center"><input type="radio" name="density" className="form-radio" /> <span className="ml-2 text-sm text-gray-700" style={{ color: colors.text }}>Compact</span></label>
+                    </div>
+                </div>
+                <div>
+
+                    <h4 className="font-bold text-gray-800 mb-2" style={{ color: colors.text }}>Fields</h4>
+                    <div className="space-y-3" >
+                        {['Work type', 'Work item key', 'Epic', 'Status', 'Estimate', 'Priority', 'Assignee'].map(field => (
+                            <ToggleSwitch
+                                key={field}
+                                defaultChecked={true}
+                                label={<span style={{ color: colors.text }}>{field}</span>}
+                            />
+                        ))}
+
+                    </div>
+                </div>
+            </div>
         </div>
-        <div className="space-y-6 flex-grow overflow-y-auto pr-2">
-            <div>
-                <ToggleSwitch label="Epic panel" />
-                <div className="mt-3">
-                    <ToggleSwitch label="Empty sprints" defaultChecked={true} />
-                </div>
-            </div>
-            <div>
-                <h4 className="font-bold text-gray-800 mb-2">Density</h4>
-                <div className="space-y-2">
-                    <label className="flex items-center"><input type="radio" name="density" className="form-radio" defaultChecked /> <span className="ml-2 text-sm text-gray-700">Default</span></label>
-                    <label className="flex items-center"><input type="radio" name="density" className="form-radio" /> <span className="ml-2 text-sm text-gray-700">Compact</span></label>
-                </div>
-            </div>
-            <div>
-                <h4 className="font-bold text-gray-800 mb-2">Fields</h4>
-                <div className="space-y-3">
-                    {['Work type', 'Work item key', 'Epic', 'Status', 'Estimate', 'Priority', 'Assignee'].map(field => (
-                        <ToggleSwitch key={field} label={field} defaultChecked={true} />
-                    ))}
-                </div>
-            </div>
-        </div>
-    </div>
-);
+    );
+};
 
 
 // --- Main BacklogView Component ---
 export default function BacklogView({
+
     // Data Props
     boardData,
     users,
@@ -225,6 +255,7 @@ export default function BacklogView({
     setNewSprintName,
     handleAddNewSprint
 }) {
+    const { theme, toggleTheme, colors } = useTheme();
 
     const formatDate = (dateString) => {
         if (!dateString) return null;
@@ -254,16 +285,21 @@ export default function BacklogView({
         const formattedEndDate = formatDate(sprint.endDate);
 
         return (
-            <div key={sprint.id} className="mb-4">
-                <div className={`p-3 rounded-md shadow-sm border ${sprint.is_ended ? 'bg-gray-100' : 'bg-[#f0eaff]/60 backdrop-blur-sm border-white/30'}`} onDragOver={handleDragOver} onDrop={(e) => !sprint.is_ended && handleDrop(e, sprint.id)}>
-                    <div className="flex justify-between items-center mb-3">
+            <div key={sprint.id} className="mb-4" >
+                <div className={`p-3 rounded-md shadow-sm border ${sprint.is_ended ? 'bg-gray-100' : 'bg-[#f0eaff]/60 backdrop-blur-sm border-white/30'}`} onDragOver={handleDragOver} onDrop={(e) => !sprint.is_ended && handleDrop(e, sprint.id)} style={{
+                    backgroundColor: colors.card,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    textSubtle: colors.textSubtle,
+                }}>
+                    <div className="flex justify-between items-center mb-3" >
                         <div className="flex items-center gap-3">
                             <input type="checkbox" className="form-checkbox h-4 w-4" />
                             <div className="flex items-center gap-2">
-                                <h2 className={`font-bold ${sprint.is_ended ? 'text-gray-600' : 'text-gray-800'}`}>{sprint.name}</h2>
+                                <h2 className={`font-bold ${sprint.is_ended ? 'text-gray-600' : 'text-gray-800'}`} style={{ color: colors.text }}>{sprint.name}</h2>
                                 {sprint.isActive && <span className="text-xs font-bold bg-green-200 text-green-800 px-2 py-0.5 rounded-full">ACTIVE</span>}
                                 {sprint.is_ended && <span className="text-xs font-bold bg-gray-300 text-gray-700 px-2 py-0.5 rounded-full">COMPLETED</span>}
-                                {!sprint.is_ended && editingSprintId !== sprint.id && <button onClick={() => handleStartRenameSprint(sprint.id)} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>}
+                                {!sprint.is_ended && editingSprintId !== sprint.id && <button onClick={() => handleStartRenameSprint(sprint.id)} className="text-gray-500 hover:text-gray-800" style={{ color: colors.text }}><PencilIcon /></button>}
                             </div>
                             {editingSprintId === sprint.id && (
                                 <input
@@ -275,8 +311,8 @@ export default function BacklogView({
                                     className="font-bold text-gray-800 bg-white border rounded px-1"
                                 />
                             )}
-                            {formattedStartDate && formattedEndDate && <span className="text-sm text-gray-500">{formattedStartDate} - {formattedEndDate}</span>}
-                            <span className="text-sm text-gray-500">({sprintItems.length} work item)</span>
+                            {formattedStartDate && formattedEndDate && <span className="text-sm text-gray-500" style={{ color: colors.text }}>{formattedStartDate} - {formattedEndDate}</span>}
+                            <span className="text-sm text-gray-500" style={{ color: colors.text }}>({sprintItems.length} work item)</span >
                             <StatusSummaryDots
                                 todo={statusCounts.todo}
                                 inProgress={statusCounts.inProgress}
@@ -292,17 +328,29 @@ export default function BacklogView({
                                         <button onClick={() => setSprintToStart(sprint)} className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" disabled={sprint.itemIds.length === 0}>Start sprint</button>
                                     )}
                                     <Dropdown options={sprintOptions} onSelect={handleSprintAction}>
-                                        <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full"><MoreHorizontalIcon /></button>
+                                        <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full" style={{ color: colors.text }}><MoreHorizontalIcon /></button>
                                     </Dropdown>
                                 </>
                             )}
                         </div>
                     </div>
-                    <div className={`min-h-[80px] rounded p-2 border-2 border-dashed ${sprint.is_ended ? 'bg-gray-50 border-gray-200' : 'bg-blue-100 border-blue-200'}`}>
+                    <div className={`min-h-[80px] rounded p-2 border-2 border-dashed ${sprint.is_ended ? 'bg-gray-50 border-gray-200' : 'bg-blue-100 border-blue-200'}`} style={{
+                        backgroundColor: colors.card,
+                        color: colors.text,
+                        borderColor: colors.border,
+                        textSubtle: colors.textSubtle,
+                    }}>
                         {sprintItems.map((item) => (
-                            <div key={item.id} data-item-id={item.id} draggable={!sprint.is_ended} onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
+                            <div key={item.id} data-item-id={item.id} draggable={!sprint.is_ended} onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)} style={{
+                                backgroundColor: colors.card,
+                                color: colors.text,
+                                borderColor: colors.border,
+                                textSubtle: colors.textSubtle,
+
+
+                            }}>
                                 <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
-                                <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
+                                <span className="text-sm text-gray-500 w-24 font-medium" style={{ color: colors.text }}>{item.id}</span>
                                 <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
                                     {editingItemId === item.id ? (
                                         <input
@@ -316,8 +364,8 @@ export default function BacklogView({
                                         />
                                     ) : (
                                         <>
-                                            <span>{item.title}</span>
-                                            <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span style={{ color: colors.text }}>{item.title}</span>
+                                            <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: colors.text }}>
                                                 <PencilIcon />
                                             </button>
                                         </>
@@ -327,14 +375,14 @@ export default function BacklogView({
                                     <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
                                     <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true} />
                                     <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" color={{ color: colors.text }}>
                                         <ActionTrashIcon />
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {!sprint.is_ended && <button onClick={() => handleCreateItem(sprint.id)} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded">+ Create</button>}
+                    {!sprint.is_ended && <button onClick={() => handleCreateItem(sprint.id)} className="mt-3 text-sm font-semibold text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded" style={{ color: colors.text }}>+ Create</button>}
                 </div>
             </div>
         );
@@ -342,8 +390,20 @@ export default function BacklogView({
 
     const backlogStatusCounts = calculateStatusCounts(boardData.backlog.itemIds, filteredItems);
     return (
-        <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{ background: 'linear-gradient(135deg, #ad97fd 0%, #f6a5dc 50)' }}>
-            <header className="sticky top-0 z-20 p-4 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between flex-shrink-0">
+        <div className="h-full flex flex-col font-sans text-[#172B4D]" style={{
+            backgroundColor: colors.card,
+            color: colors.text,
+            borderColor: colors.border,
+            textSubtle: colors.textSubtle,
+
+
+        }}>
+            <header className="sticky top-0 z-20 p-4 bg-white/95 backdrop-blur-sm flex items-center justify-between flex-shrink-0" style={{
+                backgroundColor: colors.card,
+                color: colors.text,
+                borderColor: colors.border,
+                textSubtle: colors.textSubtle,
+            }}>
                 <div className="flex items-center space-x-4">
                     <div className="relative">
                         <BacklogSearchIcon />
@@ -352,7 +412,8 @@ export default function BacklogView({
                             placeholder="Search backlog"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-1.5 text-sm border rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            className="pl-9 pr-4 py-1.5 text-sm border rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }} />
                     </div>
                     <div className="flex items-center space-x-2 border-l pl-4">
                         <UserAvatar user={users && users[0]} />
@@ -372,7 +433,7 @@ export default function BacklogView({
                 </div>
             </header>
 
-            <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/95 backdrop-blur-sm border-b shadow-sm">
+            <div className="p-4 pt-2 flex items-center gap-2 flex-wrap bg-white/95 backdrop-blur-sm border-b shadow-sm" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
                 <span className="text-sm font-semibold mr-2 text-gray-600">Filter by Epic:</span>
                 <button
                     onClick={() => setSelectedEpicId(null)}
@@ -385,6 +446,7 @@ export default function BacklogView({
                         key={epic.id}
                         onClick={() => setSelectedEpicId(epic.id)}
                         className={`px-3 py-1 text-sm font-semibold rounded-full transition ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text, backgroundHover: colors.backgroundHover }}
                     >
                         {epic.title}
                     </button>
@@ -398,7 +460,7 @@ export default function BacklogView({
                         <SprintSection key={sprint.id} sprint={sprint} />
                     ))}
 
-                    <div className="backdrop-blur-sm p-3 rounded-md border border-white/30" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
+                    <div className="backdrop-blur-sm p-3 rounded-md" onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, 'backlog')}>
                         <div className="flex justify-between items-center mb-3">
                             <div className="flex items-center gap-4">
                                 <input type="checkbox" className="form-checkbox h-4 w-4" />
@@ -413,11 +475,11 @@ export default function BacklogView({
                                     />
                                 ) : (
                                     <div className="flex items-center gap-2">
-                                        <h2 className="font-bold text-gray-800">{boardData.backlog.name}</h2>
-                                        <button onClick={handleStartRenameBacklog} className="text-gray-500 hover:text-gray-800"><PencilIcon /></button>
+                                        <h2 className="font-bold text-gray-800" style={{ color: colors.text }}>{boardData.backlog.name}</h2>
+                                        <button onClick={handleStartRenameBacklog} className="text-gray-500 hover:text-gray-800" style={{ color: colors.text }}><PencilIcon /></button>
                                     </div>
                                 )}
-                                <span className="text-sm text-gray-500">{backlogItems.length} work items</span>
+                                <span className="text-sm text-gray-500" style={{ color: colors.text }}>{backlogItems.length} work items</span>
                             </div>
                             <div className="flex items-center gap-4">
                                 <StatusSummaryDots
@@ -429,7 +491,12 @@ export default function BacklogView({
                             </div>
                         </div>
                         {isCreatingSprint && (
-                            <form onSubmit={handleAddNewSprint} className="mb-3 p-2 bg-white rounded shadow">
+                            <form onSubmit={handleAddNewSprint} className="mb-3 p-2 bg-white rounded shadow" style={{
+                                backgroundColor: colors.card,
+                                color: colors.text,
+                                borderColor: colors.border,
+                                textSubtle: colors.textSubtle,
+                            }}>
                                 <input
                                     ref={newSprintInputRef}
                                     type="text"
@@ -440,15 +507,15 @@ export default function BacklogView({
                                 />
                                 <div className="flex justify-end gap-2">
                                     <button type="button" onClick={() => setIsCreatingSprint(false)} className="bg-gray-200 text-gray-800 px-3 py-1 text-sm rounded">Cancel</button>
-                                    <button type="submit" className="bg-blue-600 text-white px-3 py-1 text-sm rounded">Create</button>
+                                    <button type="submit" className="bg-blue-600 text-white px-3 py-1 text-sm rounded" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>Create</button>
                                 </div>
                             </form>
                         )}
-                        <div className="min-h-[120px] bg-blue-100 rounded p-2 border-blue-200">
+                        <div className="min-h-[120px] rounded p-2">
                             {backlogItems.map((item) => (
-                                <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)}>
+                                <div key={item.id} data-item-id={item.id} draggable="true" onDragStart={(e) => handleDragStart(e, item.id)} onDragEnd={handleDragEnd} className="group flex items-center p-2 mb-1 rounded bg-white border hover:bg-blue-50 cursor-pointer" onClick={() => handleItemClick(item)} style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
                                     <input type="checkbox" onClick={e => e.stopPropagation()} className="mr-3 form-checkbox h-4 w-4" />
-                                    <span className="text-sm text-gray-500 w-24 font-medium">{item.id}</span>
+                                    <span className="text-sm text-gray-500 w-24 font-medium" style={{ color: colors.text }}>{item.id}</span>
                                     <span className="flex-grow text-sm text-gray-800 flex items-center gap-2">
                                         {editingItemId === item.id ? (
                                             <input
@@ -462,7 +529,7 @@ export default function BacklogView({
                                             />
                                         ) : (
                                             <>
-                                                <span>{item.title}</span>
+                                                <span style={{ color: colors.text }}>{item.title}</span>
                                                 <button onClick={(e) => { e.stopPropagation(); handleStartRenameItem(item.id); }} className="text-gray-500 hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <PencilIcon />
                                                 </button>
@@ -472,8 +539,8 @@ export default function BacklogView({
                                     <div className="flex items-center space-x-4 ml-4" onClick={e => e.stopPropagation()}>
                                         <StatusDropdown currentStatus={item.status} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} />
                                         <PriorityDropdown currentPriority={item.priority} onItemUpdate={(updates) => handleUpdateItem(item.id, updates)} isIconOnly={true} />
-                                        <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} />
-                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <UserSelector selectedUserId={item.assignee} users={usersWithUnassigned} onUpdate={(userId) => handleUpdateItem(item.id, { assignee: userId })} style={{ color: colors.textSubtle }} />
+                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }} className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: colors.textSubtle }}>
                                             <ActionTrashIcon />
                                         </button>
                                     </div>
@@ -485,7 +552,7 @@ export default function BacklogView({
 
                     {completedSprints.length > 0 && (
                         <div className="mt-8">
-                            <h3 className="text-lg font-bold text-gray-500 mb-2 border-b pb-2">Completed Sprints</h3>
+                            <h3 className="text-lg font-bold text-gray-500 mb-2 border-b pb-2" style={{ color: colors.text }}>Completed Sprints</h3>
                             {completedSprints.map(sprint => (
                                 <SprintSection key={sprint.id} sprint={sprint} />
                             ))}
@@ -494,7 +561,7 @@ export default function BacklogView({
                 </main>
 
                 {activePanel && (
-                    <aside className="w-1/3 border-l border-gray-200/50 transition-all duration-300 ease-in-out">
+                    <aside className="w-1/3 border-l border-gray-200/50 transition-all duration-300 ease-in-out" >
                         {activePanel === 'insights' && <InsightsPanel onClose={() => handlePanelToggle(null)} />}
                         {activePanel === 'view-settings' && <ViewSettingsPanel onClose={() => handlePanelToggle(null)} />}
                     </aside>
@@ -503,3 +570,4 @@ export default function BacklogView({
         </div>
     );
 }
+

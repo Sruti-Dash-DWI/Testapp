@@ -355,7 +355,7 @@ const Board = () => {
       />
 
       {/* Styled Header */}
-      <header className="flex-shrink-0 flex justify-between items-center bg-white border-b border-gray-200 px-4 md:px-6 py-3">
+      <header className="flex-shrink-0 flex justify-between items-center px-4 md:px-6 py-3">
         <div className="flex items-center gap-4">
           <button className="text-gray-500 p-2 rounded-md hover:bg-gray-100">
             <MenuIcon />

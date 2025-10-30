@@ -13,7 +13,7 @@ const TaskCard = ({ task, onUpdateTask }) => {
         <div
             draggable="true"
             onDragStart={handleDragStart}
-            className="bg-black/20 backdrop-blur-sm p-4 rounded-lg shadow-md cursor-grab active:cursor-grabbing hover:shadow-lg hover:-translate-y-1 transition-all border border-white/20"
+            className="bg-black/5 text-gray-700 backdrop-blur-sm p-4 rounded-lg shadow-md cursor-grab active:cursor-grabbing hover:shadow-sm hover:-translate-y-1 transition-all border border-white/20"
         >
             <div className="flex justify-between items-start">
                 {isEditing ? (
@@ -39,15 +39,15 @@ const TaskCard = ({ task, onUpdateTask }) => {
                         autoFocus
                     />
                 ) : (
-                    <h4 className="font-semibold text-gray-100 mb-1">{task.title}</h4>
+                    <h4 className="font-semibold text-gray-700 mb-1">{task.title}</h4>
                 )}
                 <div className="flex items-center gap-2">
-                    <button onClick={() => setIsEditing(true)} className="text-gray-100 hover:text-black"><EditIcon /></button>
-                    <button className="text-gray-100 hover:text-black"><KebabMenuIcon /></button>
+                    <button onClick={() => setIsEditing(true)} className="text-gray-600 hover:text-black"><EditIcon /></button>
+                    <button className="text-gray-600 hover:text-black"><KebabMenuIcon /></button>
                 </div>
             </div>
-            <p className="text-sm text-gray-300 mb-3">{task.description}</p>
-            <div className="text-sm text-gray-100 mb-3 flex items-center">
+            <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+            <div className="text-sm text-gray-600 mb-3 flex items-center">
                 <CalendarIcon />
                 <span>{new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</span>
             </div>
