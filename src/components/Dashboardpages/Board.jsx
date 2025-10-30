@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AddTaskModal from '../AddTaskModal';
 import TaskColumn from '../TaskColumn';
+import { useTheme } from '../../context/ThemeContext';
 import {
-  MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
-  FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
+    MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
+    FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons'; // Assuming PlusIcon is imported here
 
 /**
@@ -49,12 +50,13 @@ const Dropdown = ({ button, children, align = 'right', buttonClassName }) => {
 
 
 const Board = () => {
-  const { projectId } = useParams();
-  const [tasks, setTasks] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [columnError, setColumnError] = useState(null);
+    const { theme, toggleTheme, colors } = useTheme();
+    const { projectId } = useParams();
+    const [tasks, setTasks] = useState([]);
+    const [columns, setColumns] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [columnError, setColumnError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTerm, setFilterTerm] = useState('all');
   const [sortTerm, setSortTerm] = useState('default');
@@ -330,13 +332,19 @@ const Board = () => {
 
 
   return (
-    // Styled main container
-    <div className="flex flex-col h-screen bg-gray-200 overflow-hidden text-gray-900">
-      <AddTaskModal
-        show={isModalOpen || !!editingTask}
-        onHide={() => {
-          handleCloseModal();
-          setEditingTask(null);
+    // Styled main container
+    <div className="flex flex-col h-screen bg-gray-200 overflow-hidden text-gray-900"
+    style={{
+        backgroundColor: colors.background,
+        color: colors.text,
+        borderColor: colors.border,
+      }}
+    >
+      <AddTaskModal
+        show={isModalOpen || !!editingTask}
+        onHide={() => {
+          handleCloseModal();
+          setEditingTask(null);
         }}
         onAddTask={handleAddTask}
         columns={columns}
@@ -466,7 +474,7 @@ const Board = () => {
             onDeleteColumn={handleDeleteColumn}
             onChangeColumnTitle={handleChangeColumnTitle}
             onEditTask={setEditingTask}
-  D          columnIndex={columns.findIndex(col => col.id === column.id)}
+            columnIndex={columns.findIndex(col => col.id === column.id)}
             totalColumns={columns.length}
           />
         ))}
@@ -491,7 +499,7 @@ const Board = () => {
                 className="w-full p-2 bg-white border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 autoFocus
               />
-    .       </div>
+           </div>
           ) : (
             <button
               onClick={() => setIsAddingColumn(true)}

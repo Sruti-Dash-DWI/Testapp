@@ -14,6 +14,7 @@ import {
     Zap,
     Clock
 } from 'lucide-react';
+import {useTheme} from "../../context/ThemeContext";
 
 // --- HELPER FUNCTIONS ---
 const getTagColor = (color) => {
@@ -61,11 +62,12 @@ const sampleItems = [
 // --- END STATIC SAMPLE DATA ---
 
 const Timeline = () => {
-  const [selectedView, setSelectedView] = useState('Months');
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-  const [showInput, setShowInput] = useState(false);
-  const [epicText, setEpicText] = useState('');
-  const [items, setItems] = useState(sampleItems);
+    const { theme, toggleTheme, colors } = useTheme();
+    const [selectedView, setSelectedView] = useState('Months');
+    const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+    const [showInput, setShowInput] = useState(false);
+    const [epicText, setEpicText] = useState('');
+    const [items, setItems] = useState(sampleItems);
 
   const viewOptions = ['Today', 'Weeks', 'Months', 'Quarters'];
   const statusOptions = [ { id: 'todo', name: 'To Do', checked: false }, { id: 'inprogress', name: 'In Progress', checked: false }, { id: 'done', name: 'Done', checked: false } ];
@@ -125,7 +127,13 @@ const Timeline = () => {
 
   // --- START OF STYLED RENDER ---
   return (
-    <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8"
+    style={{
+        backgroundColor: colors.background,
+        color: colors.text,
+        borderColor: colors.border,
+      }}
+    >
       <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-full mx-auto flex flex-col" style={{ minHeight: '90vh' }}>
         {/* Top Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-200">

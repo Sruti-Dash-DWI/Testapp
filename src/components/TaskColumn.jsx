@@ -89,6 +89,7 @@ const TaskColumn = ({
     console.log(columnId,"columnId");
     
     return (
+      <div className="flex flex-col items-center bg-blue-100 rounded-xl p-2 border-blue-200 ">
         <div 
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -96,9 +97,9 @@ const TaskColumn = ({
             onDragLeave={handleDragLeave}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`bg-black/10 backdrop-blur-sm p-4 rounded-xl w-80 flex-shrink-0 max-h-[calc(100vh-200px)] flex flex-col transition-colors duration-300 ${isDraggingOver ? 'bg-blue-500/10' : ''}`}
+            className={`bg-white backdrop-blur-sm p-4 rounded-xl w-80 flex-shrink-0 max-h-[calc(100vh-200px)] flex flex-col transition-colors duration-300 ${isDraggingOver ? 'bg-blue-500/10' : ''}`}
         >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-white/20">
+            <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-gray-300">
                 {isEditingTitle ? (
                   <input
                     ref={titleInputRef}
@@ -113,13 +114,13 @@ const TaskColumn = ({
                         handleCancelEdit();
                       }
                     }}
-                    className="font-bold text-lg text-gray-100 bg-white/20 border border-white/40 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1 mr-2"
+                    className="font-bold text-lg text-gray-500 bg-white/20 border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1 mr-2"
                   />
                 ) : (
-                  <h3 className="font-bold text-lg text-gray-100">{title}</h3>
+                  <h3 className="font-bold text-lg text-gray-500">{title}</h3>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-800 font-medium bg-white/60 rounded-full px-2 py-0.5">
+                  <span className="text-sm text-gray-500 font-medium bg-blue-300 rounded-full px-2 py-0.5">
                     {tasks.length}
                   </span>
                   <div className="relative" ref={dropdownRef}>
@@ -128,7 +129,7 @@ const TaskColumn = ({
                         e.stopPropagation();
                         setIsDropdownOpen(!isDropdownOpen);
                       }}
-                      className="p-1 rounded-lg hover:bg-white/20 text-gray-100 hover:text-white transition-colors"
+                      className="p-1 rounded-lg hover:bg-white/20 text-gray-500 hover:text-white transition-colors"
                     >
                       <DotsVerticalIcon className="w-5 h-5" />
                     </button>
@@ -213,6 +214,7 @@ const TaskColumn = ({
                 </button>
             )}
         </div>
+      </div>
     );
 };
 
