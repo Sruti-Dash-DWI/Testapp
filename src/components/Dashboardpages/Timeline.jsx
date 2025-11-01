@@ -622,7 +622,7 @@ const Timeline = () => {
       <TimelineModal
         show={isModalOpen}
         onHide={handleCloseModal}
-        task={selectedTask}
+        epic={selectedTask}
         onTaskUpdate={handleTaskUpdate}
         users={sampleUsers}
         labelsList={sampleLabels}

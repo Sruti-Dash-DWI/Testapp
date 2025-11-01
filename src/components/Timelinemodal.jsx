@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons"; // Assuming Icons.js is in the same folder
-import { useParams } from "react-router-dom";
 
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
@@ -24,9 +23,9 @@ const Timelinemodal = ({
   // States for the fields in the "Details" image
   const [assignee, setAssignee] = useState("");
   const [team, setTeam] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [endDate, setendDate] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [epic_id, setEpic_id] = useState(null);
+  const [epicId, setEpic_id] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,8 +34,8 @@ const Timelinemodal = ({
       // Populate form with existing task data
       setAssignee(epic.assignee?.id || "");
       setTeam(epic.team?.id || "");
-      setDueDate(formatDateForInput(epic.due_date));
-      setEpic_id(epic?.id || null);
+      setendDate(formatDateForInput(epic.end_date));
+      setEpic_id(epic.id || null);
       setStartDate(formatDateForInput(epic.start_date));
     }
   }, [show, epic]);
@@ -58,14 +57,13 @@ const Timelinemodal = ({
     const detailsData = {
       assignee_id: assignee || null,
       team_id: team || null,
-      epic_id: epic_id || null,
-      due_date: dueDate || null,
+      end_date: endDate || null,
       start_date: startDate || null,
     };
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/timeline/epics/${epic_id}/dates/`,
+        `http://localhost:8000/api/timeline/epics/${epicId}/dates/`,
         {
           method: "PATCH", // Use PATCH for partial updates
           headers: {
@@ -192,8 +190,8 @@ const Timelinemodal = ({
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              value={endDate}
+              onChange={(e) => setendDate(e.target.value)}
               className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition [color-scheme:dark]"
             />
           </div>
