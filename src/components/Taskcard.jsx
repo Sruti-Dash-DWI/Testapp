@@ -13,7 +13,7 @@ const TaskCard = ({ task, onUpdateTask }) => {
         <div
             draggable="true"
             onDragStart={handleDragStart}
-            className="bg-black/5 text-gray-700 backdrop-blur-sm p-4 rounded-lg shadow-md cursor-grab active:cursor-grabbing hover:shadow-sm hover:-translate-y-1 transition-all border border-white/20"
+            className="bg-black/10 text-gray-700 backdrop-blur-sm p-4 rounded-lg shadow-md cursor-grab active:cursor-grabbing hover:shadow-sm hover:-translate-y-1 transition-all border border-white/20"
         >
             <div className="flex justify-between items-start">
                 {isEditing ? (
