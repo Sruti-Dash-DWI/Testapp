@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; 
+import { useParams } from 'react-router-dom';
 import {
   Search,
   ChevronDown,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import TimelineModal from '../Timelinemodal';
+import TimelineBar from '../TimelineBar';
 
 // --- HELPER FUNCTIONS ---
 const getTagColor = (color) => {
@@ -45,6 +46,30 @@ const dateToDayOfYear = (dateString) => {
 };
 const DAYS_IN_YEAR = 365; // 2025 is not a leap year
 
+// Convert a day of the year (0-364) back to a YYYY-MM-DD string for 2025
+const dayOfYearToDate = (dayOfYear) => {
+  const date = new Date(2025, 0, 1); // Start at Jan 1, 2025
+  // Use setDate(day + 1) because day 0 is Jan 1
+  date.setDate(dayOfYear + 1);
+  return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+};
+
+// Get timeline percentage from a date string
+const getPercentFromDate = (dateString) => {
+  if (!dateString) return 0;
+  const day = dateToDayOfYear(dateString);
+  return (day / DAYS_IN_YEAR) * 100;
+};
+
+// Get a YYYY-MM-DD date string from a timeline percentage
+const getDateFromPercent = (percent) => {
+  // Round to nearest day
+  const day = Math.round((percent / 100) * DAYS_IN_YEAR);
+  // Ensure day is within valid range (0-364)
+  const clampedDay = Math.max(0, Math.min(DAYS_IN_YEAR - 1, day));
+  return dayOfYearToDate(clampedDay);
+};
+
 // Helper to map icon names (from API) to JSX components
 const getIconComponent = (iconName) => {
   // ... (same as before)
@@ -71,6 +96,8 @@ const processEpicData = (epic) => {
   return {
     ...epic,
     tags: processedTags,
+    startDate: epic.start_date,
+    endDate: epic.end_date,
   };
 };
 // --- END HELPER FUNCTIONS ---
@@ -99,44 +126,44 @@ const Timeline = () => {
   const [showInput, setShowInput] = useState(false);
   const [epicText, setEpicText] = useState('');
   const [items, setItems] = useState([]);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
   const { colors } = useTheme();
-  
+
   const { projectId } = useParams();
   const authToken = localStorage.getItem("authToken");
 
-  useEffect(() => {
-    const fetchEpics = async () => {
-      // --- MODIFIED --- Filter epics by project ID in the request
-      // Your backend needs to support this query parameter, e.g., /api/epics/?project=1
-      if (!projectId) return; // Don't fetch if there's no project ID
 
-      try {
-        const response = await fetch(`http://localhost:8000/api/epics/?project=${projectId}`, { // --- MODIFIED ---
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          }
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const refetchEpics = async () => {
+    // --- MODIFIED --- Filter epics by project ID in the request
+    if (!projectId) return; // Don't fetch if there's no project ID
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/timeline/${projectId}`, { // --- MODIFIED ---
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         }
-        const data = await response.json();
-
-        const processedData = data.map(processEpicData);
-        setItems(processedData);
-
-      } catch (error) {
-        console.error("Error fetching epics:", error);
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const data = await response.json();
 
-    fetchEpics();
-  }, [projectId, authToken]); // --- MODIFIED --- Re-fetch if projectId changes
+      const processedData = data.map(processEpicData);
+      setItems(processedData);
+
+    } catch (error) {
+      console.error("Error fetching epics:", error);
+    }
+  };
+
+  useEffect(() => {
+    refetchEpics(); // Call on initial load
+  }, [projectId, authToken]); // Re-fetch if projectId changes
 
   // --- MODAL HANDLERS ---
   const handleOpenModal = (item) => {
@@ -151,7 +178,56 @@ const Timeline = () => {
 
   const handleTaskUpdate = () => {
     console.log("Task update successful. In a real app, you would refetch data here.");
-    // re-run fetchEpics() here
+    refetchEpics();
+  };
+
+  // This function handles the PATCH request from the TimelineBar
+  const handleBarDateUpdate = async (epicId, newDates) => {
+    // 1. Optimistic UI Update (for instant feedback)
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === epicId
+          ? {
+            ...item,
+            // Update camelCase versions for the UI
+            startDate: newDates.start_date || item.startDate,
+            endDate: newDates.end_date || item.endDate,
+            // Also merge snake_case versions
+            ...newDates,
+          }
+          : item
+      )
+    );
+
+    // 2. Send PATCH request to backend
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/timeline/epics/${epicId}/dates/`, // Same endpoint as the modal
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(newDates),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update epic dates');
+      }
+
+      // 3. Refetch to ensure full consistency from server
+      console.log("Bar drag update successful. Refetching for consistency.");
+      await refetchEpics();
+
+    } catch (error) {
+      console.error(`Error updating epic dates:`, error);
+      // If failed, refetch to revert the optimistic update
+      alert("Failed to save date change. Reverting.");
+      await refetchEpics();
+    }
   };
 
   const viewOptions = ['Today', 'Weeks', 'Months', 'Quarters'];
@@ -166,14 +242,14 @@ const Timeline = () => {
       setShowInput(false); // Just hide if empty
       return;
     }
-    
+
     // projectId is now available from useParams()
     if (!projectId) {
-        console.error("Project ID is missing from URL.");
-        alert("Error: Project ID not found.");
-        return;
+      console.error("Project ID is missing from URL.");
+      alert("Error: Project ID not found.");
+      return;
     }
-    
+
     // --- MODIFIED --- Payload now includes title and correct projectId
     const payload = {
       title: trimmedTitle,
@@ -200,10 +276,10 @@ const Timeline = () => {
         throw new Error(JSON.stringify(errorData));
       }
       const createdEpic = await response.json();
-      
+
       // Process and add to state
       const newEpic = processEpicData(createdEpic);
-      
+
       // --- MODIFIED --- Use correct state setters
       setItems((prev) => [...prev, newEpic]);
       setShowInput(false);
@@ -219,7 +295,7 @@ const Timeline = () => {
 
 
   const toggleItemExpansion = (id) => setItems(items.map(item => item.id === id ? { ...item, isExpanded: !item.isExpanded } : item));
-  
+
   // ... (rest of the functions: getCurrentDate, today, quarters, generateWeeks, weeks, months, handleViewChange, todayLinePosition, timelineMinWidth)
   const getCurrentDate = () => {
     const now = new Date();
@@ -554,35 +630,28 @@ const Timeline = () => {
 
                   {/* Timeline Bars Area */}
                   {items.map((item, index) => {
-                    if (!item.startDate || !item.endDate || selectedView === 'Today') return null;
-
+                    // Calculate top position here to pass to the bar
+                    // Formula: 16px top padding + (index * 72px row height) + (half of row height - half of bar height)
                     const itemTopPosition = 16 + (index * 72) + (72 - 32) / 2;
-                    const barColorClass = item.barColor === 'blue' ? 'bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500' :
-                      item.barColor === 'orange' ? 'bg-gradient-to-r from-orange-500 to-yellow-400 hover:from-orange-600 hover:to-yellow-500' :
-                        item.barColor === 'green' ? 'bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500' :
-                          'bg-gray-400 hover:bg-gray-500';
 
-                    const startDay = dateToDayOfYear(item.startDate);
-                    const endDay = dateToDayOfYear(item.endDate);
-                    const barLeftPercent = (startDay / DAYS_IN_YEAR) * 100;
-                    const barDurationDays = (endDay - startDay) + 1;
-                    const barWidthPercent = (barDurationDays / DAYS_IN_YEAR) * 100;
+                    // Check visibility based on dates and selected view
+                    const isVisible = !!(
+                      item.startDate &&
+                      item.endDate &&
+                      selectedView !== 'Today'
+                    );
 
                     return (
-                      <div
-                        key={`${item.id}-bar`}
-                        className={`absolute h-8 flex items-center px-3 rounded cursor-pointer transition-all duration-150 z-[5] ${barColorClass}`}
-                        style={{
-                          top: `${itemTopPosition}px`,
-                          left: `${barLeftPercent}%`,
-                          width: `${barWidthPercent}%`,
-                          minWidth: '2px'
-                        }}
-                        title={`${item.title} (${item.startDate} - ${item.endDate})`}
-                        onClick={() => handleOpenModal(item)}
-                      >
-                        <span className="relative text-xs font-medium text-white truncate pointer-events-none">{item.title}</span>
-                      </div>
+                      <TimelineBar
+                        key={item.id}
+                        item={item}
+                        itemTopPosition={itemTopPosition}
+                        onDateUpdate={handleBarDateUpdate} // Passes the PATCH request handler
+                        getPercentFromDate={getPercentFromDate} // Passes date -> % helper
+                        getDateFromPercent={getDateFromPercent} // Passes % -> date helper
+                        onBarClick={() => handleOpenModal(item)} // Passes modal opener
+                        isVisible={isVisible}
+                      />
                     );
                   })}
                 </div>
