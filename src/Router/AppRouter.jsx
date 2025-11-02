@@ -86,7 +86,7 @@ import SmPageContent from "../components/Smdashboardpages/SmPageContent.jsx";
 import Smprojectmanager from "../components/Smdashboardpages/Project management Sm/SmTeammanagement.jsx";
 import SmEditUserModal from "../components/Smdashboardpages/Project management Sm/SmEditUserModal.jsx";
 //import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
-import SmDashboardlayout from "../layout/SmDashboardlayout.jsx";
+import SmDashboardlayout from "../layout/Smdashboardlayout.jsx";
 import SmDocuments from "../pages/scrummasterpages/sidenav_pages/SmDocuments.jsx";
 import SmNotification from "../pages/scrummasterpages/sidenav_pages/SmNotification.jsx";
 import SmSettings from "../pages/scrummasterpages/sidenav_pages/SmSettings.jsx";
@@ -198,7 +198,7 @@ const AppRouter = () => {
         {/* </Route> */}
 
         {/* Scrum Master Routes */}
-        <Route element={<SmDashboardlayout />}>
+        {/* <Route element={<SmDashboardlayout />}> */}
           <Route path="/sm/documents" element={<SmDocuments />} />
           <Route path="/sm/notifications" element={<SmNotification />} />
           <Route path="/sm/settings" element={<SmSettings />} /> 
@@ -213,7 +213,7 @@ const AppRouter = () => {
           <Route path="/sm/page-content/:projectId" element={<SmPageContent />} />
           <Route path="/sm/user-details" element={<Smprojectmanager />} />
           <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
-        </Route>
+        {/* </Route> */}
         {/* </Route> */}
       </Routes>
     </Router>

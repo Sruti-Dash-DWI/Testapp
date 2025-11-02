@@ -54,8 +54,8 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
 
     const staticNavItems = [
         { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
-        { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
-        { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
+        { icon: <BellIcon />, name: 'Notifications', path: 'smnotifications' },
+        { icon: <SettingsIcon />, name: 'Settings', path: 'smsettings' },
     ];
 
     return (
@@ -99,7 +99,7 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
                         >
                             <li>
                                 <NavLink 
-                                    to="/projects"
+                                    to="/sm/projects"
                                     className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
                                     style={({ isActive }) => ({
                                         backgroundColor: isActive ? undefined : 'transparent',
@@ -122,7 +122,7 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
                             {projects.map((project) => (
                                 <li key={project.id}>
                                     <NavLink
-                                        to={`/backlog/${project.id}`}
+                                        to={`/sm/backlog/${project.id}`}
                                         title={project.name}
                                         onClick={() => handleProjectClick(project)}
                                         className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
@@ -180,7 +180,7 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
                         >
                             <li>
                                 <NavLink 
-                                    to="/user-details"
+                                    to="/sm/user-details"
                                     className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
                                     style={({ isActive }) => ({
                                         backgroundColor: isActive ? undefined : 'transparent',
@@ -228,7 +228,7 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
                 {staticNavItems.map((item) => (
                     <li key={item.name}>
                         <NavLink 
-                            to={`/${item.path}`} 
+                            to={`/sm/${item.path}`} 
                             title={item.name} 
                             className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''} ${!isOpen && 'justify-center'}`}
                             style={({ isActive }) => ({

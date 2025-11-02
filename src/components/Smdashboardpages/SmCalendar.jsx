@@ -4,8 +4,7 @@ import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizo
 
 import { ItemDetailModal, EditSprintModal } from "../Smdashboardpages/smbacklog/SmBacklogModals";
 import { useTheme } from '../../context/ThemeContext';
-
-
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 const taskTypes = [
     { name: 'Task', icon: '✓' },
@@ -625,6 +624,7 @@ if (isLoading) {
    
    
     return (
+        <SmDashboardlayout>
         <div 
           className="min-h-screen p-4 sm:p-6 lg:p-8" 
           style={{
@@ -1019,6 +1019,7 @@ if (isLoading) {
                 onUpdate={handleUpdateSprint}
             />
         </div>
+        </SmDashboardlayout>
     );
 }
 

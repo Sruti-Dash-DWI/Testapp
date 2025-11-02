@@ -1,6 +1,6 @@
 import React from 'react';
 import { getIcon } from '../../assets/icons.jsx';
-import DashboardLayout from '../../layout/DashboardLayout.jsx';
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 const SmPageContent = ({ page }) => {
     if (!page) {
@@ -12,7 +12,7 @@ const SmPageContent = ({ page }) => {
     }
 
     return (
-        
+        <SmDashboardlayout>
         <div className="flex-grow p-8 bg-transparent flex flex-col items-center justify-center">
             <div className="text-center">
                 <div className="mx-auto mb-4 text-gray-400">{React.cloneElement(getIcon(page.text), { className: 'w-16 h-16'})}</div>
@@ -20,7 +20,7 @@ const SmPageContent = ({ page }) => {
                 <p className="text-gray-500">{page.description}</p>
             </div>
         </div>
-       
+       </SmDashboardlayout>
     );
 };
 

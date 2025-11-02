@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Filter, CheckCircle, FileText, Clock, Calendar, User, ChevronDown, Search } from "lucide-react";
 import { useTheme } from '../../context/ThemeContext';
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 const SmSummary = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -263,7 +264,8 @@ const SmSummary = () => {
         );
     }
 
-    return (
+    return (    
+        <SmDashboardlayout>
         <div className="flex-1 flex flex-col p-6"
         style={{
             backgroundColor: colors.background,
@@ -483,6 +485,7 @@ const SmSummary = () => {
                 </div>
             </div>
         </div>
+        </SmDashboardlayout>
     )
 }
 

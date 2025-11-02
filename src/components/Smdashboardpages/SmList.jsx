@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, ChevronDown, ChevronRight, Settings, Calendar, User, Target, Zap, BarChart3, Eye, EyeOff, Expand, Minimize, Plus, Loader2, Edit, Trash2, X } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext';
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 const SmList = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -699,6 +700,7 @@ const SmList = () => {
     };
 
     return (
+        <SmDashboardlayout>
         <div className="min-h-screen bg-purple-200 py-4 px-4"
         style={{
             backgroundColor: colors.background,
@@ -1240,6 +1242,7 @@ const SmList = () => {
                 )}
             </div>
         </div>
+        </SmDashboardlayout>
     )
 }
 

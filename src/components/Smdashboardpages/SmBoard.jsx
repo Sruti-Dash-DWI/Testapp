@@ -7,6 +7,7 @@ import {
     MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
     FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons'; // Assuming PlusIcon is imported here
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 /**
  * MODIFIED DROPDOWN COMPONENT
@@ -331,8 +332,8 @@ const SmBoard = () => {
   if (error) return <div className="flex items-center justify-center h-full text-red-600 text-xl">Error loading tasks.</div>;
 
 
-  return (
-    // Styled main container
+  return (
+    <SmDashboardlayout>
     <div className="flex flex-col h-screen bg-gray-200 overflow-hidden text-gray-900"
     style={{
         backgroundColor: colors.background,
@@ -512,6 +513,7 @@ const SmBoard = () => {
         </div>
       </div>
     </div>
+    </SmDashboardlayout>
   );
 };
 

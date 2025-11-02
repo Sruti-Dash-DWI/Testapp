@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import SmDashboardlayout from "../../layout/Smdashboardlayout";
 import SmBacklogView from "../Smdashboardpages/smbacklog/SmBacklogView";
 import {
   ItemDetailModal,
@@ -1219,6 +1219,7 @@ const handleCloseModal = () => setSelectedItemId(null);
 
   return (
     <>
+    <SmDashboardlayout>
       <SmBacklogView
         boardData={boardData}
         users={users}
@@ -1313,6 +1314,7 @@ const handleCloseModal = () => setSelectedItemId(null);
           onComplete={handleCompleteSprint}
         />
       )}
+    </SmDashboardlayout>
     </>
   );
 }

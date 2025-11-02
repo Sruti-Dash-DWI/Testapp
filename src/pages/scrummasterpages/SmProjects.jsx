@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import SmDashboardlayout from '../../layout/SmDashboardlayout';
+import SmDashboardlayout from '../../layout/Smdashboardlayout';
 import { Link } from "react-router-dom"
 import { MoreVertical } from 'lucide-react';
 import SmManageTeamModal from '../../components/Scrummaster/SmManageTeamModal';
