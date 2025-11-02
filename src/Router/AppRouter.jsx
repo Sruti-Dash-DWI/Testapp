@@ -1,5 +1,4 @@
-// src/router/AppRouter.jsx
-
+//Owner imports
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "../pages/HomePage.jsx";
@@ -9,25 +8,23 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
+
 import Projects from "../pages/Projects.jsx";
 import BacklogPage from "../components/Dashboardpages/BacklogPage.jsx";
-import PageContent from "../components/Dashboardpages/PageContent.jsx";
-import Summary from "../components/Dashboardpages/Summary.jsx";
-import List from "../components/Dashboardpages/List.jsx";
-
-import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
-import Documents from "../pages/sidenav_pages/Documents.jsx";
-import Notifications from "../pages/sidenav_pages/Notification.jsx";
-import Wallet from "../pages/sidenav_pages/Wallet.jsx";
-import Settings from "../pages/sidenav_pages/Settings.jsx";
 import Board from "../components/Dashboardpages/Board.jsx";
 import Calendar from "../components/Dashboardpages/Calendar.jsx";
 import Timeline from "../components/Dashboardpages/Timeline.jsx";
+import PageContent from "../components/Dashboardpages/PageContent.jsx";
+import Summary from "../components/Dashboardpages/Summary.jsx";
+import List from "../components/Dashboardpages/List.jsx";
+//import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
+//import Wallet from "../pages/sidenav_pages/Wallet.jsx";
+import Documents from "../pages/sidenav_pages/Documents.jsx";
+import Notifications from "../pages/sidenav_pages/Notification.jsx";
+import Settings from "../pages/sidenav_pages/Settings.jsx";
 
-import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
-import Pmprojectmanager from "../components/Dashboardpages/projectmanager/Project managementmg/PmTeammanagement.jsx"
 
-
+// Developer imports
 import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
 import DeveloperBacklogPage from "../components/developerDashboardpages/DeveloperBacklog.jsx";
 import DevelopersBoard from "../components/developerDashboardpages/DeveloperBoard.jsx";
@@ -51,9 +48,6 @@ import TesterDocuments from "../pages/testerPages/sidenav_pages/TesterDocuments.
 import TesterNotification from "../pages/testerPages/sidenav_pages/TesterNotification.jsx";
 import TesterSettings from "../pages/testerPages/sidenav_pages/TesterSettings.jsx"; 
 // import TesterDashboardLayout from "../layout/TesterDashboardLayout.jsx";  
-
-
-
 import TesterBacklog from "../components/testerDashboardPages/TesterBacklog.jsx";
 import TesterSummary from "../components/testerDashboardPages/TesterSummary.jsx";
 import TesterBoard from "../components/testerDashboardPages/TesterBoard.jsx";
@@ -62,11 +56,14 @@ import TesterTimeline from "../components/testerDashboardPages/TesterTimeline.js
 import TesterList from "../components/testerDashboardPages/TesterList.jsx";
 import TesterPageContent from "../components/testerDashboardPages/TesterPageContent.jsx";
 
+// Project Manager imports
+import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
+import Pmprojectmanager from "../components/Dashboardpages/projectmanager/Project managementmg/PmTeammanagement.jsx"
+
 import PmProjects from "../pages/projectmanagerpages/PmProjects.jsx";
 import SetPasswordPage from "../components/Dashboardpages/Project management/Setpassword.jsx";
 import Pmdashboardlayout from "../layout/Pmdasboardlayout.jsx";
 import PmBacklogPage from "../components/Dashboardpages/projectmanager/pmpages/Pmbacklogpage.jsx";
-
 
 import PmDocuments from "../pages/projectmanagerpages/sidenav_pages/Documents.jsx";
 import PmNotifications from "../pages/projectmanagerpages/sidenav_pages/Notification.jsx";
@@ -76,6 +73,24 @@ import PmList from "../components/Dashboardpages/projectmanager/pmpages/Pmlist.j
 import PmBoard from "../components/Dashboardpages/projectmanager/pmpages/Pmboard.jsx";
 import PmTimeline from "../components/Dashboardpages/projectmanager/pmpages/Pmtimeline.jsx";
 import PmCalendar from "../components/Dashboardpages/projectmanager/pmpages/Pmcalendar.jsx";
+
+// Scrum Master imports
+import SmProjects from "../pages/scrummasterpages/SmProjects.jsx";
+import SmBacklogPage from "../components/Smdashboardpages/SmBacklogPage.jsx";
+import SmBoard from "../components/Smdashboardpages/SmBoard.jsx";
+import SmCalendar from "../components/Smdashboardpages/SmCalendar.jsx";
+import SmTimeline from "../components/Smdashboardpages/SmTimeline.jsx";
+import SmSummary from "../components/Smdashboardpages/SmSummary.jsx";
+import SmList from "../components/Smdashboardpages/SmList.jsx";
+import SmPageContent from "../components/Smdashboardpages/SmPageContent.jsx";
+import Smprojectmanager from "../components/Smdashboardpages/Project management Sm/SmTeammanagement.jsx";
+import SmEditUserModal from "../components/Smdashboardpages/Project management Sm/SmEditUserModal.jsx";
+//import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
+import SmDashboardlayout from "../layout/SmDashboardlayout.jsx";
+import SmDocuments from "../pages/scrummasterpages/sidenav_pages/SmDocuments.jsx";
+import SmNotification from "../pages/scrummasterpages/sidenav_pages/SmNotification.jsx";
+import SmSettings from "../pages/scrummasterpages/sidenav_pages/SmSettings.jsx";
+
 const AppRouter = () => {
   return (
     <Router>
@@ -164,12 +179,12 @@ const AppRouter = () => {
         {/* </Route> */}
 
 
-       
+       {/* Project Manager Routes */}
         <Route element={<Pmdashboardlayout />}>
           <Route path="/pm/projects" element={<PmProjects />} />
-            <Route path="/pm/backlog/:projectId" element={<PmBacklogPage />} />
+          <Route path="/pm/backlog/:projectId" element={<PmBacklogPage />} />
 
-           <Route path="/pm/documents" element={<PmDocuments />} />
+          <Route path="/pm/documents" element={<PmDocuments />} />
           <Route path="/pm/notifications" element={<PmNotifications />} />
           <Route path="/pm/settings" element={<PmSettings />} />
 
@@ -180,7 +195,26 @@ const AppRouter = () => {
           <Route path="/pm/calendar/:projectId" element={<PmCalendar />} />
           <Route path="/pm/user-details" element={<Pmprojectmanager />} />
         </Route>
-        
+        {/* </Route> */}
+
+        {/* Scrum Master Routes */}
+        <Route element={<SmDashboardlayout />}>
+          <Route path="/sm/documents" element={<SmDocuments />} />
+          <Route path="/sm/notifications" element={<SmNotification />} />
+          <Route path="/sm/settings" element={<SmSettings />} /> 
+
+          <Route path="/sm/projects" element={<SmProjects />} />
+          <Route path="/sm/backlog/:projectId" element={<SmBacklogPage />} />
+          <Route path="/sm/board/:projectId" element={<SmBoard />} />
+          <Route path="/sm/calendar/:projectId" element={<SmCalendar />} />
+          <Route path="/sm/timeline/:projectId" element={<SmTimeline />} />
+          <Route path="/sm/summary/:projectId" element={<SmSummary />} />
+          <Route path="/sm/list/:projectId" element={<SmList />} />
+          <Route path="/sm/page-content/:projectId" element={<SmPageContent />} />
+          <Route path="/sm/user-details" element={<Smprojectmanager />} />
+          <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
+        </Route>
+        {/* </Route> */}
       </Routes>
     </Router>
   );
