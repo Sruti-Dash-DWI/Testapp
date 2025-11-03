@@ -45,6 +45,9 @@ function Login() {
       case "MANAGER":
         navigate("/pm/projects");
         break;
+      case "SCRUM_MASTER":
+        navigate("/sm/projects");
+        break;
       default:
         navigate("/projects");
     }

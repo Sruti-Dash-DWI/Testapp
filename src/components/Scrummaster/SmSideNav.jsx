@@ -54,8 +54,8 @@ const SmSideNav = ({ isOpen, openInviteModal }) => {
 
     const staticNavItems = [
         { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
-        { icon: <BellIcon />, name: 'Notifications', path: 'smnotifications' },
-        { icon: <SettingsIcon />, name: 'Settings', path: 'smsettings' },
+        { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
+        { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
 
     return (

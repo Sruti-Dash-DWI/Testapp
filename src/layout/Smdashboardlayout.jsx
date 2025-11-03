@@ -8,7 +8,7 @@ import SmDashboardheader from "../components/Scrummaster/SmDashboardheader";
 import SmUppernavbar from "../components/Scrummaster/SmUppernavbar";
 
 const pathsWithInnerNav = [
-  '/sm/projects', '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',
+   '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',
   '/sm/pages', '/sm/code', '/sm/forms', '/sm/calendar', '/sm/all-work', '/sm/archived-work-items',
   '/sm/deployments', '/sm/goals', '/sm/on-call', '/sm/releases', '/sm/reports', '/sm/security', '/sm/shortcuts'
 ];
@@ -85,11 +85,7 @@ const SmDashboardlayout = ({children}) => {
 
   return (
     <div className="h-screen font-sans flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #134e5e 0%, #71b280 50%, #d4f1dd 100%)",
-        backgroundAttachment: "fixed",
-        backgroundSize: "cover",
-      }}
+     style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}
     >
       {isNavOpen && window.innerWidth < 768 && (
         <div
@@ -99,12 +95,12 @@ const SmDashboardlayout = ({children}) => {
       )}
       
       {/* Top navbar */}
-      <div className="px-4 pt-4 md:px-6 md:pt-6">
+      <div className="md:px-0">
         <SmUppernavbar />
       </div>
 
       {/* Main layout */}
-      <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
         
         {/* Side Nav */}
         <div
@@ -130,7 +126,7 @@ const SmDashboardlayout = ({children}) => {
 
           {/* Outlet for nested routes */}
           <div className="flex-1 overflow-y-auto mt-4">
-            {children}
+            <Outlet context={{ isInviteModalOpen, openModal, closeModal }} />
           </div>
         </div>
       </div>

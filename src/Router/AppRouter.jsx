@@ -197,8 +197,8 @@ const AppRouter = () => {
         </Route>
         {/* </Route> */}
 
-        {/* Scrum Master Routes */}
-        {/* <Route element={<SmDashboardlayout />}> */}
+        {/* {/* Scrum Master Routes */}
+        <Route element={<SmDashboardlayout />}> 
           <Route path="/sm/documents" element={<SmDocuments />} />
           <Route path="/sm/notifications" element={<SmNotification />} />
           <Route path="/sm/settings" element={<SmSettings />} /> 
@@ -213,8 +213,8 @@ const AppRouter = () => {
           <Route path="/sm/page-content/:projectId" element={<SmPageContent />} />
           <Route path="/sm/user-details" element={<Smprojectmanager />} />
           <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
-        {/* </Route> */}
-        {/* </Route> */}
+        </Route> 
+         {/* </Route>  */}
       </Routes>
     </Router>
   );

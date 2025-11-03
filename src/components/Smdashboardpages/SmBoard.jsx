@@ -7,7 +7,7 @@ import {
     MenuIcon, ChevronDownIcon, ShareIcon, BellIcon, AdminIcon,
     FilterIcon, SortIcon, SearchIcon, KebabMenuIcon, PlusIcon
 } from '../Icons'; // Assuming PlusIcon is imported here
-import SmDashboardlayout from "../../layout/Smdashboardlayout";
+// import SmDashboardlayout from "../../layout/Smdashboardlayout";
 
 /**
  * MODIFIED DROPDOWN COMPONENT
@@ -333,7 +333,7 @@ const SmBoard = () => {
 
 
   return (
-    <SmDashboardlayout>
+    // <SmDashboardlayout>
     <div className="flex flex-col h-screen bg-gray-200 overflow-hidden text-gray-900"
     style={{
         backgroundColor: colors.background,
@@ -513,7 +513,7 @@ const SmBoard = () => {
         </div>
       </div>
     </div>
-    </SmDashboardlayout>
+    // </SmDashboardlayout>
   );
 };
 

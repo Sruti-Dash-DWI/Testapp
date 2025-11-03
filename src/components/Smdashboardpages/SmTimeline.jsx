@@ -262,7 +262,7 @@ const SmTimeline = () => {
 
   // --- START OF STYLED RENDER ---
   return (
-    <SmDashboardlayout>
+    // <SmDashboardlayout>
     <div
       className="min-h-screen p-4 sm:p-6 lg:p-8"
       style={{ backgroundColor: colors.background }}
@@ -632,7 +632,7 @@ const SmTimeline = () => {
         parentTasks={items.filter(item => item.id !== selectedTask?.id)}
       />
     </div>
-    </SmDashboardlayout>
+    // </SmDashboardlayout>
   );
 };
 

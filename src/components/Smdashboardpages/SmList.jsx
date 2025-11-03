@@ -700,7 +700,7 @@ const SmList = () => {
     };
 
     return (
-        <SmDashboardlayout>
+      
         <div className="min-h-screen bg-purple-200 py-4 px-4"
         style={{
             backgroundColor: colors.background,
@@ -1242,7 +1242,7 @@ const SmList = () => {
                 )}
             </div>
         </div>
-        </SmDashboardlayout>
+
     )
 }
 

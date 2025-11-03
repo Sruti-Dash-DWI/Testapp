@@ -5,7 +5,7 @@ import { MoreVertical } from 'lucide-react';
 import SmManageTeamModal from '../../components/Scrummaster/SmManageTeamModal';
 import { useTheme } from '../../context/ThemeContext';
 
-const Projects = () => {
+const SmProjects = () => {
     const [show, setShow] = useState(false);
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);
@@ -30,7 +30,7 @@ const Projects = () => {
         description: '',
         owner: '',
         status: 'PLANNED',
-        project_manager_id: ''
+        project_manager_id: null
 
     });
 
@@ -132,7 +132,7 @@ const Projects = () => {
             description: '',
             owner: '',
             status: 'PLANNED',
-            project_manager_id: '',
+            project_manager_id:null,
         });
     };
     const handleShow = () => {
@@ -143,12 +143,15 @@ const Projects = () => {
 
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
+        const { name, value } = e.target;
+        
+        const finalValue = (name === 'project_manager_id' && value === '') ? null : value;
+
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: finalValue
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -186,7 +189,7 @@ const Projects = () => {
                 description: '',
                 owner: '',
                 status: 'PLANNED',
-                project_manager_id: ''
+                project_manager_id: null
             });
 
         } catch (error) {
@@ -260,7 +263,7 @@ const Projects = () => {
             description: project.description,
             owner: project.owner?.id || '',
             status: project.status,
-            project_manager_id: project.project_manager?.id || ''
+            project_manager_id: project.project_manager?.id || null 
         });
         fetchManagers();
         setIsEditModalOpen(true);
@@ -275,7 +278,7 @@ const Projects = () => {
             description: '',
             owner: '',
             status: 'PLANNED',
-            project_manager_id: ''
+            project_manager_id: null
         });
     };
 
@@ -324,7 +327,7 @@ const Projects = () => {
     };
 
     return (
-        <SmDashboardlayout>
+        // <SmDashboardlayout>
             <div
                 className="min-h-screen p-6 md:p-8 transition-colors duration-300"
                 style={{ backgroundColor: colors.background }}
@@ -745,9 +748,9 @@ const Projects = () => {
                                     </label>
                                     <select
                                         name="project_manager_id"
-                                        value={formData.project_manager_id}
+                                        value={formData.project_manager_id || ''}
                                         onChange={handleInputChange}
-                                        required
+                                        // required
                                         style={{
                                             width: '100%',
                                             padding: '8px 12px',
@@ -758,7 +761,7 @@ const Projects = () => {
                                             fontSize: '14px'
                                         }}
                                     >
-                                        <option value="" disabled>
+                                        <option value="">
                                             {managers.length ? 'Select a manager' : 'No managers available'}
                                         </option>
                                         {managers.map((manager) => (
@@ -1142,8 +1145,8 @@ const Projects = () => {
                     />
                 )}
             </div>
-        </SmDashboardlayout>
+        //  </SmDashboardlayout> 
     );
 };
 
-export default Projects;
+export default SmProjects;

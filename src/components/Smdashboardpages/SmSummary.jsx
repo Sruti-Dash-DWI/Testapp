@@ -265,7 +265,7 @@ const SmSummary = () => {
     }
 
     return (    
-        <SmDashboardlayout>
+     
         <div className="flex-1 flex flex-col p-6"
         style={{
             backgroundColor: colors.background,
@@ -485,7 +485,7 @@ const SmSummary = () => {
                 </div>
             </div>
         </div>
-        </SmDashboardlayout>
+        
     )
 }
 

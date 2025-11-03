@@ -4,11 +4,11 @@ import SmDashboardlayout from '../../../layout/Smdashboardlayout'
 const Notification = () => {
   return (
    <>
-    <SmDashboardlayout>
+    
    <h1>Notifications</h1>
    <p>Manage your project notifications and alerts.</p>
                                                                                            
-   </SmDashboardlayout>
+   
    </>
   )
 }

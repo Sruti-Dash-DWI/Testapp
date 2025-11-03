@@ -1219,7 +1219,7 @@ const handleCloseModal = () => setSelectedItemId(null);
 
   return (
     <>
-    <SmDashboardlayout>
+    {/* <SmDashboardlayout> */}
       <SmBacklogView
         boardData={boardData}
         users={users}
@@ -1314,7 +1314,7 @@ const handleCloseModal = () => setSelectedItemId(null);
           onComplete={handleCompleteSprint}
         />
       )}
-    </SmDashboardlayout>
+    {/* </SmDashboardlayout> */}
     </>
   );
 }

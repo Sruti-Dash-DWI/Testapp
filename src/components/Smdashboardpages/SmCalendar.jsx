@@ -624,7 +624,7 @@ if (isLoading) {
    
    
     return (
-        <SmDashboardlayout>
+       
         <div 
           className="min-h-screen p-4 sm:p-6 lg:p-8" 
           style={{
@@ -1019,7 +1019,7 @@ if (isLoading) {
                 onUpdate={handleUpdateSprint}
             />
         </div>
-        </SmDashboardlayout>
+    
     );
 }
 
