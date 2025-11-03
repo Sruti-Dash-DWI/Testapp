@@ -17,6 +17,10 @@ import Timeline from "../components/Dashboardpages/Timeline.jsx";
 import PageContent from "../components/Dashboardpages/PageContent.jsx";
 import Summary from "../components/Dashboardpages/Summary.jsx";
 import List from "../components/Dashboardpages/List.jsx";
+import ForYou from "../pages/teams/ForYou.jsx";
+import People from "../pages/teams/People.jsx";
+import Teams from "../pages/teams/Teams.jsx";
+import TeamDetails from "../pages/teams/TeamDetails.jsx";
 //import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
 //import Wallet from "../pages/sidenav_pages/Wallet.jsx";
 import Documents from "../pages/sidenav_pages/Documents.jsx";
@@ -115,6 +119,11 @@ const AppRouter = () => {
 
           
           <Route path='/projects' element={<Projects />} />
+
+          <Route path="/teams/for-you" element={<ForYou />} />
+          <Route path="/teams/people" element={<People />} />
+          <Route path="/teams/teams" element={<Teams />} />
+          <Route path="/teams/:teamId" element={<TeamDetails />} />
           
           
           <Route path='/backlog/:projectId' element={<BacklogPage />} />
