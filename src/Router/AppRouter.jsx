@@ -23,6 +23,7 @@ import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
 import Settings from "../pages/sidenav_pages/Settings.jsx";
 
+import Dummypage from "../pages/Dummypage.jsx";
 
 // Developer imports
 import DeveloperProjects from "../pages/developerPages/DeveloperProjects.jsx";
@@ -95,6 +96,7 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/dummy/:id" element={<Dummypage />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -128,13 +130,13 @@ const AppRouter = () => {
           <Route path='/backlog' element={<Projects />} />
 
           
-          <Route path="/pages/:pageId" element={<PageContent page={{ text: 'Pages', description: 'Create, edit, and collaborate on project documentation.' }} />} />
-          <Route path="/code/:pageId" element={<PageContent page={{ text: 'Code', description: 'Browse your repositories and connect your work.' }} />} />
+          <Route path="/pages/:pageId" element={<PageContent />} />
+          {/* <Route path="/code/:pageId" element={<PageContent page={{ text: 'Code', description: 'Browse your repositories and connect your work.' }} />} /> */}
           <Route path="/forms/:pageId" element={<PageContent page={{ text: 'Forms', description: 'Create forms to collect information for your project.' }} />} />
           <Route path="/all-work/:pageId" element={<PageContent page={{ text: 'All work', description: 'View all the work items in your project.' }} />} />
           <Route path="/archived-work-items/:pageId" element={<PageContent page={{ text: 'Archived work items', description: 'Access work items that have been archived.' }} />} />
-          <Route path="/deployments/:pageId" element={<PageContent page={{ text: 'Deployments', description: 'Track your deployment pipeline and releases.' }} />} />
-          <Route path="/goals/:pageId" element={<PageContent page={{ text: 'Goals', description: "Set and track your team's objectives and key results." }} />} />
+          {/* <Route path="/deployments/:pageId" element={<PageContent page={{ text: 'Deployments', description: 'Track your deployment pipeline and releases.' }} />} /> */}
+          <Route path="/goals/:pageId" element={<PageContent page={{ text: 'Goals', description: "Set and track your team's objectives and key results." }} />} /> 
           <Route path="/on-call/:pageId" element={<PageContent page={{ text: 'On-call', description: 'Manage on-call schedules and alerts.' }} />} />
           <Route path="/releases/:pageId" element={<PageContent page={{ text: 'Releases', description: 'Track software versions and release cycles.' }} />} />
           <Route path="/reports/:pageId" element={<PageContent page={{ text: 'Reports', description: "Generate reports to analyze your team's progress." }} />} />

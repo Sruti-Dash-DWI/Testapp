@@ -180,7 +180,7 @@ export default function UpperNavbar() {
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="flex items-center gap-3 hover:bg-gray-400 rounded-lg p-2 transition-colors duration-200" 
             aria-label="User account"
             aria-expanded={isDropdownOpen}
             aria-haspopup="true"
@@ -195,9 +195,9 @@ export default function UpperNavbar() {
           </button>
           
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform translate-y-1 overflow-hidden">
+            <div className="absolute right-0 bg-gray-100 mt-2 w-34 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform translate-y-1 overflow-hidden">
               <div role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
-                <div className="px-1.5 py-1">
+                <div className="px-1 py-1">
                   <button
                     onClick={handleLogout}
                     className="flex items-center justify-center w-full px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors duration-150 rounded hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"

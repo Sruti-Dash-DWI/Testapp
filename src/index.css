@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-
 :root {
   --bg-image-url: url('/background.jpg');
 }
@@ -11,7 +10,6 @@ html, body, #root {
   padding: 0;
   box-sizing: border-box;
 }
-
 
 .flex-1::-webkit-scrollbar {
   width: 8px; 
@@ -37,8 +35,6 @@ html, body, #root {
   scrollbar-color: rgba(107, 208, 193, 0.6) rgba(255, 255, 255, 0.05);
 }
 
-/* Import Tailwind CSS core */
-@import "tailwindcss";
 
 @layer components {
   /* Style for the LIGHT "Invite Member" modal */
