@@ -7,6 +7,7 @@ import SideNav from "../components/SideNav";
 import Dashbordinnav from "../components/Dashboardinnav";
 import Dashboardheader from "../components/Dashboardheader";
 import Uppernavbar from "../components/Dashboardpages/Uppernavbar";
+import Modal from "../components/Dashboardpages/Project management/Modal";
 
 const pathsWithInnerNav = [
   '/backlog', '/summary', '/list', '/board', '/timeline',
@@ -114,6 +115,9 @@ const DashboardLayout = () => {
           </div>
         </div>
       </div>
+      {isInviteModalOpen && (
+        <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+      )}
     </div>
   );
 };

@@ -432,6 +432,27 @@ export const StartSprintModal = ({ sprint, onClose, onStart }) => {
             });
         }
     }, [sprint]);
+
+useEffect(() => {
+  const { duration, startDate } = sprintData;
+
+  if (duration !== 'custom' && startDate) {
+    const weeks = parseInt(duration, 10);
+    if (!isNaN(weeks)) {
+      const start = new Date(startDate);
+
+      if (!isNaN(start.getTime())) {
+        const end = new Date(start.getTime() + weeks * 7 * 24 * 60 * 60 * 1000);
+
+        setSprintData(prev => ({
+          ...prev,
+          endDate: end.toISOString().split('T')[0],
+        }));
+      }
+    }
+  }
+}, [sprintData.duration, sprintData.startDate]);
+
     
     const handleChange = (e) => {
         const { name, value } = e.target;

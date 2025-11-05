@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layout/DashboardLayout';
 import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 
 const EditProfileModal = ({ onClose, userData, onSave }) => {
@@ -88,6 +89,7 @@ const Settings = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [loadingUser, setLoadingUser] = useState(true);
+    const { theme, toggleTheme, colors } = useTheme();
 
     
     useEffect(() => {
@@ -162,11 +164,15 @@ const Settings = () => {
 
     return (
         <>
-            <div className="p-8">
-                <h1 className="text-3xl font-bold text-gray-800">Settings</h1>
-                <p className="mt-1 text-gray-600">Manage your account settings and preferences.</p>
+            <div className="min-h-screen p-8 transition-colors duration-300" style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border
+          }}>
+                <h1 className="text-3xl font-bold text-gray-800" style={{ color: colors.text }}>Settings</h1>
+                <p className="mt-1 text-gray-600" style={{ color: colors.text }}>Manage your account settings and preferences.</p>
             
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8" >
                     {settingCards.map((card, index) => (
                         <div 
                             key={index} 

@@ -45,6 +45,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   const backlogNameInputRef = useRef(null);
   const itemNameInputRef = useRef(null);
   const newSprintInputRef = useRef(null);
+  const [hasActiveSprint, setHasActiveSprint] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -64,22 +65,28 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       try {
         const sprintDashboardUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
         const projectDataUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
+        const checkActiveUrl = `http://127.0.0.1:8000/api/sprints/check-active/?project_id=${projectId}`;
 
-        const [sprintResponse, projectResponse] = await Promise.all([
+        const [sprintResponse, projectResponse,activeCheckResponse] = await Promise.all([
           fetch(sprintDashboardUrl, {
             headers: { Authorization: `Bearer ${authToken}` },
           }),
           fetch(projectDataUrl, {
             headers: { Authorization: `Bearer ${authToken}` },
           }),
+          fetch(checkActiveUrl, {
+             headers: { Authorization: `Bearer ${authToken}` },
+           }),
         ]);
 
-        if (!sprintResponse.ok || !projectResponse.ok) {
+        if (!sprintResponse.ok || !projectResponse.ok || !activeCheckResponse.ok) {
           throw new Error(`Failed to fetch all necessary data.`);
         }
 
         const sprintData = await sprintResponse.json();
         const projectData = await projectResponse.json();
+        const activeCheckData = await activeCheckResponse.json();
+        setHasActiveSprint(activeCheckData.is_active_sprint);
 
         const allSprintsFromNewAPI = [
           ...(sprintData.active_sprints || []),
@@ -287,6 +294,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
     });
 
     setSprintToStart(null);
+    setHasActiveSprint(true);
 
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/activate/`;
@@ -327,6 +335,9 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       );
       setError("Failed to start the sprint. Please try again.");
       setBoardData(originalBoardData);
+
+      const originallyHadActiveSprint = originalBoardData.sprints.some(s => s.isActive);
+     setHasActiveSprint(originallyHadActiveSprint);
     }
   };
 
@@ -853,6 +864,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
           backlog: newBacklog,
         };
       });
+      setHasActiveSprint(false);
     } catch (error) {
       console.error("Error completing sprint:", error);
       setError("Failed to complete the sprint. Please check the console.");
@@ -1268,6 +1280,7 @@ const handleCloseModal = () => setSelectedItemId(null);
         selectedEpicId={selectedEpicId}
         setSelectedEpicId={setSelectedEpicId}
         epics={epics}
+        hasActiveSprint={hasActiveSprint}
       />
 
       <ItemDetailModal
