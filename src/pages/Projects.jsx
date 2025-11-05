@@ -30,7 +30,7 @@ const Projects = () => {
     description: '',
     owner: '',
     status: 'PLANNED',
-    project_manager_id: ''
+    project_manager_id: null
 
   });
 
@@ -143,12 +143,15 @@ const Projects = () => {
 
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  const { name, value } = e.target;
+
+    const finalValue = (name === 'project_manager_id' && value === '') ? null : value;
+
+  setFormData(prevData => ({
+ ...prevData,
+  [name]: finalValue 
+ }));
+ };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -186,7 +189,7 @@ const Projects = () => {
   description: '',
   owner: '',
   status: 'PLANNED',
-  project_manager_id: ''
+  project_manager_id: null
 });
 
     } catch (error) {
@@ -261,7 +264,7 @@ const Projects = () => {
       description: project.description,
       owner: project.owner?.id || '',
       status: project.status,
-      project_manager_id: project.project_manager?.id || ''
+      project_manager_id: project.project_manager?.id || null
     });
     fetchManagers();
     setIsEditModalOpen(true);
@@ -276,7 +279,7 @@ const Projects = () => {
       description: '',
       owner: '',
       status: 'PLANNED',
-      project_manager_id: ''
+      project_manager_id: null
     });
   };
 
@@ -748,9 +751,9 @@ const Projects = () => {
   </label>
   <select
     name="project_manager_id"
-    value={formData.project_manager_id}
+    value={formData.project_manager_id || ''}
     onChange={handleInputChange}
-    required
+    
     style={{
       width: '100%',
       padding: '8px 12px',
@@ -761,7 +764,7 @@ const Projects = () => {
       fontSize: '14px'
     }}
   >
-    <option value="" disabled>
+    <option value="" >
       {managers.length ? 'Select a manager' : 'No managers available'}
     </option>
     {managers.map((manager) => (
@@ -849,7 +852,9 @@ const Projects = () => {
                     padding: '12px 24px',
                     border: 'none',
                     borderRadius: '8px',
-                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+              backgroundColor: 'rgba(30, 80, 255, 0.8)',
+
+
                     color: 'white',
                     fontSize: '14px',
                     fontWeight: '500',
@@ -1021,9 +1026,9 @@ const Projects = () => {
                 </label>
                 <select
                   name="project_manager_id"
-                  value={formData.project_manager_id}
+                  value={formData.project_manager_id || ''}
                   onChange={handleInputChange}
-                  required
+                  
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -1034,7 +1039,7 @@ const Projects = () => {
                     fontSize: '14px'
                   }}
                 >
-                  <option value="" disabled>
+                  <option value="" >
                     {managers.length ? 'Select a manager' : 'No managers available'}
                   </option>
                   {managers.map((manager) => (

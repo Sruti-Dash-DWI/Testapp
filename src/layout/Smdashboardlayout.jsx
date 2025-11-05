@@ -6,6 +6,7 @@ import SmSideNav from "../components/Scrummaster/SmSideNav";
 import SmDashbordinnav from "../components/Scrummaster/SmDashboardinNav";
 import SmDashboardheader from "../components/Scrummaster/SmDashboardheader";
 import SmUppernavbar from "../components/Scrummaster/SmUppernavbar";
+import Modal from "../components/Smdashboardpages/Project management Sm/SmModal";
 
 const pathsWithInnerNav = [
    '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',
@@ -130,6 +131,9 @@ const SmDashboardlayout = ({children}) => {
           </div>
         </div>
       </div>
+      {isInviteModalOpen && (
+        <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+      )}
     </div>
   );
 };

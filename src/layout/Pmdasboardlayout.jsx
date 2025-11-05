@@ -6,6 +6,7 @@ import SideNav from "../components/Dashboardpages/projectmanager/projectmanagerc
 import Dashbordinnav from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmdashboardinnav";
 import Dashboardheader from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmdashboardheader";
 import Uppernavbar from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmuppernav.jsx";
+import Modal from "../components/Dashboardpages/projectmanager/Project managementmg/Modal.jsx";
 
 const pathsWithInnerNav = [
   '/pm/backlog', '/pm/summary', '/pm/list', '/pm/board', '/pm/timeline', '/pm/calendar',
@@ -125,6 +126,9 @@ const Pmdasboardlayout = () => {
           </div>
         </div>
       </div>
+      {isInviteModalOpen && (
+        <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+      )}
     </div>
   );
 };

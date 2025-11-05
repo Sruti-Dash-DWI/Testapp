@@ -106,8 +106,11 @@ const EditUserModal = ({ member, onClose, onUpdate, onDeleteSuccess }) => {
             });
 
             if (response.status === 204 || response.ok) {
-                onDeleteSuccess(member.id);
-                onClose();
+               onDeleteSuccess(member.id);
+await new Promise(resolve => setTimeout(resolve, 300)); 
+window.dispatchEvent(new Event('teamMemberDeleted'));
+onClose();
+
             } else {
                  throw new Error('Failed to delete user.');
             }

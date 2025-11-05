@@ -103,7 +103,7 @@ const SmTeamManagement = () => {
                 </motion.div>
             )}
 
-            <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+            {/* <Modal isOpen={isInviteModalOpen} onClose={closeModal} /> */}
             <TeamMembersList />
         </motion.section>
     );
