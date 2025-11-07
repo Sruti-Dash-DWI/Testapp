@@ -4,9 +4,9 @@ import DeveloperSideNav from "../components/developer/DeveloperSideNav";
 import DeveloperDashboardinNav from "../components/developer/DeveloperDashboardinNav";
 import DeveloperDashboardheader from "../components/developer/DeveloperDashboardheader";
 import DeveloperUppernavbar from "../components/developer/DeveloperUppernavbar";
-
+import Modal from "../components/developerDashboardpages/Project management developer/DevModal.jsx";
 const pathsWithInnerNav = [
-  '/developer/projects', '/developer/backlog', '/developer/summary', '/developer/list', '/developer/board', '/developer/timeline',
+   '/developer/backlog', '/developer/summary', '/developer/list', '/developer/board', '/developer/timeline',
   '/developer/pages', '/developer/code', '/developer/forms', '/developer/calendar', '/developer/all-work', '/developer/archived-work-items',
   '/developer/deployments', '/developer/goals', '/developer/on-call', '/developer/releases', '/developer/reports', '/developer/security', '/developer/shortcuts'
 ];
@@ -82,57 +82,35 @@ const DeveloperDashboardLayout = ({children}) => {
   );
 
   return (
-    <div className="h-screen font-sans flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #134e5e 0%, #71b280 50%, #d4f1dd 100%)",
-        backgroundAttachment: "fixed",
-        backgroundSize: "cover",
-      }}
-    >
-      {isNavOpen && window.innerWidth < 768 && (
-        <div
-          onClick={toggleNav}
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-        ></div>
-      )}
-      
-      {/* Top navbar */}
-      <div className="px-4 pt-4 md:px-6 md:pt-6">
-        <DeveloperUppernavbar />
-      </div>
-
-      {/* Main layout */}
-      <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
-        
-        {/* Side Nav */}
-        <div
-          className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${
-            isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
-        >
-          <DeveloperSideNav isOpen={isNavOpen} openInviteModal={openModal} />
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
-          {showinner && (
-            <>
-              <DeveloperDashboardheader projectName={projectName}/>
-              <DeveloperDashboardinNav
-                navItems={navItems}
-                setNavItems={setNavItems}
-                availableOptions={availableOptions}
-              />
-            </>
-          )}
-
-          {/* Outlet for nested routes */}
-          <div className="flex-1 overflow-y-auto mt-4">
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
+    <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>
+              {isNavOpen && window.innerWidth < 768 && (<div onClick={toggleNav} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>)}
+              <div className="md:px-0">
+                <DeveloperUppernavbar />
+              </div>
+              <div className="flex-1 flex overflow-hidden">
+                <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+                  <DeveloperSideNav isOpen={isNavOpen} openInviteModal={openModal} />
+                </div>
+                <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
+                  {showinner && (
+                    <>
+                      <DeveloperDashboardheader projectName={projectName} />
+                      <DeveloperDashboardinNav
+                        navItems={navItems}
+                        setNavItems={setNavItems}
+                        availableOptions={availableOptions}
+                      />
+                    </>
+                  )}
+                  <div className="flex-1 overflow-y-auto">
+                    <Outlet context={{ isInviteModalOpen, openModal, closeModal }} />
+                  </div>
+                </div>
+              </div>
+              {isInviteModalOpen && (
+                <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+              )}
+            </div>
   );
 };
 

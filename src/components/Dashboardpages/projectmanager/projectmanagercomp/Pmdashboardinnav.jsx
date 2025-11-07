@@ -3,8 +3,11 @@
 import React from 'react';
 import Pmnavitem from './Pmnavitem.jsx'; // Use the new PM-specific NavItem
 import AddItemDropdown from '../../../AddItemDropdown.jsx';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const Pmdashboardinnav = ({ navItems, setNavItems, availableOptions }) => {
+    
+    const { theme, colors } = useTheme();
 
     const handleDragStart = (e, id) => {
         e.dataTransfer.setData('text/plain', id);
@@ -18,6 +21,7 @@ const Pmdashboardinnav = ({ navItems, setNavItems, availableOptions }) => {
         const reorderedItems = [...navItems];
         const sourceIndex = navItems.findIndex(item => item.id === sourceId);
         const targetIndex = navItems.findIndex(item => item.id === targetId);
+        
 
         const [removed] = reorderedItems.splice(sourceIndex, 1);
         reorderedItems.splice(targetIndex, 0, removed);
@@ -51,8 +55,15 @@ const Pmdashboardinnav = ({ navItems, setNavItems, availableOptions }) => {
     };
 
     return (
-        <nav className="flex items-center border-b border-gray-400/80 bg-stone-300/30 backdrop-blur-sm px-4 flex-shrink-0 z-50">
-            <div className="flex items-center flex-wrap">
+        <nav 
+            className="flex items-center border-b backdrop-blur-sm px-4 flex-shrink-0 z-50 transition-colors duration-300"
+            style={{
+                backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+                borderColor: colors.border,
+                color: colors.text
+            }}
+        >
+            <div className="flex items-center flex-wrap " >
                 {navItems.map(item => (
                     <Pmnavitem
                         key={item.id}
@@ -63,6 +74,8 @@ const Pmdashboardinnav = ({ navItems, setNavItems, availableOptions }) => {
                         onRename={handleRename}
                         onSetDefault={handleSetDefault}
                         onRemove={handleRemove}
+                        
+                        
                     />
                 ))}
             </div>

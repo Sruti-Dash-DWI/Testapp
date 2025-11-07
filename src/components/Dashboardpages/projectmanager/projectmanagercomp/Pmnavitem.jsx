@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getIcon } from '../../../../assets/icons'; // Assuming this path is correct
+import { useTheme } from '../../../../context/ThemeContext.jsx';
 
 const Pmnavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -15,6 +16,7 @@ const Pmnavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, 
 
     const activeProjectId = localStorage.getItem('activeProjectId');
     const slug = item.text.toLowerCase().replace(/\s+/g, '-');
+    const { theme, colors } = useTheme();
 
     // --- UPDATED LOGIC ---
     // Added the '/pm' prefix to all generated routes.
@@ -70,6 +72,9 @@ const Pmnavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, 
                 draggable
                 onDragStart={(e) => onDragStart(e, item.id)}
                 className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-red-800 border-b-2 border-red-800 font-bold' : 'text-gray-700 hover:bg-gray-200/50'}`}
+                style={{
+                    color: isActive ? colors.accent || '#3b82f6' : colors.text,
+                }}
             >
                 {getIcon(item.text)}
                 {isEditing ? (

@@ -4,9 +4,10 @@ import TesterSideNav from "../components/tester/TesterSideNav";
 import TesterDashboardinNav from "../components/tester/TesterDashboardinNav";
 import TesterDashboardheader from "../components/tester/TesterDashboardheader";
 import TesterUppernavbar from "../components/tester/TesterUppernavbar";
+import Modal from "../components/testerDashboardPages/testerProject management/TesterModal";
 
 const pathsWithInnerNav = [
-  '/tester/projects', '/tester/backlog', '/tester/summary', '/tester/list', '/tester/board', '/tester/timeline',
+   '/tester/backlog', '/tester/summary', '/tester/list', '/tester/board', '/tester/timeline',
   '/tester/pages', '/tester/code', '/tester/forms', '/tester/calendar', '/tester/all-work', '/tester/archived-work-items',
   '/tester/deployments', '/tester/goals', '/tester/on-call', '/tester/releases', '/tester/reports', '/tester/security', '/tester/shortcuts'
 ];
@@ -14,6 +15,10 @@ const pathsWithInnerNav = [
 const TesterDashboardLayout = ({children}) => {
   const [isNavOpen, setIsNavOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [projectName, setProjectName] = useState('Scrum Project');
+      const openModal = () => setIsInviteModalOpen(true);
+      const closeModal = () => setIsInviteModalOpen(false);
 
   const showinner = pathsWithInnerNav.some((path) =>
     location.pathname.startsWith(path)
@@ -31,6 +36,14 @@ const TesterDashboardLayout = ({children}) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+   useEffect(() => {
+      const activeProjectName = localStorage.getItem('activeProjectName');
+      if (activeProjectName) {
+        setProjectName(activeProjectName);
+      } else {
+        setProjectName('Scrum Project');
+      }
+    }, [location.pathname]);
 
   const toggleNav = () => setIsNavOpen((prev) => !prev);
 
@@ -70,58 +83,35 @@ const TesterDashboardLayout = ({children}) => {
   );
 
   return (
-    <div
-      className="h-screen font-sans flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%)",
-        backgroundAttachment: "fixed",
-        backgroundSize: "cover",
-      }}
-    >
-      {isNavOpen && window.innerWidth < 768 && (
-        <div
-          onClick={toggleNav}
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-        ></div>
-      )}
-      
-      {/* Top navbar */}
-      <div className="px-4 pt-4 md:px-6 md:pt-6">
-        <TesterUppernavbar />
-      </div>
-
-      {/* Main layout */}
-      <div className="flex-1 flex gap-6 p-4 md:p-6 pt-2 md:pt-4 overflow-hidden">
-        
-        {/* Side Nav */}
-        <div
-          className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${
-            isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
-        >
-          <TesterSideNav isOpen={isNavOpen} />
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
-          {showinner && (
-            <>
-              <TesterDashboardheader />
-              <TesterDashboardinNav
-                navItems={navItems}
-                setNavItems={setNavItems}
-                availableOptions={availableOptions}
-              />
-            </>
-          )}
-
-          {/* Outlet for nested routes */}
-          <div className="flex-1 overflow-y-auto mt-4">
-           {children}
-          </div>
-        </div>
-      </div>
-    </div>
+    <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>
+              {isNavOpen && window.innerWidth < 768 && (<div onClick={toggleNav} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>)}
+              <div className="md:px-0">
+                <TesterUppernavbar />
+              </div>
+              <div className="flex-1 flex overflow-hidden">
+                <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+                  <TesterSideNav isOpen={isNavOpen} openInviteModal={openModal} />
+                </div>
+                <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
+                  {showinner && (
+                    <>
+                      <TesterDashboardheader projectName={projectName} />
+                      <TesterDashboardinNav
+                        navItems={navItems}
+                        setNavItems={setNavItems}
+                        availableOptions={availableOptions}
+                      />
+                    </>
+                  )}
+                  <div className="flex-1 overflow-y-auto">
+                    <Outlet context={{ isInviteModalOpen, openModal, closeModal }} />
+                  </div>
+                </div>
+              </div>
+              {isInviteModalOpen && (
+                <Modal isOpen={isInviteModalOpen} onClose={closeModal} />
+              )}
+            </div>
   );
 };
 

@@ -40,7 +40,7 @@ import DevelopersList from "../components/developerDashboardpages/DeveloperList.
 import DevelopersPageContent from "../components/developerDashboardpages/DeveloperPageContent.jsx";
 import Developerprojectmanager from "../components/developerDashboardpages/Project management developer/DevTeammanagement.jsx";
 import DevEditUserModal from "../components/developerDashboardpages/Project management developer/DevEditUserModal.jsx";
-//import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
+import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
 
 import DevDocuments from "../pages/developerPages/sidenav_pages/DevDocuments.jsx";
 import DevNotification from "../pages/developerPages/sidenav_pages/DevNotification.jsx";
@@ -52,7 +52,7 @@ import TesterDocuments from "../pages/testerPages/sidenav_pages/TesterDocuments.
 
 import TesterNotification from "../pages/testerPages/sidenav_pages/TesterNotification.jsx";
 import TesterSettings from "../pages/testerPages/sidenav_pages/TesterSettings.jsx"; 
-// import TesterDashboardLayout from "../layout/TesterDashboardLayout.jsx";  
+import TesterDashboardLayout from "../layout/TesterDashboardLayout.jsx";  
 import TesterBacklog from "../components/testerDashboardPages/TesterBacklog.jsx";
 import TesterSummary from "../components/testerDashboardPages/TesterSummary.jsx";
 import TesterBoard from "../components/testerDashboardPages/TesterBoard.jsx";
@@ -60,6 +60,7 @@ import TesterCalendar from "../components/testerDashboardPages/TesterCalendar.js
 import TesterTimeline from "../components/testerDashboardPages/TesterTimeline.jsx";
 import TesterList from "../components/testerDashboardPages/TesterList.jsx";
 import TesterPageContent from "../components/testerDashboardPages/TesterPageContent.jsx";
+import TesterTeammanagement from "../components/testerDashboardPages/testerProject management/TesterTeammanagement.jsx";
 
 // Project Manager imports
 import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
@@ -154,7 +155,7 @@ const AppRouter = () => {
         </Route>
 
         {/* Developer Routes */}
-          {/* <Route element={<DeveloperDashboardLayout />}>  */}
+          <Route element={<DeveloperDashboardLayout />}> 
             <Route path="/developer/documents" element={<DevDocuments />} />
             <Route path="/developer/notifications" element={<DevNotification />} />
             <Route path="/developer/settings" element={<DevSettings />} /> 
@@ -169,13 +170,13 @@ const AppRouter = () => {
             <Route path="/developer/page-content/:projectId" element={<DevelopersPageContent />} />
             <Route path="/developer/dev-user-details" element={<Developerprojectmanager />} />
             <Route path="/developer/dev-user-details/:memberId" element={<DevEditUserModal />} />
-        {/* </Route>  */}
+        </Route> 
         
         
         {/* Tester Routes */}
-        <Route path="/tester/projects" element={<TesterProjects />} />
-        {/* <Route element={<TesterDashboardLayout />}> */}
 
+        <Route element={<TesterDashboardLayout />}>
+         <Route path="/tester/projects" element={<TesterProjects />} />
         <Route path="/tester/documents" element={<TesterDocuments />} /> 
         <Route path="/tester/notifications" element={<TesterNotification />} />
         <Route path="/tester/settings" element={<TesterSettings />} />
@@ -187,7 +188,8 @@ const AppRouter = () => {
         <Route path="/tester/summary/:projectId" element={<TesterSummary/>} />
         <Route path="/tester/list/:projectId" element={<TesterList/>} />
         <Route path="/tester/pagecontent/:projectId" element={<TesterPageContent/>} />
-        {/* </Route> */}
+        <Route path="/tester/tester-user-details" element={<TesterTeammanagement/>} />
+        </Route>
 
 
        {/* Project Manager Routes */}

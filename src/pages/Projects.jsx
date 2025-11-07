@@ -330,6 +330,7 @@ const Projects = () => {
   
 
   return (
+    <>
     <div 
       className="min-h-screen p-6 md:p-8 transition-colors duration-300"
       style={{ backgroundColor: colors.background }}
@@ -1150,6 +1151,7 @@ const Projects = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

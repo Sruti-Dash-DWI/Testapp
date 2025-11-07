@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, ChevronDown, ChevronRight, Settings, Calendar, User, Target, Zap, BarChart3, Eye, EyeOff, Expand, Minimize, Plus, Loader2, Edit, Trash2, X } from 'lucide-react'
-import DeveloperDashboardLayout from '../../layout/DeveloperDashboardLayout';
+import { useTheme } from '../../context/ThemeContext';
 
-const List = () => {
+const DeveloperList = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isGroupOpen, setIsGroupOpen] = useState(false);
     const [issettingsOpen, setIssettingsOpen] = useState(false);
@@ -21,6 +21,11 @@ const List = () => {
     const [groupBy, setGroupBy] = useState(null);
     const [hideDoneItems, setHideDoneItems] = useState(false);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [taskComments, setTaskComments] = useState({});
+    const [commentText, setCommentText] = useState('');
+    const [editComments, setEditComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
+    const { theme, toggleTheme, colors, isDark } = useTheme();
 
     const filterButtonRef = useRef(null);
     const filterDropdownRef = useRef(null);
@@ -40,8 +45,7 @@ const List = () => {
         status_id: 1,
         assignees: [],
         priority: 'MEDIUM',
-        due_date: '',
-        comment: ''
+        due_date: ''
     });
 
     const API_BASE_URL = 'http://127.0.0.1:8000/api';
@@ -68,14 +72,21 @@ const List = () => {
         fetchTasks();
         fetchUsers();
         fetchCurrentUser();
-        
     }, []);
 
-   const fetchCurrentUser = async () => {
+    useEffect(() => {
+        if (tasks.length > 0) {
+            tasks.forEach(task => {
+                fetchCommentsForTask(task.id);
+            });
+        }
+    }, [tasks.length]);
+
+    const fetchCurrentUser = async () => {
         try {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
-            const response = await fetch(`${API_BASE_URL}/users/me/`, {
+            const response = await fetch(`${API_BASE_URL}/admin/users/me/`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (response.ok) {
@@ -101,6 +112,21 @@ const List = () => {
         }
     };
 
+    const fetchCommentsForTask = async (taskId) => {
+        try {
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) return;
+            const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/comments/`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (response.ok) {
+                const comments = await response.json();
+                setTaskComments(prev => ({ ...prev, [taskId]: comments }));
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        }
+    };
 
     const fetchTasks = async () => {
         setLoading(true);
@@ -152,8 +178,7 @@ const List = () => {
                 status_id: newTask.status_id,
                 project: projectId,
                 priority: newTask.priority,
-                assignees: newTask.assignees,
-                comment: newTask.comment
+                assignees: newTask.assignees
             };
             if (newTask.due_date) taskData.due_date = newTask.due_date;
             const response = await fetch(`${API_BASE_URL}/tasks/`, {
@@ -168,8 +193,15 @@ const List = () => {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || 'Failed to create task');
             }
+            const createdTask = await response.json();
+
+            if (commentText.trim()) {
+                await createCommentForTask(createdTask.id, commentText);
+                setCommentText('');
+            }
+
             await fetchTasks();
-            setNewTask({ title: '', status_id: 1, assignees: [], priority: 'MEDIUM', due_date: '', comment: '' });
+            setNewTask({ title: '', status_id: 1, assignees: [], priority: 'MEDIUM', due_date: '' });
             setIsCreateModalOpen(false);
         } catch (error) {
             setError(error.message || 'Failed to create task. Please try again.');
@@ -198,8 +230,7 @@ const List = () => {
                     status_id: parentTask.status?.id || 1,
                     parent_task: parentTaskId,
                     assignees: [],
-                    priority: 'MEDIUM',
-                    comment: ''
+                    priority: 'MEDIUM'
                 })
             });
             if (response.ok) {
@@ -210,6 +241,45 @@ const List = () => {
             }
         } catch (error) {
             console.error('Error creating subtask:', error);
+        }
+    };
+
+    const createCommentForTask = async (taskId, commentBody) => {
+        try {
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) return;
+            const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/comments/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ body: commentBody })
+            });
+            if (response.ok) {
+                await fetchCommentsForTask(taskId);
+            }
+        } catch (error) {
+            console.error('Error creating comment:', error);
+        }
+    };
+
+    const deleteComment = async (taskId, commentId) => {
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+        try {
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) return;
+            const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/comments/${commentId}/`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (response.ok) {
+                await fetchCommentsForTask(taskId);
+                const updatedComments = editComments.filter(c => c.id !== commentId);
+                setEditComments(updatedComments);
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
         }
     };
 
@@ -237,8 +307,7 @@ const List = () => {
                     status_id: editingTask.status_id,
                     priority: editingTask.priority,
                     due_date: editingTask.due_date,
-                    assignees: editingTask.assignees || [],
-                    comment: editingTask.comment || ''
+                    assignees: editingTask.assignees || []
                 })
             });
             if (!response.ok) {
@@ -248,6 +317,8 @@ const List = () => {
             await fetchTasks();
             setIsEditModalOpen(false);
             setEditingTask(null);
+            setEditComments([]);
+            setCommentText('');
         } catch (error) {
             setError(error.message || 'Failed to update task. Please try again.');
         } finally {
@@ -298,16 +369,31 @@ const List = () => {
         }
     };
 
-    const handleEditTask = (task) => {
+    const handleEditTask = async (task) => {
         setEditingTask({
             ...task,
             status_id: task.status?.id || task.status_id,
             assignees: task.assignees?.map(a => a.id) || [],
             priority: task.priority || 'MEDIUM',
-            due_date: task.due_date || '',
-            comment: task.comment || ''
+            due_date: task.due_date || ''
         });
+        setLoadingComments(true);
         setIsEditModalOpen(true);
+
+        try {
+            const authToken = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/tasks/${task.id}/comments/`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (response.ok) {
+                const comments = await response.json();
+                setEditComments(comments);
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        } finally {
+            setLoadingComments(false);
+        }
     };
 
     const toggleCollapse = (taskId) => {
@@ -324,25 +410,49 @@ const List = () => {
 
     const getStatusBadge = (status) => {
         const statusTitle = status?.title || 'Unknown';
+        
+        // Use theme-aware colors. These are just examples; adjust as needed.
+        if (isDark) {
+            const statusMap = {
+                'To Do': 'bg-gray-700 text-gray-200',
+                'In Progress': 'bg-blue-800 text-blue-100',
+                'In Review': 'bg-purple-800 text-purple-100',
+                'Done': 'bg-green-800 text-green-100',
+                'Testing': 'bg-yellow-800 text-yellow-100',
+            };
+            return statusMap[statusTitle] || 'bg-gray-700 text-gray-200';
+        }
+
+        // Light mode (original)
         const statusMap = {
             'To Do': 'bg-gray-200 text-gray-700',
             'In Progress': 'bg-blue-100 text-blue-800',
             'In Review': 'bg-purple-100 text-purple-800',
-            Done: 'bg-green-100 text-green-800',
-            Testing: 'bg-yellow-100 text-yellow-800',
+            'Done': 'bg-green-100 text-green-800',
+            'Testing': 'bg-yellow-100 text-yellow-800',
         };
         return statusMap[statusTitle] || 'bg-gray-100 text-gray-800';
     };
 
     const getPriorityBadge = (priority) => {
-        const priorityMap = {
-            'HIGHEST': {class: 'bg-red-50 text-red-900', icon: '⇈'},
-            'HIGH': { class: 'bg-red-50 text-red-700', icon: '↑' },
-            'MEDIUM': { class: 'bg-yellow-50 text-yellow-700', icon: '=' },
-            'LOW': { class: 'bg-green-50 text-green-700', icon: '↓' },
-            'LOWEST': { class: 'bg-green-50 text-green-900', icon: '⇊' },
+        const lightModeMap = {
+            'HIGHEST': { class: 'bg-red-100 text-red-900', icon: '⇈' },
+            'HIGH': { class: 'bg-red-100 text-red-700', icon: '↑' },
+            'MEDIUM': { class: 'bg-yellow-100 text-yellow-800', icon: '=' },
+            'LOW': { class: 'bg-green-100 text-green-700', icon: '↓' },
+            'LOWEST': { class: 'bg-green-100 text-green-900', icon: '⇊' },
         };
-        return priorityMap[priority] || priorityMap['MEDIUM'];
+        
+        const darkModeMap = {
+            'HIGHEST': { class: 'bg-red-800 text-red-100', icon: '⇈' },
+            'HIGH': { class: 'bg-red-700 text-red-100', icon: '↑' },
+            'MEDIUM': { class: 'bg-yellow-700 text-yellow-100', icon: '=' },
+            'LOW': { class: 'bg-green-700 text-green-100', icon: '↓' },
+            'LOWEST': { class: 'bg-green-800 text-green-100', icon: '⇊' },
+        };
+
+        const map = isDark ? darkModeMap : lightModeMap;
+        return map[priority] || map['MEDIUM'];
     };
 
     const formatDate = (dateString) => {
@@ -353,15 +463,13 @@ const List = () => {
 
     const activeProjectId = localStorage.getItem("activeProjectId");
     const filteredTasksProject = tasks.filter((task) => task.project == activeProjectId);
-    console.log("filteredTasksProject", filteredTasksProject);
 
     const filteredTasks = filteredTasksProject.filter(task => {
         const searchLower = searchQuery.toLowerCase();
         const matchesSearch = (
             task.title?.toLowerCase().includes(searchLower) ||
             task.description?.toLowerCase().includes(searchLower) ||
-            task.status?.title?.toLowerCase().includes(searchLower) ||
-            task.comment?.toLowerCase().includes(searchLower)
+            task.status?.title?.toLowerCase().includes(searchLower)
         );
         if (!matchesSearch) return false;
         if (selectedFilters.assignedtome && currentUserId) {
@@ -444,7 +552,6 @@ const List = () => {
         const showCreateSubtask = creatingSubtaskFor === task.id;
 
         return (
-            
             <React.Fragment key={task.id}>
                 <div className="grid text-sm hover:bg-purple-50 border-b border-purple-100" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
                     <div className="border-r border-purple-200 px-2 py-3 flex items-center justify-center gap-1">
@@ -472,15 +579,15 @@ const List = () => {
                             </button>
                         )}
                     </div>
-                    <div className="border-r border-purple-200 px-3 py-3 flex items-center text-gray-900">
-                        <span className={`truncate ${isSubtask ? 'ml-8 text-gray-700' : 'font-medium'}`}>{task.title}</span>
+                    <div className="border-r border-purple-200 px-3 py-3 flex items-center">
+                        <span className={`truncate ${isSubtask ? 'ml-8' : 'font-medium'}`}>{task.title}</span>
                     </div>
                     <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center">
                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(task.status)}`}>
                             {task.status?.title || 'Unknown'}
                         </span>
                     </div>
-                    <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center text-gray-600">
+                    <div className="border-r border-purple-200 px-3 py-3 flex items-center justify-center text-gray-600" style={{ color: colors.text }}>
                         <Calendar className="w-4 h-4 mr-1" />
                         <span className="text-xs">{formatDate(task.due_date)}</span>
                     </div>
@@ -504,8 +611,8 @@ const List = () => {
                             </button>
                         )}
                         {assigneeDropdown === task.id && (
-                            <div className="absolute top-full left-0 mt-1 bg-white shadow-lg border border-purple-200 rounded-lg z-50 w-56">
-                                <div className="p-2 max-h-48 overflow-y-auto">
+                            <div className="absolute top-full left-0 mt-1 bg-white shadow-lg border border-purple-200 rounded-lg z-50 w-56" style={{ color: colors.text }}>
+                                <div className="p-2 max-h-48 overflow-y-auto" style={{ color: colors.text }}>
                                     <div onClick={() => assignUserToTask(task.id, null)} className="px-3 py-2 hover:bg-purple-50 rounded cursor-pointer text-sm transition-colors">
                                         Unassigned
                                     </div>
@@ -522,19 +629,19 @@ const List = () => {
                         )}
                     </div>
                     <div className="border-r border-purple-200 px-3 py-3 flex items-center">
-                        {task.comment ? (
+                        {taskComments[task.id] && taskComments[task.id].length > 0 ? (
                             <div className="flex items-center w-full">
-                                <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-xs text-gray-700 truncate" title={task.comment}>{task.comment}</span>
+                                <span className="text-xs text-purple-700 font-medium">{taskComments[task.id].length} comment{taskComments[task.id].length !== 1 ? 's' : ''}</span>
                             </div>
                         ) : (
                             <div className="flex items-center w-full text-gray-400">
                                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-xs">No comment</span>
+                                <span className="text-xs">No comments</span>
                             </div>
                         )}
                     </div>
@@ -549,7 +656,7 @@ const List = () => {
                 </div>
 
                 {showCreateSubtask && (
-                    <div className="grid text-sm bg-purple-50 border-b border-purple-200" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
+                    <div className="grid text-sm bg-purple-50 border-b border-purple-200" style={{ gridTemplateColumns: '80px 350px 120px 130px 180px 100px', minWidth: '1200px' }}>
                         <div className="border-r border-purple-200 px-2 py-3 flex items-center justify-center">
                             <div className="flex items-center gap-1">
                                 <span className="w-4 h-4 inline-block"></span>
@@ -592,14 +699,12 @@ const List = () => {
     };
 
     return (
-        <DeveloperDashboardLayout>
-        <div className="min-h-screen py-4 px-4">
-            <style>{`
-                .table-scroll::-webkit-scrollbar { height: 10px; }
-                .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-                .table-scroll::-webkit-scrollbar-thumb { background: #9333ea; border-radius: 10px; }
-                .table-scroll::-webkit-scrollbar-thumb:hover { background: #7e22ce; }
-            `}</style>
+        <div className="min-h-screen bg-purple-200 py-4 px-4"
+        style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border,
+        }}>
 
             <div className="w-full max-w-7xl mx-auto">
                 {error && (
@@ -610,21 +715,16 @@ const List = () => {
                 )}
 
                 <div className="flex items-center gap-2 mb-4 p-2">
-                    <div className="relative w-60">
-                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-700" />
-                        <input
-                            type="text"
-                            placeholder="Search list"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                    </div>
 
-                    <div className="relative">
+                    <div className="relative"
+                    style={{
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                    }}>
                         <button
                             ref={filterButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-50"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-400"
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                         >
                             <Filter className="w-4 h-4" />
@@ -663,10 +763,21 @@ const List = () => {
                         )}
                     </div>
 
+                    <div className="relative w-170 pl-50">
+                        <Search className="w-4 h-4 absolute left-53 top-3 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search list"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-8 pr-4 py-2 border border-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        />
+                    </div>
+
                     <div className="relative ml-auto">
                         <button
                             ref={groupButtonRef}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-50"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-md text-sm hover:bg-gray-400"
                             onClick={() => setIsGroupOpen(!isGroupOpen)}
                         >
                             Group
@@ -710,10 +821,10 @@ const List = () => {
                     <div className="relative">
                         <button
                             ref={settingsButtonRef}
-                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-50"
+                            className="p-2 border border-gray-400 rounded-md hover:bg-gray-400"
                             onClick={() => setIssettingsOpen(!issettingsOpen)}
                         >
-                            <Settings className="w-4 h-4" />
+                            <Settings className="w-5 h-5" />
                         </button>
 
                         {issettingsOpen && (
@@ -786,32 +897,37 @@ const List = () => {
                 )}
 
                 {!loading && (
-                    <div className="bg-white rounded-lg shadow-sm border border-purple-200 overflow-hidden">
+                    <div className="rounded-lg shadow-sm border overflow-hidden"
+                    style={{
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderColor: colors.border,
+                    }}>
                         <div className="table-scroll overflow-x-auto">
                             {Object.entries(groupedTasks).map(([groupName, groupTasks]) => (
                                 <div key={groupName}>
                                     {groupBy && (
-                                        <div className="bg-purple-100 px-4 py-2 font-semibold text-gray-700 border-b border-purple-200">
+                                        <div className="bg-purple-100 px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">
                                             {groupName} ({groupTasks.length})
                                         </div>
                                     )}
 
-                                    <div className="grid text-sm font-medium text-gray-700 bg-gray-200" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Task Type</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3">Summary</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Status</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Due Date</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Priority</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Assignee</div>
-                                        <div className="border-b border-r border-purple-300 px-3 py-3 text-center">Comments</div>
-                                        <div className="border-b border-purple-300 px-3 py-3 text-center">Actions</div>
+                                    <div className="grid text-sm font-medium" style={{ gridTemplateColumns: '80px 350px 120px 130px 110px 130px 180px 100px', minWidth: '1200px' }}>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Task Type</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3" style={{ color: colors.text }}>Summary</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Status</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Due Date</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Priority</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Assignee</div>
+                                        <div className="border-b border-r border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Comments</div>
+                                        <div className="border-b border-gray-300 px-3 py-3 text-center" style={{ color: colors.text }}>Actions</div>
                                     </div>
 
                                     <div>
                                         {groupTasks.length === 0 ? (
                                             <div className="text-center py-12 text-gray-500" style={{ minWidth: '1200px' }}>
-                                                <p className="text-lg mb-2">No tasks found</p>
-                                                <p className="text-sm">Create your first task to get started</p>
+                                                <p className="text-lg mb-2" style={{ color: colors.text }}>No tasks found</p>
+                                                <p className="text-sm" style={{ color: colors.text }}>Create your first task to get started</p>
                                             </div>
                                         ) : (
                                             groupTasks.map(task => renderTaskRow(task))
@@ -821,10 +937,10 @@ const List = () => {
                             ))}
                         </div>
 
-                        <div className="p-2 border-t border-gray-700 bg-gray-100">
+                        <div className="p-2 border-t border-blue-200 bg-blue-100">
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="flex items-center text-gray-600 hover:text-gray-800 text-sm font-medium"
+                                className="flex items-center text-gray-500 hover:text-gray-800 text-sm font-medium"
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -876,7 +992,6 @@ const List = () => {
                                         <option value="MEDIUM">Medium</option>
                                         <option value="HIGH">High</option>
                                         <option value="HIGHEST">Highest</option>
-
                                     </select>
                                 </div>
                                 <div>
@@ -899,7 +1014,7 @@ const List = () => {
                                                 assignees: userId ? [parseInt(userId)] : []
                                             });
                                         }}
-                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" style={{ color: colors.text }}
                                     >
                                         <option value="">Unassigned</option>
                                         {availableUsers.map(member => (
@@ -910,8 +1025,8 @@ const List = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Comment</label>
                                     <textarea
-                                        value={newTask.comment}
-                                        onChange={(e) => setNewTask({ ...newTask, comment: e.target.value })}
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
                                         placeholder="Add a comment..."
                                         rows={3}
                                         className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
@@ -939,7 +1054,7 @@ const List = () => {
 
                 {isEditModalOpen && editingTask && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setIsEditModalOpen(false)}>
-                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Task</h2>
                             <div className="space-y-4">
                                 <div>
@@ -973,7 +1088,7 @@ const List = () => {
                                         onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value })}
                                         className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
-                                       <option value="LOWEST">Lowest</option>
+                                        <option value="LOWEST">Lowest</option>
                                         <option value="LOW">Low</option>
                                         <option value="MEDIUM">Medium</option>
                                         <option value="HIGH">High</option>
@@ -1008,21 +1123,101 @@ const List = () => {
                                         ))}
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Comment</label>
-                                    <textarea
-                                        value={editingTask.comment || ''}
-                                        onChange={(e) => setEditingTask({ ...editingTask, comment: e.target.value })}
-                                        placeholder="Add a comment..."
-                                        rows={3}
-                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                                    />
+
+                                <div className="border-t border-gray-200 pt-4 mt-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
+                                        </svg>
+                                        Comments ({editComments.length})
+                                    </h3>
+
+                                    {loadingComments ? (
+                                        <div className="flex justify-center py-4">
+                                            <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
+                                            {editComments.length === 0 ? (
+                                                <p className="text-sm text-gray-500 text-center py-4" style={{ color: colors.text }}>No comments yet</p>
+                                            ) : (
+                                                editComments.map((comment) => (
+                                                    <div key={comment.id} className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">
+                                                                        {comment.author?.user?.email?.charAt(0).toUpperCase() || 'U'}
+                                                                    </div>
+                                                                    <span className="text-xs font-medium text-gray-700" style={{ color: colors.text }}>
+                                                                        {comment.author?.user?.email || 'Unknown User'}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {new Date(comment.created_at).toLocaleDateString('en-GB', {
+                                                                            day: 'numeric',
+                                                                            month: 'short',
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit'
+                                                                        })}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-sm text-gray-800 mt-1">{comment.body}</p>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => deleteComment(editingTask.id, comment.id)}
+                                                                className="text-red-600 hover:bg-red-50 p-1 rounded transition-colors flex-shrink-0"
+                                                                title="Delete comment"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">Add New Comment</label>
+                                        <div className="flex gap-2">
+                                            <textarea
+                                                value={commentText}
+                                                onChange={(e) => setCommentText(e.target.value)}
+                                                placeholder="Write a comment..."
+                                                rows={2}
+                                                className="flex-1 px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-sm"
+                                            />
+                                            <button
+                                                onClick={async () => {
+                                                    if (commentText.trim()) {
+                                                        await createCommentForTask(editingTask.id, commentText);
+                                                        setCommentText('');
+                                                        const authToken = localStorage.getItem('authToken');
+                                                        const response = await fetch(`${API_BASE_URL}/tasks/${editingTask.id}/comments/`, {
+                                                            headers: { 'Authorization': `Bearer ${authToken}` }
+                                                        });
+                                                        if (response.ok) {
+                                                            const comments = await response.json();
+                                                            setEditComments(comments);
+                                                        }
+                                                    }
+                                                }}
+                                                disabled={!commentText.trim()}
+                                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         onClick={() => {
                                             setIsEditModalOpen(false);
                                             setEditingTask(null);
+                                            setEditComments([]);
+                                            setCommentText('');
                                         }}
                                         className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                                     >
@@ -1045,8 +1240,7 @@ const List = () => {
                 )}
             </div>
         </div>
-        </DeveloperDashboardLayout>
     )
 }
 
-export default List;
+export default DeveloperList;

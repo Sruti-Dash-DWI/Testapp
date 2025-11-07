@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
-import TesterStatCard from './TesterStatcard';
-import TesterModal from './TesterModal';
-import TesterTeamMembersList from './TesterTeammeberlist';
+import DevStatCard from './TesterStatcard'
+import DevModal from './TesterModal';
+import TesterTeammemberlist from './TesterTeammeberlist';
+import { useTheme } from '../../../context/ThemeContext';
  
 
-const TesterTeamManagement = () => {
+const DevTeamManagement = () => {
     const { isInviteModalOpen, openModal, closeModal } = useOutletContext();
     const [stats, setStats] = useState({ total_members: 0, active_members: 0, active_projects: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { theme, toggleTheme, colors } = useTheme();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -65,16 +67,22 @@ const TesterTeamManagement = () => {
     };
 
     return (
-        <motion.section 
-            className="mt-4 md:mt-8"
+      <motion.section 
+            className="min-h-screen p-8 transition-colors duration-300"
+
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border
+          }}
         >
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 tracking-tight">User Management</h1>
-                    <p className="text-gray-600 mt-1 text-lg">Oversee team members, roles, and project access.</p>
+                   <h1 className="text-4xl font-bold text-gray-900 tracking-tight" style={{ color: colors.text }}>User Management</h1>
+                    <p className="text-gray-600 mt-1 text-lg" style={{ color: colors.text }}>Oversee team members, roles, and project access.</p>
                 </div>
                 <motion.button
                     className="bg-gray-900 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
@@ -98,15 +106,15 @@ const TesterTeamManagement = () => {
                     animate="visible"
                  >
                     {statCardsData.map((stat) => (
-                        <TesterStatCard key={stat.title} title={stat.title} value={stat.value} />
+                        <StatCard key={stat.title} title={stat.title} value={stat.value} />
                     ))}
                 </motion.div>
             )}
 
-            <TesterModal isOpen={isInviteModalOpen} onClose={closeModal} />
-            <TesterTeamMembersList />
+            {/* <Modal isOpen={isInviteModalOpen} onClose={closeModal} /> */}
+            <TesterTeammemberlist />
         </motion.section>
     );
 };
 
-export default TesterTeamManagement;
+export default DevTeamManagement;

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
 
-// --- Edit Profile Modal Component ---
+import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
+import { useTheme } from '../../../context/ThemeContext';
+
+
 const EditProfileModal = ({ onClose, userData, onSave }) => {
     const [formData, setFormData] = useState({
         first_name: '',
@@ -10,6 +12,7 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
         phone: '',
     });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (userData) {
@@ -17,7 +20,7 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
                 first_name: userData.first_name || '',
                 last_name: userData.last_name || '',
                 email: userData.email || '',
-                phone: userData.phone || '',
+                phone: userData.phone || null, 
             });
         }
     }, [userData]);
@@ -30,18 +33,19 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         await onSave(formData);
         setLoading(false);
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md" onClick={onClose}>
             <div 
                 className="rounded-2xl shadow-2xl w-full max-w-md m-4 text-gray-800"
-                style={{ background: 'linear-gradient(135deg, #FFCDB2 0%, #FFB4A2 30%, #E5989B 70%, #B5828C 100%)' }}
+                style={{ background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 100%)" }}
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between p-5 border-b border-white/40">
+                <div className="flex items-center justify-between p-5 border-b border-white/30">
                     <h2 className="text-2xl font-bold text-gray-900">Edit Your Profile</h2>
                     <button onClick={onClose} className="p-2 rounded-full text-gray-700 hover:bg-white/30 transition-colors">
                         <X size={24} />
@@ -51,21 +55,22 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                            <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-600" />
+                            <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                            <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-600" />
+                            <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" />
                         </div>
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-600" />
+                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" />
                     </div>
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="tel" name="phone" value={formData.phone || ''} onChange={handleInputChange} placeholder="e.g., +1234567890" className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-600" />
+                        <input type="tel" name="phone" value={formData.phone || ''} onChange={handleInputChange} className="w-full bg-white/50 text-gray-900 border-white/30 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" />
                     </div>
+                    {error && <p className="text-red-700 text-sm text-center mb-4">{error}</p>}
                     <div className="flex justify-end gap-4">
                         <button type="button" onClick={onClose} className="px-5 py-2 bg-white/40 hover:bg-white/70 rounded-md font-semibold">Cancel</button>
                         <button type="submit" disabled={loading} className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md flex items-center disabled:opacity-70">
@@ -79,25 +84,27 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
 };
 
 
-// --- Main Settings Component for Project Manager ---
+
 const Settings = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [loadingUser, setLoadingUser] = useState(true);
+    const { theme, toggleTheme, colors } = useTheme();
 
+    
     useEffect(() => {
         const fetchUserData = async () => {
-            const userId = localStorage.getItem('userId');
+            const userId = localStorage.getItem('userId'); 
             const authToken = localStorage.getItem('authToken');
 
             if (!userId || !authToken) {
-                console.error("User ID or Auth Token not found in localStorage.");
+                console.error("User ID or Auth Token not found.");
                 setLoadingUser(false);
                 return;
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+                const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");
@@ -114,58 +121,62 @@ const Settings = () => {
     }, []);
 
     const handleUpdateUser = async (updatedData) => {
-        const userId = localStorage.getItem('userId');
+        const userId = localStorage.getItem('userId'); 
         const authToken = localStorage.getItem('authToken');
 
         try {
-            const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+            const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({ ...currentUser, ...updatedData }) // Merge changes with existing data
+                // Send only changed fields along with the full user object
+                body: JSON.stringify({ ...currentUser, ...updatedData })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || "Failed to update profile.");
-            }
+            if (!response.ok) throw new Error("Failed to update profile.");
 
             const savedUser = await response.json();
-            setCurrentUser(savedUser);
-            setShowEditModal(false);
+            setCurrentUser(savedUser); 
+            setShowEditModal(false); 
 
         } catch (error) {
             console.error("Update error:", error);
-            alert(`Error: ${error.message}`);
+           
         }
     };
 
     const handleLogout = () => {
+       
         localStorage.removeItem('authToken');
-        localStorage.removeItem('userId');
+        localStorage.removeItem('userId'); 
+        
         window.location.href = '/login';
     };
 
     const settingCards = [
-        { title: "Edit Profile", description: "Update your personal details.", icon: UserCog, color: "bg-orange-100", action: () => setShowEditModal(true), disabled: loadingUser },
-        { title: "Team Permissions", description: "Review team member access.", icon: Shield, color: "bg-teal-100", action: () => alert("Feature coming soon!") },
-        { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-purple-100", action: () => alert("Feature coming soon!") },
-        { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-200", action: handleLogout },
+        { title: "Edit Profile", description: "Update your personal details.", icon: UserCog, color: "bg-blue-100", action: () => setShowEditModal(true), disabled: loadingUser },
+        { title: "Manage Permissions", description: "Control user roles and access.", icon: Shield, color: "bg-yellow-100", action: () => alert("Feature coming soon!") },
+        { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
+        { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
     ];
 
     return (
         <>
-            <div className="p-8">
-                <h1 className="text-3xl font-bold text-gray-800">Settings</h1>
-                <p className="mt-1 text-gray-600">Manage your account settings and preferences.</p>
+            <div className="min-h-screen p-8 transition-colors duration-300" style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border
+          }}>
+                <h1 className="text-3xl font-bold text-gray-800" style={{ color: colors.text }}>Settings</h1>
+                <p className="mt-1 text-gray-600" style={{ color: colors.text }}>Manage your account settings and preferences.</p>
             
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8" >
                     {settingCards.map((card, index) => (
                         <div 
                             key={index} 
-                            className={`${card.color} p-6 rounded-xl shadow-md cursor-pointer transition-transform transform hover:-translate-y-1 ${card.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`${card.color} p-6 rounded-xl shadow-md cursor-pointer transition-transform hover:-translate-y-1 ${card.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             onClick={!card.disabled ? card.action : undefined}
                         >
                             <card.icon className="h-8 w-8 text-gray-700 mb-3" />

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Filter, CheckCircle, FileText, Clock, Calendar, User, ChevronDown, Search } from "lucide-react";
+import { useTheme } from '../../../../context/ThemeContext';
 
 const Summary = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const { theme, toggleTheme, colors } = useTheme();
     const [selectedFilters, setSelectedFilters] = useState({
         assignee: false,
         created: false,
@@ -253,7 +255,7 @@ const Summary = () => {
 
     if (loading) {
         return (
-            <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-purple-100 to-purple-50 p-6">
+            <div className="flex-1 flex flex-col bg-white p-6">
                 <div className="flex items-center justify-center h-64">
                     <div className="text-lg text-gray-600">Loading summary data...</div>
                 </div>
@@ -262,7 +264,13 @@ const Summary = () => {
     }
 
     return (
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-purple-100 to-purple-50 p-6">
+        <div className="flex-1 flex flex-col p-6"
+        style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border,
+        }}
+        >
             {error && (
                 <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
                     <div className="flex justify-between items-center">
@@ -282,6 +290,7 @@ const Summary = () => {
             <div className="relative mb-6" ref={filterRef}>
                 <button 
                     className="flex items-center justify-center text-gray-700 text-sm w-[90px] h-[43px] px-[10px] py-[10px] gap-[8px] border border-black rounded-[10px] bg-white/25 hover:bg-white/50 opacity-100"
+                    style={{ color: colors.text }}
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                     <Filter className="w-4 h-4" />
@@ -293,7 +302,7 @@ const Summary = () => {
                 </button>
 
                 {isFilterOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-10" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                         <div className="p-4">
                             <div className="relative mb-4">
                                 <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
@@ -306,14 +315,14 @@ const Summary = () => {
 
                             <div className="space-y-0.5">
                                 {filterOptions.map((option) => (
-                                    <label key={option.key} className="flex items-center space-x-3 cursor-pointer hover:bg-purple-50 p-2 rounded">
+                                    <label key={option.key} className="flex items-center space-x-3 cursor-pointer hover:bg-purple-50 p-2 rounded" style={{ backgroundColor: colors.card, color: colors.text }}>
                                         <input
                                             type="checkbox"
                                             checked={selectedFilters[option.key]}
                                             onChange={() => handleFilterToggle(option.key)}
                                             className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                                         />
-                                        <span className="text-sm text-gray-700">{option.label}</span>
+                                        <span className="text-sm text-gray-700" style={{ color: colors.text }}>{option.label}</span>
                                     </label>
                                 ))}
                             </div>
@@ -331,7 +340,7 @@ const Summary = () => {
                                             updated: false,
                                             workType: false,
                                         })}
-                                        className="w-full px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 rounded-md font-medium"
+                                        className="w-full px-4 py-2 text-sm rounded-md hover:bg-gray-500 font-medium" style={{color: colors.text }}
                                     >
                                         Clear all filters
                                     </button>
@@ -342,52 +351,52 @@ const Summary = () => {
                 )}
             </div>
 
-            <div className="grid grid-cols-4 gap-4 mb-8">
-                <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                    <div className="bg-purple-200 p-2 rounded">
-                        <CheckCircle className="w-6 h-6 text-purple-700" />
+            <div className="grid grid-cols-4 gap-4 mb-8" >
+                <div className="bg-blue-100 p-4 rounded-lg shadow border border-blue-200 flex items-center space-x-3" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <div className="bg-blue-300 p-2 rounded">
+                        <CheckCircle className="w-6 h-6 text-blue-700" />
                     </div>
                     <div>
                         <div className="text-lg font-semibold">{data.completed} completed</div>
-                        <div className="text-sm text-gray-500">in the last 7 days</div>
+                        <div className="text-sm text-gray-500" style={{ color: colors.text }}>in the last 7 days</div>
                     </div>
                 </div>
 
-                <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                    <div className="bg-purple-200 p-2 rounded">
-                        <FileText className="w-6 h-6 text-purple-700" />
+                <div className="bg-blue-100 p-4 rounded-lg shadow border border-blue-200 flex items-center space-x-3" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <div className="bg-blue-300 p-2 rounded">
+                        <FileText className="w-6 h-6 text-blue-700" />
                     </div>
                     <div>
                         <div className="text-lg font-semibold">{data.created} created</div>
-                        <div className="text-sm text-gray-500">in the last 7 days</div>
+                        <div className="text-sm text-gray-500" style={{ color: colors.text }}>in the last 7 days</div>
                     </div>
                 </div>
 
-                <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                    <div className="bg-purple-200 p-2 rounded">
-                        <Clock className="w-6 h-6 text-purple-700" />
+                <div className="bg-blue-100 p-4 rounded-lg shadow border border-blue-200 flex items-center space-x-3" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <div className="bg-blue-300 p-2 rounded">
+                        <Clock className="w-6 h-6 text-blue-700" />
                     </div>
                     <div>
                         <div className="text-lg font-semibold">{data.updated} updated</div>
-                        <div className="text-sm text-gray-500">in the last 7 days</div>
+                        <div className="text-sm text-gray-500" style={{ color: colors.text }}>in the last 7 days</div>
                     </div>
                 </div>
 
-                <div className="bg-purple-100 p-4 rounded-lg shadow border border-purple-200 flex items-center space-x-3">
-                    <div className="bg-purple-200 p-2 rounded">
-                        <Calendar className="w-6 h-6 text-purple-700" />
+                <div className="bg-blue-100 p-4 rounded-lg shadow border border-blue-200 flex items-center space-x-3" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
+                    <div className="bg-blue-300 p-2 rounded">
+                        <Calendar className="w-6 h-6 text-blue-700" />
                     </div>
                     <div>
                         <div className="text-lg font-semibold">{data.dueSoon} due soon</div>
-                        <div className="text-sm text-gray-500">in the next 3 days</div>
+                        <div className="text-sm text-gray-500" style={{ color: colors.text }}>in the next 3 days</div>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-                <div className="bg-purple-100 p-6 rounded-lg shadow border border-purple-200">
+                <div className="bg-blue-100 p-6 rounded-lg shadow border border-blue-200" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
                     <h3 className="text-lg font-medium mb-1">Status overview</h3>
-                    <p className="text-sm text-gray-600 mb-6">
+                    <p className="text-sm text-gray-600 mb-6" style={{ color: colors.text }}>
                         Get a snapshot of the status of your work items
                     </p>
 
@@ -403,7 +412,7 @@ const Summary = () => {
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="text-center">
                                     <div className="text-2xl font-semibold">{data.totalWorkItems}</div>
-                                    <div className="text-sm text-gray-600">Total work items</div>
+                                    <div className="text-sm text-gray-600" style={{ color: colors.text }}>Total work items</div>
                                 </div>
                             </div>
                         </div>
@@ -412,29 +421,29 @@ const Summary = () => {
                     <div className="space-y-2">
                         <div className="flex items-center">
                             <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: "#22c55e" }}></div>
-                            <span className="text-sm text-gray-600">To Do: {data.todoCount}</span>
+                            <span className="text-sm text-gray-600" style={{ color: colors.text }}>To Do: {data.todoCount}</span>
                         </div>
                         <div className="flex items-center">
                             <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: "#60a5fa" }}></div>
-                            <span className="text-sm text-gray-600">In Progress: {data.inProgressCount}</span>
+                            <span className="text-sm text-gray-600" style={{ color: colors.text }}>In Progress: {data.inProgressCount}</span>
                         </div>
                         <div className="flex items-center">
                             <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: "#8b5cf6" }}></div>
-                            <span className="text-sm text-gray-600">Done: {data.doneCount}</span>
+                            <span className="text-sm text-gray-600" style={{ color: colors.text }}>Done: {data.doneCount}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-purple-100 p-6 rounded-lg shadow border border-purple-200">
+                <div className="bg-blue-100 p-6 rounded-lg shadow border border-blue-200" style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}>
                     <div className="flex items-center justify-between mb-1">
                         <h3 className="text-lg font-medium">Recent activity</h3>
                         {Object.values(selectedFilters).some(v => v) && (
-                            <span className="text-xs bg-purple-200 text-purple-700 px-2 py-1 rounded-full">
+                            <span className="text-xs bg-blue-200 text-blue-700 px-2 py-1 rounded-full">
                                 Filtered
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-gray-600 mb-4" style={{ color: colors.text }}>
                         Latest 5 changes across the project
                     </p>
                     
@@ -442,7 +451,7 @@ const Summary = () => {
                         <div className="space-y-4">
                             {data.recentActivities.map((activity, index) => (
                                 <div key={index} className="flex items-start">
-                                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
                                         <span className="text-white text-sm font-medium">
                                             {activity.user.charAt(0).toUpperCase()}
                                         </span>
@@ -450,13 +459,13 @@ const Summary = () => {
                                     <div className="flex-1">
                                         <div className="flex items-center flex-wrap gap-1 text-sm">
                                             <span className="font-medium">{activity.user}</span>
-                                            <span className="text-gray-600">{activity.action}</span>
+                                            <span className="text-gray-600" style={{ color: colors.text }}>{activity.action}</span>
                                             <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
                                                 <CheckCircle className="w-3 h-3 text-blue-800 mr-1" />
                                                 {activity.task}
                                             </span>
                                         </div>
-                                        <div className="text-xs text-gray-500 mt-1">
+                                        <div className="text-xs text-gray-500 mt-1" style={{ color: colors.text }}>
                                             {formatRelativeTime(activity.timestamp)}
                                         </div>
                                     </div>
@@ -464,10 +473,10 @@ const Summary = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-8 text-gray-500">
+                        <div className="text-center py-8 text-gray-500" style={{ color: colors.text }}>
                             <p>No recent activity</p>
                             {Object.values(selectedFilters).some(v => v) && (
-                                <p className="text-xs mt-2">Try adjusting your filters</p>
+                                <p className="text-xs mt-2" style={{ color: colors.text }}>Try adjusting your filters</p>
                             )}
                         </div>
                     )}

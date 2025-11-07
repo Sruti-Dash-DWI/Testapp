@@ -1,10 +1,11 @@
-// src/components/NavItem.jsx
+// src/components/projectmanager/pmpages/Pmnavitem.jsx  (or your correct path)
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { getIcon } from '../../assets/icons.jsx';
+import { getIcon } from '../../assets/icons.jsx'; // Assuming this path is correct
+import { useTheme } from '../../context/ThemeContext.jsx';
 
-const DevNavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
+const DevNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -13,17 +14,15 @@ const DevNavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault,
     const contextMenuRef = useRef(null);
     const location = useLocation();
 
-    
     const activeProjectId = localStorage.getItem('activeProjectId');
-
-   
     const slug = item.text.toLowerCase().replace(/\s+/g, '-');
-    
+    const { theme, colors } = useTheme();
+
+    // --- UPDATED LOGIC ---
+    // Added the '/developer' prefix to all generated routes.
     const routePath = activeProjectId ? `/developer/${slug}/${activeProjectId}` : '/developer/projects';
     const basePath = `/developer/${slug}`;
     const isActive = location.pathname.startsWith(basePath);
-
- 
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -69,11 +68,13 @@ const DevNavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault,
             onDrop={(e) => onDrop(e, item.id)}
         >
             <Link
-                
                 to={routePath}
                 draggable
                 onDragStart={(e) => onDragStart(e, item.id)}
-                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-red-800 border-b-2 border-red-800 font-bold' : 'text-gray-700 hover:bg-gray-200/50'}`}
+                style={{
+                    color: isActive ? colors.accent || '#3b82f6' : colors.text,
+                }}
             >
                 {getIcon(item.text)}
                 {isEditing ? (
@@ -103,4 +104,4 @@ const DevNavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault,
     );
 };
 
-export default DevNavItem;
+export default DevNavitem;

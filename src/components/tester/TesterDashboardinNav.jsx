@@ -1,8 +1,14 @@
+
+
 import React from 'react';
-import NavItem from './TesterNavitem.jsx';
+
 import AddItemDropdown from '../AddItemDropdown.jsx';
+import { useTheme } from '../../context/ThemeContext.jsx';
+import TesterNavitem from '../../components/tester/TesterNavitem.jsx'
 
 const TesterDashboardinNav = ({ navItems, setNavItems, availableOptions }) => {
+    
+    const { theme, colors } = useTheme();
 
     const handleDragStart = (e, id) => {
         e.dataTransfer.setData('text/plain', id);
@@ -16,6 +22,7 @@ const TesterDashboardinNav = ({ navItems, setNavItems, availableOptions }) => {
         const reorderedItems = [...navItems];
         const sourceIndex = navItems.findIndex(item => item.id === sourceId);
         const targetIndex = navItems.findIndex(item => item.id === targetId);
+        
 
         const [removed] = reorderedItems.splice(sourceIndex, 1);
         reorderedItems.splice(targetIndex, 0, removed);
@@ -49,10 +56,17 @@ const TesterDashboardinNav = ({ navItems, setNavItems, availableOptions }) => {
     };
 
     return (
-        <nav className="flex items-center border-b border-gray-200/80 bg-white/50 backdrop-blur-sm px-4 flex-shrink-0 z-50">
-            <div className="flex items-center flex-wrap">
+        <nav 
+            className="flex items-center border-b backdrop-blur-sm px-4 flex-shrink-0 z-50 transition-colors duration-300"
+            style={{
+                backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+                borderColor: colors.border,
+                color: colors.text
+            }}
+        >
+            <div className="flex items-center flex-wrap " >
                 {navItems.map(item => (
-                    <NavItem
+                    <TesterNavitem
                         key={item.id}
                         item={item}
                         onDragStart={handleDragStart}
@@ -61,6 +75,8 @@ const TesterDashboardinNav = ({ navItems, setNavItems, availableOptions }) => {
                         onRename={handleRename}
                         onSetDefault={handleSetDefault}
                         onRemove={handleRemove}
+                        
+                        
                     />
                 ))}
             </div>

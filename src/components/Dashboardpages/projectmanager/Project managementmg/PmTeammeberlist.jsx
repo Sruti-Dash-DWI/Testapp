@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import TeamMemberCard from './PmTeamcard';
 // import EditUserModal from './EditUserModal'; 
 import { Info } from 'lucide-react';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -26,6 +27,7 @@ const PmTeamMembersList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [editingMember, setEditingMember] = useState(null);
+    const { theme, toggleTheme, colors } = useTheme();
 
     useEffect(() => {
         

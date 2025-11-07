@@ -5,6 +5,7 @@ import { PlusCircle } from 'lucide-react';
 import StatCard from './PmStatcard';
 import Modal from './Modal';
 import TeamMembersList from './PmTeammeberlist';
+import { useTheme } from '../../../../context/ThemeContext';
  
 
 const PmTeamManagement = () => {
@@ -12,6 +13,7 @@ const PmTeamManagement = () => {
     const [stats, setStats] = useState({ total_members: 0, active_members: 0, active_projects: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+     const { theme, toggleTheme, colors } = useTheme();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -66,15 +68,21 @@ const PmTeamManagement = () => {
 
     return (
         <motion.section 
-            className="mt-4 md:mt-8"
+            className="min-h-screen p-8 transition-colors duration-300"
+
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            style={{
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderColor: colors.border
+          }}
         >
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 tracking-tight">User Management</h1>
-                    <p className="text-gray-600 mt-1 text-lg">Oversee team members, roles, and project access.</p>
+                   <h1 className="text-4xl font-bold text-gray-900 tracking-tight" style={{ color: colors.text }}>User Management</h1>
+                    <p className="text-gray-600 mt-1 text-lg" style={{ color: colors.text }}>Oversee team members, roles, and project access.</p>
                 </div>
                 <motion.button
                     className="bg-gray-900 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
