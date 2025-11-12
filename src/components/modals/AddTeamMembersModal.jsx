@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { X, ChevronDown } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
     const { theme, colors } = useTheme();
@@ -33,7 +34,7 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch('http://localhost:8000/api/users/', {
+            const response = await fetch(`${API_BASE_URL}/users/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
@@ -83,7 +84,7 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:8000/api/teams/${teamId}/invite/`, {
+            const response = await fetch(`${API_BASE_URL}/teams/${teamId}/invite/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

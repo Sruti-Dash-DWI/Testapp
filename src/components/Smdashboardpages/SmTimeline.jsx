@@ -18,6 +18,8 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import TimelineModal from '../Timelinemodal';
 import SmDashboardlayout from "../../layout/Smdashboardlayout";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 // --- HELPER FUNCTIONS ---
 const getTagColor = (color) => {
@@ -116,7 +118,7 @@ const SmTimeline = () => {
       if (!projectId) return; // Don't fetch if there's no project ID
 
       try {
-        const response = await fetch(`http://localhost:8000/api/epics/?project=${projectId}`, { // --- MODIFIED ---
+        const response = await fetch(`${API_BASE_URL}/epics/?project=${projectId}`, { // --- MODIFIED ---
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -184,7 +186,7 @@ const SmTimeline = () => {
     console.log("Sending payload to backend:", payload);
     console.log("Project ID:", projectId);
 
-    const fullUrl = `http://127.0.0.1:8000/api/epics/`;
+    const fullUrl = `${API_BASE_URL}/epics/`;
     // authToken is already available from component scope
 
     try {

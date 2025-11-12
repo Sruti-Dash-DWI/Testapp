@@ -5,6 +5,7 @@ import { Users, Plus, MoreHorizontal, Info, CheckSquare } from 'lucide-react';
 import AddTeamMembersModal from '../../components/modals/AddTeamMembersModal';
 import TeamSettingsModal from '../../components/modals/TeamSettingsModal';
 import Toast from '../../components/Toast';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TeamDetails = () => {
     const { teamId } = useParams();
@@ -42,7 +43,7 @@ const TeamDetails = () => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:8000/api/teams/${teamId}/`, {
+            const response = await fetch(`${API_BASE_URL}/teams/${teamId}/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
@@ -72,7 +73,7 @@ const TeamDetails = () => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch(`http://localhost:8000/api/teams/${teamId}/`, {
+            const response = await fetch(`${API_BASE_URL}/teams/${teamId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

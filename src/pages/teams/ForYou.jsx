@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { Users, ArrowRight } from 'lucide-react';
 import AddPeopleModal from '../../components/modals/AddPeopleModal';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ForYou = () => {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ const ForYou = () => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch('http://localhost:8000/api/users/', {
+            const response = await fetch(`${API_BASE_URL}/users/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
@@ -44,7 +45,7 @@ const ForYou = () => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch('http://localhost:8000/api/teams/', {
+            const response = await fetch(`${API_BASE_URL}/teams/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,

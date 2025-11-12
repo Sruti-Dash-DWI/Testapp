@@ -18,6 +18,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import TimelineModal from '../../components/Timelinemodal';
 import TimelineBar from '../../components/TimelineBar';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // --- HELPER FUNCTIONS ---
 const getTagColor = (color) => {
@@ -141,7 +142,7 @@ const DeveloperTimeline = () => {
     if (!projectId) return; // Don't fetch if there's no project ID
 
     try {
-      const response = await fetch(`http://localhost:8000/api/timeline/${projectId}`, { // --- MODIFIED ---
+      const response = await fetch(`${API_BASE_URL}/timeline/${projectId}`, { // --- MODIFIED ---
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +203,7 @@ const DeveloperTimeline = () => {
     // 2. Send PATCH request to backend
     try {
       const response = await fetch(
-        `http://localhost:8000/api/timeline/epics/${epicId}/dates/`, // Same endpoint as the modal
+        `${API_BASE_URL}/timeline/epics/${epicId}/dates/`, // Same endpoint as the modal
         {
           method: "PATCH",
           headers: {
@@ -259,7 +260,7 @@ const DeveloperTimeline = () => {
     console.log("Sending payload to backend:", payload);
     console.log("Project ID:", projectId);
 
-    const fullUrl = `http://127.0.0.1:8000/api/epics/`;
+    const fullUrl = `${API_BASE_URL}/epics/`;
     // authToken is already available from component scope
 
     try {

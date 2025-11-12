@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, X, AlertTriangle, Loader2, ShieldCheck, CheckSquare, Square, Search } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Custom hook to detect clicks outside of a component
 const useClickOutside = (ref, handler) => {
@@ -99,9 +100,9 @@ const AssignMembersModal = ({ project, onClose }) => {
     const authToken = localStorage.getItem('authToken');
     try {
       const [assignedResponse, devResponse, testerResponse] = await Promise.all([
-        fetch(`http://localhost:8000/api/projects/${project.id}/members/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-        fetch(`http://localhost:8000/api/projects/${project.id}/available-members/developer/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-        fetch(`http://localhost:8000/api/projects/${project.id}/available-members/tester/`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+        fetch(`${API_BASE_URL}/projects/${project.id}/members/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+        fetch(`${API_BASE_URL}/projects/${project.id}/available-members/developer/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+        fetch(`${API_BASE_URL}/projects/${project.id}/available-members/tester/`, { headers: { 'Authorization': `Bearer ${authToken}` } })
       ]);
       if (!assignedResponse.ok || !devResponse.ok || !testerResponse.ok) {
         throw new Error('Failed to fetch project member data.');
@@ -158,10 +159,10 @@ const AssignMembersModal = ({ project, onClose }) => {
       let endpoint = '';
       let body = {};
       if (hasDevs) {
-        endpoint = `http://localhost:8000/api/projects/${project.id}/members/bulk-assign/developer/`;
+        endpoint = `${API_BASE_URL}/projects/${project.id}/members/bulk-assign/developer/`;
         body = { user_ids: selectedDevelopers };
       } else if (hasTesters) {
-        endpoint = `http://localhost:8000/api/projects/${project.id}/members/bulk-assign/tester/`;
+        endpoint = `${API_BASE_URL}/projects/${project.id}/members/bulk-assign/tester/`;
         body = { user_ids: selectedTesters };
       }
       const response = await fetch(endpoint, {

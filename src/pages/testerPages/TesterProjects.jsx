@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { MoreVertical } from 'lucide-react';
 import DevManageTeamModal from '../../components/tester/TesterManageTeamModal';
 import { useTheme } from '../../context/ThemeContext';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DeveloperProjects = () => {
   const [show, setShow] = useState(false);
@@ -51,7 +52,7 @@ const DeveloperProjects = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/projects/', {
+      const response = await fetch(`${API_BASE_URL}/projects/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ const DeveloperProjects = () => {
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/users/list/?role=manager', {
+      const response = await fetch(`${API_BASE_URL}/users/list/?role=manager`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Accept': 'application/json',

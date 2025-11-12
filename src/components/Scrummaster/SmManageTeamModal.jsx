@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, X, AlertTriangle, Loader2, ShieldCheck, CheckSquare, Square } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
 // Custom hook to detect clicks outside of a component to close the dropdown
 const useClickOutside = (ref, handler) => {
     useEffect(() => {
@@ -104,10 +107,10 @@ const SmManageTeamModal = ({ project, onClose }) => {
         const authToken = localStorage.getItem('authToken');
         try {
             const responses = await Promise.all([
-                fetch(`http://localhost:8000/api/projects/${project.id}/members/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-                fetch(`http://localhost:8000/api/projects/${project.id}/available-members/developer/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-                fetch(`http://localhost:8000/api/projects/${project.id}/available-members/tester/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-                fetch(`http://localhost:8000/api/projects/${project.id}/available-members/manager/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                fetch(`${API_BASE_URL}/projects/${project.id}/members/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                fetch(`${API_BASE_URL}/projects/${project.id}/available-members/developer/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                fetch(`${API_BASE_URL}/projects/${project.id}/available-members/tester/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                fetch(`${API_BASE_URL}/projects/${project.id}/available-members/manager/`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
             ]);
             for (const res of responses) {
                 if (!res.ok) throw new Error('Failed to fetch some team data. Please check API endpoints.');
@@ -172,7 +175,7 @@ const SmManageTeamModal = ({ project, onClose }) => {
         };
 
         try {
-            const response = await fetch(`http://localhost:8000/api/projects/${project.id}/members/bulk-assign/${roleApiMap[roleToSubmit]}/`, {
+            const response = await fetch(`${API_BASE_URL}/projects/${project.id}/members/bulk-assign/${roleApiMap[roleToSubmit]}/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
                 body: JSON.stringify({ user_ids: selections[roleToSubmit] })

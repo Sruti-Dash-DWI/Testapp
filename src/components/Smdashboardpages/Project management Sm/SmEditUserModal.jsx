@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, Trash2 } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const SmEditUserModal = ({ member, onClose, onUpdate, onDeleteSuccess }) => { 
     if (!member) return null;

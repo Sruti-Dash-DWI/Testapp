@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 //     <polyline points="22,6 12,13 2,6"></polyline>
 //   </svg>
 // );
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const SunIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -82,7 +83,7 @@ export default function UpperNavbar() {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
 // added "/" at the end of URL to fix 308 error
-      const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

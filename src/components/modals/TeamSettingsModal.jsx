@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { X } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TeamSettingsModal = ({ isOpen, onClose, team, onTeamUpdated }) => {
     const { theme, colors } = useTheme();
@@ -54,7 +55,7 @@ const TeamSettingsModal = ({ isOpen, onClose, team, onTeamUpdated }) => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:8000/api/teams/${team.id}/`, {
+            const response = await fetch(`${API_BASE_URL}/teams/${team.id}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

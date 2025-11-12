@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, ChevronDown, ChevronRight, Settings, Calendar, User, Target, Zap, BarChart3, Eye, EyeOff, Expand, Minimize, Plus, Loader2, Edit, Trash2, X } from 'lucide-react'
 import { useTheme } from '../../../../context/ThemeContext';
 
+
+
 const List = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isGroupOpen, setIsGroupOpen] = useState(false);
@@ -48,7 +50,8 @@ const List = () => {
         due_date: ''
     });
 
-    const API_BASE_URL = 'http://127.0.0.1:8000/api';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {

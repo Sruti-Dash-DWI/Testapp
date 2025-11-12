@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, X } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const SmModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');

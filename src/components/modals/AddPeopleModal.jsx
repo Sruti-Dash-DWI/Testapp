@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { X, MoreHorizontal, ChevronDown } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AddPeopleModal = ({ isOpen, onClose, onPeopleAdded }) => {
     const { theme, colors } = useTheme();
@@ -46,7 +47,7 @@ const AddPeopleModal = ({ isOpen, onClose, onPeopleAdded }) => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/users/invite/', {
+            const response = await fetch(`${API_BASE_URL}/users/invite/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

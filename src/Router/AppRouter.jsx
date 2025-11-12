@@ -8,6 +8,7 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
+import { FormDashboard, FormEditor } from '../components/Dashboardpages/Form.jsx';
 
 import Projects from "../pages/Projects.jsx";
 import BacklogPage from "../components/Dashboardpages/BacklogPage.jsx";
@@ -114,7 +115,7 @@ const AppRouter = () => {
         
         <Route element={<DashboardLayout />}>
           
-          <Route path="/user-details" element={<Projectmanager />} />
+          {/* <Route path="/user-details" element={<Projectmanager />} /> */}
           
           <Route path="/documents" element={<Documents />} />
           <Route path="/notifications" element={<Notifications />} />
@@ -123,7 +124,7 @@ const AppRouter = () => {
           
           <Route path='/projects' element={<Projects />} />
 
-          <Route path="/teams/for-you" element={<ForYou />} />
+          <Route path="/teams/for-you" element={<Projectmanager />} />
           <Route path="/teams/people" element={<People />} />
           <Route path="/teams/teams" element={<Teams />} />
           <Route path="/teams/:teamId" element={<TeamDetails />} />
@@ -138,6 +139,8 @@ const AppRouter = () => {
 
           
           <Route path='/backlog' element={<Projects />} />
+          <Route path="/forms/:projectId" element={<FormDashboard />} />
+          <Route path="/forms/:projectId/:formId" element={<FormEditor />} /> 
 
           
           <Route path="/pages/:pageId" element={<PageContent />} />

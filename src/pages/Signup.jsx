@@ -6,6 +6,7 @@ import { CiLock } from "react-icons/ci";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom"; 
 import { Link } from "react-router-dom";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 import PrimaryBackground from "../components/PrimaryBackground";
 function Signup() {
@@ -36,7 +37,7 @@ function Signup() {
       const accessToken = tokenResponse.access_token;
      
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/auth/google/", {
+        const response = await fetch(`${API_BASE_URL}/auth/google/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken }),
@@ -87,7 +88,7 @@ function Signup() {
             validationSchema={SignupSchema}
             onSubmit={async (values, { resetForm, setFieldError }) => { 
               try {
-                const response = await fetch("http://127.0.0.1:8000/api/signup/admin/", {
+                const response = await fetch(`${API_BASE_URL}/signup/admin/`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(values),

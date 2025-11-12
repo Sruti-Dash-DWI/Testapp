@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
 const UserManagementIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
@@ -28,7 +29,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                 const authToken = localStorage.getItem('authToken');
                 if (!authToken) return;
 
-                const response = await fetch('http://localhost:8000/api/projects/', {
+                const response = await fetch(`${API_BASE_URL}/projects/`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
@@ -153,7 +154,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                 </li>
 
                
-                <li>
+                {/* <li>
                     <button 
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
@@ -225,7 +226,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                             </li>
                         </ul>
                     )}
-                </li>
+                </li> */}
 
                 {/* NEW TEAMS SECTION */}
                 <li>
@@ -276,7 +277,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                                     }}
                                 >
                                     <ForYouIcon />
-                                    <span>For You</span>
+                                    <span>User Details</span>
                                 </NavLink>
                             </li>
                             <li>

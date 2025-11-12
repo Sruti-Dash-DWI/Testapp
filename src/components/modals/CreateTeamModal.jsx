@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { X, Users, ChevronDown } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
     const { theme, colors } = useTheme();
@@ -26,7 +27,7 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch('http://localhost:8000/api/users/', {
+            const response = await fetch(`${API_BASE_URL}/users/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
@@ -97,8 +98,8 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/teams/', {
-                method: 'POST',
+            const response = await fetch(`${API_BASE_URL}/teams/`, {
+                method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,

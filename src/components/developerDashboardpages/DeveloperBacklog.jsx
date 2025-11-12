@@ -10,6 +10,8 @@ import {
   CompleteSprintModal,
 } from "../developerDashboardpages/developerbacklog/DevBacklogModals";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function DeveloperBacklog() {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -63,9 +65,9 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       }
 
       try {
-        const sprintDashboardUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
-        const projectDataUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
-        const checkActiveUrl = `http://127.0.0.1:8000/api/sprints/check-active/?project_id=${projectId}`;
+        const sprintDashboardUrl = `${API_BASE_URL}/sprints/dashboard/?project=${projectId}`;
+        const projectDataUrl = `${API_BASE_URL}/projects/${projectId}/`;
+        const checkActiveUrl = `${API_BASE_URL}/sprints/check-active/?project_id=${projectId}`;
 
         const [sprintResponse, projectResponse,activeCheckResponse] = await Promise.all([
           fetch(sprintDashboardUrl, {
@@ -183,7 +185,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       end_date: formatDateForAPI(twoWeeksFromNow),
     };
 
-    const fullUrl = `http://127.0.0.1:8000/api/sprints/`;
+    const fullUrl = `${API_BASE_URL}/sprints/`;
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -236,7 +238,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       ),
     }));
 
-    const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
+    const fullUrl = `${API_BASE_URL}/sprints/${sprintId}/`;
     const authToken = localStorage.getItem("authToken");
     const payload = { ...updates };
 
@@ -297,7 +299,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
     setHasActiveSprint(true);
 
     const authToken = localStorage.getItem("authToken");
-    const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/activate/`;
+    const fullUrl = `${API_BASE_URL}/sprints/${sprintId}/activate/`;
     const payload = {
       name: sprintData.name,
       goal: sprintData.goal,
@@ -342,7 +344,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   };
 
   const handleDeleteSprint = async (sprintId) => {
-    const fullUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/`;
+    const fullUrl = `${API_BASE_URL}/sprints/${sprintId}/`;
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -371,7 +373,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
 
   const createTaskOnBackend = async (taskPayload) => {
     const authToken = localStorage.getItem("authToken");
-    const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
+    const fullUrl = `${API_BASE_URL}/tasks/`;
 
     try {
       const response = await fetch(fullUrl, {
@@ -430,7 +432,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   if (newSubtask) {
     try {
       const linkPayload = { parent_task: parentItemId };
-      const linkUrl = `http://127.0.0.1:8000/api/tasks/${newSubtask.id}/parent/`;
+      const linkUrl = `${API_BASE_URL}/tasks/${newSubtask.id}/parent/`;
 
       const linkResponse = await fetch(linkUrl, {
         method: "PATCH",
@@ -510,7 +512,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       return;
     }
 
-    let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+    let fullUrl = `${API_BASE_URL}/tasks/${itemId}/`;
     let payload = {};
 
     switch (updateKey) {
@@ -656,7 +658,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       tags: [],
     };
 
-    const fullUrl = `http://127.0.0.1:8000/api/tasks/`;
+    const fullUrl = `${API_BASE_URL}/tasks/`;
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -710,7 +712,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   };
 
   const handleDeleteItem = async (itemId) => {
-    const fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+    const fullUrl = `${API_BASE_URL}/tasks/${itemId}/`;
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -747,7 +749,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       project: parseInt(projectId, 10),
     };
 
-    const fullUrl = `http://127.0.0.1:8000/api/epics/`;
+    const fullUrl = `${API_BASE_URL}/epics/`;
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -803,7 +805,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
         destination === "backlog" ? null : parseInt(destination, 10);
 
       const moveTasksPromises = openIssueIds.map((taskId) => {
-        const moveUrl = `http://127.0.0.1:8000/api/tasks/${taskId}/sprint/`;
+        const moveUrl = `${API_BASE_URL}/tasks/${taskId}/sprint/`;
         return fetch(moveUrl, {
           method: "PATCH",
           headers: {
@@ -814,7 +816,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
         });
       });
       await Promise.all(moveTasksPromises);
-      const completeSprintUrl = `http://127.0.0.1:8000/api/sprints/${sprintId}/end/`;
+      const completeSprintUrl = `${API_BASE_URL}/sprints/${sprintId}/end/`;
       const completeSprintResponse = await fetch(completeSprintUrl, {
         method: "PATCH",
         headers: {
@@ -877,7 +879,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   const authToken = localStorage.getItem("authToken");
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/tasks/${taskId}/activities/`,
+      `${API_BASE_URL}/tasks/${taskId}/activities/`,
       {
         headers: { Authorization: `Bearer ${authToken}` },
       }
@@ -902,7 +904,7 @@ const handleAddComment = async (taskId, commentBody) => {
   const authToken = localStorage.getItem("authToken");
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`,
+      `${API_BASE_URL}/tasks/${taskId}/add-activity/`,
       {
         method: "POST",
         headers: {
@@ -938,7 +940,7 @@ const handleUpdateComment = async (taskId, activityId, commentBody) => {
   const authToken = localStorage.getItem("authToken");
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`,
+      `${API_BASE_URL}/tasks/${taskId}/update-activity/${activityId}/`,
       {
         method: "PUT",
         headers: {

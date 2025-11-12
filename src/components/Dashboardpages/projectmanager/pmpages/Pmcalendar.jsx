@@ -6,6 +6,7 @@ import { ItemDetailModal, EditSprintModal } from "../../projectmanager/pmpages/p
 import { useTheme } from '../../../../context/ThemeContext';
 
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const taskTypes = [
  { name: 'Task', icon: '✓' },
@@ -97,8 +98,8 @@ export default function CalendarUI() {
             }
 
             try {
-                const projectUrl = `http://127.0.0.1:8000/api/projects/${projectId}/`;
-                const sprintUrl = `http://127.0.0.1:8000/api/sprints/dashboard/?project=${projectId}`;
+                const projectUrl = `${API_BASE_URL}/projects/${projectId}/`;
+                const sprintUrl = `${API_BASE_URL}/sprints/dashboard/?project=${projectId}`;
 
                 const [projectResponse, sprintResponse] = await Promise.all([
                     fetch(projectUrl, { headers: { Authorization: `Bearer ${authToken}` } }),
@@ -137,7 +138,7 @@ export default function CalendarUI() {
     const updateKey = Object.keys(updates)[0];
     if (!updateKey) return;
 
-    let fullUrl = `http://127.0.0.1:8000/api/tasks/${itemId}/`;
+    let fullUrl = `${API_BASE_URL}/tasks/${itemId}/`;
     let payload = {};
 
     switch (updateKey) {
@@ -189,7 +190,7 @@ export default function CalendarUI() {
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: statusOptions.find(s => s.id === newStatusId) } : t));
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/status/`, {
+            const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/status/`, {
                 method: "PATCH",
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
                 body: JSON.stringify({ status: newStatusId, project: parseInt(projectId, 10) }),
@@ -210,7 +211,7 @@ export default function CalendarUI() {
         
         const authToken = localStorage.getItem("authToken");
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/sprints/${sprintId}/`, {
+            const response = await fetch(`${API_BASE_URL}/sprints/${sprintId}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${authToken}` },
             });
@@ -227,7 +228,7 @@ export default function CalendarUI() {
     const handleUpdateSprint = async (sprintId, updates) => {
         const authToken = localStorage.getItem("authToken");
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/sprints/${sprintId}/`, {
+            const response = await fetch(`${API_BASE_URL}/sprints/${sprintId}/`, {
                 method: "PATCH",
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
                 body: JSON.stringify(updates),
@@ -248,7 +249,7 @@ export default function CalendarUI() {
 const handleFetchComments = async (taskId) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/activities/`, {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/activities/`, {
             headers: { Authorization: `Bearer ${authToken}` },
         });
         if (!response.ok) throw new Error("Failed to fetch comments.");
@@ -264,7 +265,7 @@ const handleAddComment = async (taskId, commentBody) => {
     if (!commentBody.trim()) return;
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/add-activity/`, {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/add-activity/`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({ comment_body: commentBody }),
@@ -287,7 +288,7 @@ const handleAddComment = async (taskId, commentBody) => {
 const handleUpdateComment = async (taskId, activityId, commentBody) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/update-activity/${activityId}/`, {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/update-activity/${activityId}/`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({ comment_body: commentBody }),
@@ -306,7 +307,7 @@ const handleUpdateComment = async (taskId, activityId, commentBody) => {
 const handleDeleteComment = async (taskId, activityId) => {
     const authToken = localStorage.getItem("authToken");
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`, {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/delete-activity/${activityId}/`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${authToken}` },
         });
@@ -355,7 +356,7 @@ const handleDeleteComment = async (taskId, activityId) => {
         try {
             if (selectedTaskType === 'Epic') {
                 const payload = { title: taskInput, project: parseInt(projectId, 10) };
-                const response = await fetch(`http://127.0.0.1:8000/api/epics/`, {
+                const response = await fetch(`${API_BASE_URL}/epics/`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
                     body: JSON.stringify(payload),
@@ -374,7 +375,7 @@ const handleDeleteComment = async (taskId, activityId) => {
                     task_type: 'FEATURE',
                 };
                 
-                const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
+                const taskResponse = await fetch(`${API_BASE_URL}/tasks/`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
                     body: JSON.stringify(taskPayload),
@@ -389,7 +390,7 @@ const handleDeleteComment = async (taskId, activityId) => {
 
                 if (selectedTaskType === 'Subtask') {
                     const linkPayload = { parent_task: parseInt(selectedParentTaskId, 10) };
-                    const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
+                    const linkResponse = await fetch(`${API_BASE_URL}/tasks/${createdTask.id}/parent/`, {
                         method: "PATCH",
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
                         body: JSON.stringify(linkPayload),
@@ -437,7 +438,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
             task_type: 'FEATURE',
         };
         
-        const taskResponse = await fetch(`http://127.0.0.1:8000/api/tasks/`, {
+        const taskResponse = await fetch(`${API_BASE_URL}/tasks/`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify(taskPayload),
@@ -449,7 +450,7 @@ const handleCreateSubtask = async (parentItemId, subtaskTitle) => {
         }
 
         const linkPayload = { parent_task: parentItemId };
-        const linkResponse = await fetch(`http://127.0.0.1:8000/api/tasks/${createdTask.id}/parent/`, {
+        const linkResponse = await fetch(`${API_BASE_URL}/tasks/${createdTask.id}/parent/`, {
             method: "PATCH",
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify(linkPayload),

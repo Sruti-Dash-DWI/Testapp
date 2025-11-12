@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Filter, CheckCircle, FileText, Clock, Calendar, User, ChevronDown, Search } from "lucide-react";
 import { useTheme } from '../../../../context/ThemeContext';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Summary = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -73,7 +74,7 @@ const Summary = () => {
 
             console.log('Fetching summary for project:', activeProjectId);
 
-            const response = await fetch(`http://127.0.0.1:8000/api/projects/${activeProjectId}/summary/`, {
+            const response = await fetch(`${API_BASE_URL}/projects/${activeProjectId}/summary/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

@@ -5,7 +5,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LockKeyhole, X, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:8000/api'; 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const SetPasswordPage = () => {
     const [searchParams] = useSearchParams();

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* In your main index.css or App.css */
+@import '@toast-ui/editor/dist/toastui-editor.css';
+
 :root {
   --bg-image-url: url('/background.jpg');
 }

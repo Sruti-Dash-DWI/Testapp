@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
 import { useTheme } from '../../../context/ThemeContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const EditProfileModal = ({ onClose, userData, onSave }) => {
     const [formData, setFormData] = useState({
@@ -104,7 +105,7 @@ const Settings = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
+                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");
@@ -125,7 +126,7 @@ const Settings = () => {
         const authToken = localStorage.getItem('authToken');
 
         try {
-            const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

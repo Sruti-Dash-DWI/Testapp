@@ -12,6 +12,9 @@ import {
  * MODIFIED DROPDOWN COMPONENT
  * Added `buttonClassName` prop to allow for custom button styling
  */
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Dropdown = ({ button, children, align = 'right', buttonClassName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -72,7 +75,7 @@ const Board = () => {
       setColumnError(null);
       try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('http://localhost:8000/api/statuses/', {
+        const response = await fetch(`${API_BASE_URL}/statuses/`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
@@ -106,7 +109,7 @@ const Board = () => {
     const fetchTasks = async () => {
       try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('http://localhost:8000/api/tasks/', {
+        const response = await fetch(`${API_BASE_URL}/tasks/`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
@@ -151,7 +154,7 @@ const Board = () => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/tasks/create-status/', {
+      const response = await fetch(`${API_BASE_URL}/tasks/create-status/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -191,7 +194,7 @@ const Board = () => {
     );
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/tasks/${taskId}/status/`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/status/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -219,7 +222,7 @@ const Board = () => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/statuses/${columnIdToDelete}/`, {
+      const response = await fetch(`${API_BASE_URL}/statuses/${columnIdToDelete}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -270,7 +273,7 @@ const Board = () => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/statuses/${columnId}/`, {
+      const response = await fetch(`${API_BASE_URL}/statuses/${columnId}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

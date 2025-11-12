@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, projectId, task, isEditMode = false }) => {
   const [title, setTitle] = useState("");
@@ -47,7 +48,7 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/tasks/', {
+      const response = await fetch(`${API_BASE_URL}/tasks/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +104,7 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
       let response;
       if (isEditMode && task) {
         // Update existing task
-        response = await fetch(`http://localhost:8000/api/tasks/${task.id}/`, {
+        response = await fetch(`${API_BASE_URL}/tasks/${task.id}/`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const AddTaskModal = ({ show, onHide, onAddTask, columns, initialColumnId, proje
         });
       } else {
         // Create new task
-        response = await fetch('http://localhost:8000/api/tasks/', {
+        response = await fetch(`${API_BASE_URL}/tasks/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

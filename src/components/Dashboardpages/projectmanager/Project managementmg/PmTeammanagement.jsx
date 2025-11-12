@@ -6,7 +6,8 @@ import StatCard from './PmStatcard';
 import Modal from './Modal';
 import TeamMembersList from './PmTeammeberlist';
 import { useTheme } from '../../../../context/ThemeContext';
- 
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const PmTeamManagement = () => {
     const { isInviteModalOpen, openModal, closeModal } = useOutletContext();
@@ -28,7 +29,7 @@ const PmTeamManagement = () => {
                 };
 
                 
-                const response = await fetch(`http://127.0.0.1:8000/api/team/stats/`, { headers });
+                const response = await fetch(`${API_BASE_URL}/team/stats/`, { headers });
 
                 if (!response.ok) {
                     if (response.status === 404) {

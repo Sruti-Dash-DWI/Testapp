@@ -65,6 +65,8 @@ const BellIcon = () => (
 //         <line x1="12" y1="17" x2="12.01" y2="17"></line>
 //     </svg>
 // );
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 export default function DeveloperUppernavbar() {
   const [userInitial, setUserInitial] = useState('A');
@@ -82,7 +84,7 @@ export default function DeveloperUppernavbar() {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
 // added "/" at the end of URL to fix 308 error
-      const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

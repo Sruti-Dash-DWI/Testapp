@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import PrimaryBackground from "../components/PrimaryBackground";
 import { toast } from "react-toastify"; // ✅ Toastify import
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper function to decode JWT
 function parseJwt(token) {
@@ -59,7 +60,7 @@ function Login() {
       const accessToken = tokenResponse.access_token;
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/auth/google/", {
+        const response = await fetch(`${API_BASE_URL}/auth/google/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken }),
@@ -108,7 +109,7 @@ function Login() {
               validationSchema={LoginSchema}
               onSubmit={async (values, { resetForm, setFieldError }) => {
                 try {
-                  const response = await fetch("http://127.0.0.1:8000/api/token/", {
+                  const response = await fetch(`${API_BASE_URL}/token/`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(values),

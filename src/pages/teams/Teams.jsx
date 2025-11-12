@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { Search, Users } from 'lucide-react';
 import CreateTeamModal from '../../components/modals/CreateTeamModal';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Teams = () => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Teams = () => {
             const authToken = localStorage.getItem('authToken');
             if (!authToken) return;
 
-            const response = await fetch('http://localhost:8000/api/teams/', {
+            const response = await fetch(`${API_BASE_URL}/teams/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,

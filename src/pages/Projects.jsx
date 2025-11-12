@@ -4,6 +4,7 @@ import {Link} from "react-router-dom"
 import { MoreVertical } from 'lucide-react';
 import ManageTeamModal from '../components/ManageTeamModal';
 import { useTheme } from '../context/ThemeContext';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Projects = () => {
   const [show, setShow] = useState(false);
@@ -65,7 +66,7 @@ const Projects = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/projects/', {
+      const response = await fetch(`${API_BASE_URL}/projects/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ const Projects = () => {
       return;
     }
 
-    const response = await fetch('http://127.0.0.1:8000/api/users/list/?role=manager', {
+    const response = await fetch(`${API_BASE_URL}/users/list/?role=manager`, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Accept': 'application/json',
@@ -166,7 +167,7 @@ const Projects = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/projects/', {
+      const response = await fetch(`${API_BASE_URL}/projects/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +218,7 @@ const Projects = () => {
     if (userConfirmed) {
       try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch(`http://localhost:8000/api/projects/${activeProjectId}/`, {
+        const response = await fetch(`${API_BASE_URL}/projects/${activeProjectId}/`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${authToken}`
@@ -296,7 +297,7 @@ const Projects = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/projects/${editingProject.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/projects/${editingProject.id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

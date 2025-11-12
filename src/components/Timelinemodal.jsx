@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { XIcon } from "./Icons"; // Assuming Icons.js is in the same folder
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
@@ -63,7 +64,7 @@ const Timelinemodal = ({
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/timeline/epics/${epicId}/dates/`,
+        `${API_BASE_URL}/timeline/epics/${epicId}/dates/`,
         {
           method: "PATCH", // Use PATCH for partial updates
           headers: {
