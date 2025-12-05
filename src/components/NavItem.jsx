@@ -1,7 +1,7 @@
 // src/components/NavItem.jsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom'; // Added useParams
 import { getIcon } from '../assets/icons.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 
@@ -13,22 +13,31 @@ const NavItem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, on
 
     const contextMenuRef = useRef(null);
     const location = useLocation();
-
-
-    const activeProjectId = localStorage.getItem('activeProjectId');
-
-
-    const slug = item.text.toLowerCase().replace(/\s+/g, '-');
-
-
-    const routePath = activeProjectId ? `/${slug}/${activeProjectId}` : '/projects';
-
-
-    const basePath = `/${slug}`;
-    const isActive = location.pathname.startsWith(basePath);
+    const { projectId } = useParams(); 
     const { theme, colors } = useTheme();
 
+   
+    const activeId = projectId || localStorage.getItem('activeProjectId');
 
+   
+    const lowerText = item.text.toLowerCase();
+    const slug = lowerText.replace(/\s+/g, '-');
+
+   
+    let routePath;
+    if (!activeId) {
+        routePath = '/projects';
+    } else if (lowerText === 'pages') {
+       
+        routePath = `/projects/${activeId}/pages`;
+    } else {
+        
+        routePath = `/${slug}/${activeId}`;
+    }
+
+    const isActive = location.pathname.includes(slug);
+
+    
 
     useEffect(() => {
         const handleClickOutside = (event) => {

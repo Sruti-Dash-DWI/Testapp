@@ -443,15 +443,16 @@ export default function BacklogView({
                     All Sprints
                 </button>
                 {epics.map(epic => (
-                    <button
-                        key={epic.id}
-                        onClick={() => setSelectedEpicId(epic.id)}
-                        className={`px-3 py-1 text-sm font-semibold rounded-full transition ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text, backgroundHover: colors.backgroundHover }}
-                    >
-                        {epic.title}
-                    </button>
-                ))}
+    <button
+      key={epic.id}
+      onClick={() => setSelectedEpicId(epic.id)}
+      className={`px-3 py-1 text-sm font-semibold rounded-full transition 
+        ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+      `}
+    >
+      {epic.title}
+    </button>
+  ))}
             </div>
 
             <div className="flex flex-grow overflow-hidden">

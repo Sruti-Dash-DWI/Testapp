@@ -105,7 +105,7 @@ const Modal = ({ isOpen, onClose }) => {
       // Organization-invite logic
       fetchUrl = `${API_BASE_URL}/users/invite/`; // <-- This is your new organization API endpoint
     }
-
+  
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(fetchUrl, {

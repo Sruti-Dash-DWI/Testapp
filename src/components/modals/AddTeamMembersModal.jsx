@@ -91,7 +91,7 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
                     'Authorization': `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({
-                    emails: selectedUsers
+                    members_to_invite: selectedUsers
                 })
             });
 

@@ -143,7 +143,7 @@ const AppRouter = () => {
           <Route path="/forms/:projectId/:formId" element={<FormEditor />} /> 
 
           
-          <Route path="/pages/:pageId" element={<PageContent />} />
+          <Route path="/projects/:projectId/pages" element={<PageContent />} />
           {/* <Route path="/code/:pageId" element={<PageContent page={{ text: 'Code', description: 'Browse your repositories and connect your work.' }} />} /> */}
           <Route path="/forms/:pageId" element={<PageContent page={{ text: 'Forms', description: 'Create forms to collect information for your project.' }} />} />
           <Route path="/all-work/:pageId" element={<PageContent page={{ text: 'All work', description: 'View all the work items in your project.' }} />} />

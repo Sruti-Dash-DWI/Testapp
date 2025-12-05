@@ -97,7 +97,7 @@ export default function UpperNavbar() {
         const fullName = `${user.first_name} ${user.last_name || ''}`.trim();
         setUserInitial(userNameInitial);
         setUserName(fullName);
-        setUserRole(user.role || 'User'); // Assuming role field exists in user object
+        setUserRole(user.role || 'User'); 
       };
       getUserDetails();
   }, []);
