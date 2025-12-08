@@ -1,4 +1,4 @@
-// src/layout/DashboardLayout.jsx
+// src/layout/SmDashboardlayout.jsx
 
 import React, { useState, useEffect } from "react";
 import { useLocation, Outlet } from "react-router-dom";
@@ -9,8 +9,9 @@ import SmUppernavbar from "../components/Scrummaster/SmUppernavbar";
 import Modal from "../components/Smdashboardpages/Project management Sm/SmModal";
 
 const pathsWithInnerNav = [
-   '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',
-  '/sm/pages', '/sm/code', '/sm/forms', '/sm/calendar', '/sm/all-work', '/sm/archived-work-items',
+  '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',
+  '/pages', // CHANGED: Changed from '/sm/pages' to '/pages' to match URL structure
+  '/sm/code', '/sm/forms', '/sm/calendar', '/sm/all-work', '/sm/archived-work-items',
   '/sm/deployments', '/sm/goals', '/sm/on-call', '/sm/releases', '/sm/reports', '/sm/security', '/sm/shortcuts'
 ];
 
@@ -19,14 +20,13 @@ const SmDashboardlayout = ({children}) => {
   const [projectName, setProjectName] = useState('Scrum Project');
   const location = useLocation();
 
-  // --- ADDED: State for the Invite Member modal ---
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const openModal = () => setIsInviteModalOpen(true);
-    const closeModal = () => setIsInviteModalOpen(false);
-    // ---------------------------------------------
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const openModal = () => setIsInviteModalOpen(true);
+  const closeModal = () => setIsInviteModalOpen(false);
 
+  // Checks if the current URL contains any string from the array
   const showinner = pathsWithInnerNav.some((path) =>
-    location.pathname.startsWith(path)
+    location.pathname.includes(path)
   );
 
   useEffect(() => {
@@ -86,33 +86,24 @@ const SmDashboardlayout = ({children}) => {
 
   return (
     <div className="h-screen font-sans flex flex-col"
-     style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}
+      style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}
     >
       {isNavOpen && window.innerWidth < 768 && (
-        <div
-          onClick={toggleNav}
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-        ></div>
+        <div onClick={toggleNav} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>
       )}
       
-      {/* Top navbar */}
       <div className="md:px-0">
         <SmUppernavbar />
       </div>
 
-      {/* Main layout */}
       <div className="flex-1 flex overflow-hidden">
-        
-        {/* Side Nav */}
-        <div
-          className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${
+        <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${
             isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
         >
           <SmSideNav isOpen={isNavOpen} openInviteModal={openModal} />
         </div>
 
-        {/* Content area */}
         <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
           {showinner && (
             <>
@@ -125,7 +116,6 @@ const SmDashboardlayout = ({children}) => {
             </>
           )}
 
-          {/* Outlet for nested routes */}
           <div className="flex-1 overflow-y-auto mt-4">
             <Outlet context={{ isInviteModalOpen, openModal, closeModal }} />
           </div>

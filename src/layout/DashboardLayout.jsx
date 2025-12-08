@@ -26,9 +26,9 @@ const DashboardLayout = () => {
   const closeModal = () => setIsInviteModalOpen(false);
   // ---------------------------------------------
 
- const showinner = pathsWithInnerNav.some((path) =>
-  location.pathname.includes(path)
-);
+   const showinner = pathsWithInnerNav.some((path) =>
+    location.pathname.startsWith(path)
+  );
 
 
   useEffect(() => {

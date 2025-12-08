@@ -249,7 +249,8 @@ export default function SmBacklogView({
     handleRenameBacklog,
     setIsCreatingSprint,
     setNewSprintName,
-    handleAddNewSprint
+    handleAddNewSprint,
+    hasActiveSprint
 }) {
     const { theme, toggleTheme, colors } = useTheme();
 
@@ -321,7 +322,7 @@ export default function SmBacklogView({
                                     {sprint.isActive ? (
                                         <button onClick={() => handleOpenCompleteSprintModal(sprint.id)} className="bg-green-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-green-700">Complete Sprint</button>
                                     ) : (
-                                        <button onClick={() => setSprintToStart(sprint)} className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" disabled={sprint.itemIds.length === 0}>Start sprint</button>
+                                        <button onClick={() => setSprintToStart(sprint)} className="bg-blue-600 text-white px-3 py-1.5 text-sm font-semibold rounded hover:bg-blue-700 disabled:bg-blue-300" disabled={sprint.itemIds.length === 0 || hasActiveSprint}>Start sprint</button>
                                     )}
                                     <Dropdown options={sprintOptions} onSelect={handleSprintAction}>
                                         <button className="text-gray-500 hover:bg-gray-200 p-1 rounded-full" style={{ color: colors.text }}><MoreHorizontalIcon /></button>
@@ -439,13 +440,14 @@ export default function SmBacklogView({
                 </button>
                 {epics.map(epic => (
                     <button
-                        key={epic.id}
-                        onClick={() => setSelectedEpicId(epic.id)}
-                        className={`px-3 py-1 text-sm font-semibold rounded-full transition ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text, backgroundHover: colors.backgroundHover }}
-                    >
-                        {epic.title}
-                    </button>
+      key={epic.id}
+      onClick={() => setSelectedEpicId(epic.id)}
+      className={`px-3 py-1 text-sm font-semibold rounded-full transition 
+        ${selectedEpicId === epic.id ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+      `}
+    >
+      {epic.title}
+    </button>
                 ))}
             </div>
 

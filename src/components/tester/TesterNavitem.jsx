@@ -1,8 +1,8 @@
-// src/components/projectmanager/pmpages/Pmnavitem.jsx  (or your correct path)
+// src/components/testerDashboardPages/TesterNavitem.jsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { getIcon } from '../../assets/icons.jsx'; // Assuming this path is correct
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { getIcon } from '../../assets/icons.jsx'; 
 import { useTheme } from '../../context/ThemeContext.jsx';
 
 const TesterNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
@@ -10,19 +10,37 @@ const TesterNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefau
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(item.text);
-
+    
+    const { theme, colors } = useTheme();
     const contextMenuRef = useRef(null);
     const location = useLocation();
+    const { projectId } = useParams(); 
 
-    const activeProjectId = localStorage.getItem('activeProjectId');
-    const slug = item.text.toLowerCase().replace(/\s+/g, '-');
-    const { theme, colors } = useTheme();
+    const activeId = projectId || localStorage.getItem('activeProjectId');
 
-    // --- UPDATED LOGIC ---
-    // Added the '/tester' prefix to all generated routes.
-    const routePath = activeProjectId ? `/tester/${slug}/${activeProjectId}` : '/tester/projects';
-    const basePath = `/tester/${slug}`;
-    const isActive = location.pathname.startsWith(basePath);
+    const lowerText = item.text.toLowerCase();
+    const slug = lowerText.replace(/\s+/g, '-');
+
+    // --- UPDATED LOGIC FOR TESTER PAGES ---
+    let routePath;
+    if (!activeId) {
+        // If no project is selected, go to the project list
+        routePath = '/tester/projects';
+    } else if (slug === 'pages') {
+        // SPECIAL CASE: Pages route is /tester/projects/:id/pages
+        routePath = `/tester/projects/${activeId}/pages`;
+    } else {
+        // STANDARD CASE: /tester/:slug/:id
+        routePath = `/tester/${slug}/${activeId}`;
+    }
+
+    // Define base path for active state highlighting
+    const basePath = slug === 'pages'
+        ? `/tester/projects/${activeId}/pages`
+        : `/tester/${slug}`;
+
+    // Using includes allows it to stay active for nested routes
+    const isActive = location.pathname.includes(basePath);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -71,7 +89,7 @@ const TesterNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefau
                 to={routePath}
                 draggable
                 onDragStart={(e) => onDragStart(e, item.id)}
-                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-red-800 border-b-2 border-red-800 font-bold' : 'text-gray-700 hover:bg-gray-200/50'}`}
+                className={`flex items-center gap-2 px-4 pr-8 py-3 text-sm font-medium transition-colors duration-150 relative ${isActive ? 'text-blue-600 border-b-2 border-blue-600 font-bold' : 'text-gray-700 hover:bg-gray-200/50'}`}
                 style={{
                     color: isActive ? colors.accent || '#3b82f6' : colors.text,
                 }}

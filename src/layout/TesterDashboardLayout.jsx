@@ -8,7 +8,7 @@ import Modal from "../components/testerDashboardPages/testerProject management/T
 
 const pathsWithInnerNav = [
    '/tester/backlog', '/tester/summary', '/tester/list', '/tester/board', '/tester/timeline',
-  '/tester/pages', '/tester/code', '/tester/forms', '/tester/calendar', '/tester/all-work', '/tester/archived-work-items',
+  '/pages', '/tester/code', '/tester/forms', '/tester/calendar', '/tester/all-work', '/tester/archived-work-items',
   '/tester/deployments', '/tester/goals', '/tester/on-call', '/tester/releases', '/tester/reports', '/tester/security', '/tester/shortcuts'
 ];
 
@@ -20,8 +20,8 @@ const TesterDashboardLayout = ({children}) => {
       const openModal = () => setIsInviteModalOpen(true);
       const closeModal = () => setIsInviteModalOpen(false);
 
-  const showinner = pathsWithInnerNav.some((path) =>
-    location.pathname.startsWith(path)
+ const showinner = pathsWithInnerNav.some((path) =>
+    location.pathname.includes(path)
   );
 
   useEffect(() => {

@@ -194,7 +194,7 @@ const ManageTeamModal = ({ project, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
             <div 
                 className="rounded-2xl shadow-2xl w-full max-w-xl m-4" // Adjusted width for single column
-                style={{ background: "linear-gradient(135deg, rgba(173, 151, 253, 0.95) 0%, rgba(246, 165, 220, 0.95) 100%)" }}
+               style={{ background: "linear-gradient(135deg, #ffffff 0%, #1E90FF 100%)" }}
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-white/30">

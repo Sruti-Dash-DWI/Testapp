@@ -1,8 +1,8 @@
-// src/components/projectmanager/pmpages/Pmnavitem.jsx  (or your correct path)
+// src/components/developerDashboardpages/DevNavitem.jsx
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { getIcon } from '../../assets/icons.jsx'; // Assuming this path is correct
+import { getIcon } from '../../assets/icons.jsx'; // Adjust path if necessary
 import { useTheme } from '../../context/ThemeContext.jsx';
 
 const DevNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, onRemove }) => {
@@ -13,16 +13,34 @@ const DevNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault,
 
     const contextMenuRef = useRef(null);
     const location = useLocation();
-
-    const activeProjectId = localStorage.getItem('activeProjectId');
-    const slug = item.text.toLowerCase().replace(/\s+/g, '-');
     const { theme, colors } = useTheme();
 
-    // --- UPDATED LOGIC ---
-    // Added the '/developer' prefix to all generated routes.
-    const routePath = activeProjectId ? `/developer/${slug}/${activeProjectId}` : '/developer/projects';
-    const basePath = `/developer/${slug}`;
-    const isActive = location.pathname.startsWith(basePath);
+    const activeProjectId = localStorage.getItem('activeProjectId');
+    
+    // Standardize text processing
+    const lowerText = item.text.toLowerCase();
+    const slug = lowerText.replace(/\s+/g, '-');
+
+    // --- UPDATED LOGIC FOR DEVELOPER PAGES ---
+    let routePath;
+    if (!activeProjectId) {
+        // If no project selected, go to projects list
+        routePath = '/developer/projects';
+    } else if (slug === 'pages') {
+        // SPECIAL CASE: Pages route is /developer/projects/:id/pages
+        routePath = `/developer/projects/${activeProjectId}/pages`;
+    } else {
+        // STANDARD CASE: /developer/:slug/:id
+        routePath = `/developer/${slug}/${activeProjectId}`;
+    }
+
+    // Define base path for active state highlighting
+    const basePath = slug === 'pages'
+        ? `/developer/projects/${activeProjectId}/pages`
+        : `/developer/${slug}`;
+
+    // Use .includes() to handle nested paths within the section
+    const isActive = location.pathname.includes(basePath);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

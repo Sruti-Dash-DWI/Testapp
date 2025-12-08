@@ -46,112 +46,118 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
   const backlogNameInputRef = useRef(null);
   const itemNameInputRef = useRef(null);
   const newSprintInputRef = useRef(null);
-
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      if (!projectId) {
-        setError("Project ID is missing from the URL.");
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      const authToken = localStorage.getItem("authToken");
-      if (!authToken) {
-        navigate("/login");
-        return;
-      }
-
-      try {
-        const sprintDashboardUrl = `${API_BASE_URL}/sprints/dashboard/?project=${projectId}`;
-        const projectDataUrl = `${API_BASE_URL}/projects/${projectId}/`;
-
-        const [sprintResponse, projectResponse] = await Promise.all([
-          fetch(sprintDashboardUrl, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          }),
-          fetch(projectDataUrl, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          }),
-        ]);
-
-        if (!sprintResponse.ok || !projectResponse.ok) {
-          throw new Error(`Failed to fetch all necessary data.`);
-        }
-
-        const sprintData = await sprintResponse.json();
-        const projectData = await projectResponse.json();
-
-        const allSprintsFromNewAPI = [
-          ...(sprintData.active_sprints || []),
-          ...(sprintData.upcoming_sprints || []),
-          ...(sprintData.completed_sprints || []),
-        ];
-        const allTasksFromOldAPI = projectData.tasks || [];
-
-        const formattedBoardData = {
-          items: {},
-          sprints: [],
-          backlog: { id: "backlog", name: "Backlog", itemIds: [] },
-          itemCounter: allTasksFromOldAPI.length,
-        };
-
-        allTasksFromOldAPI.forEach((task) => {
-          if (task.priority && typeof task.priority === "string") {
-            const priorityStr = task.priority;
-            task.priority =
-              priorityStr.charAt(0).toUpperCase() +
-              priorityStr.slice(1).toLowerCase();
-          }
-          formattedBoardData.items[task.id] = {
-            ...task,
-            assignee:
-              task.assignees.length > 0 ? task.assignees[0].user.id : null,
-          };
-        });
-
-        formattedBoardData.sprints = allSprintsFromNewAPI.map((sprint) => ({
-          id: sprint.id,
-          name: sprint.name,
-          goal: sprint.goal,
-          startDate: sprint.start_date,
-          endDate: sprint.end_date,
-          isActive: sprint.is_active,
-          is_ended: sprint.is_ended,
-          epic: sprint.epic,
-
-          itemIds: (sprint.tasks || []).map((task) => task.id),
-        }));
-
-        formattedBoardData.backlog.itemIds = allTasksFromOldAPI
-          .filter((task) => task.sprint === null)
-          .map((task) => task.id);
-
-        const transformedUsers = (projectData.members || []).map((member) => ({
-          id: member.user.id,
-          membershipId: member.id,
-          name:
-            member.user.first_name && member.user.last_name
-              ? `${member.user.first_name} ${member.user.last_name}`.trim()
-              : member.user.email,
-          email: member.user.email,
-        }));
-
-        setProjectName(projectData.name || "");
-        setBoardData(formattedBoardData);
-        setUsers(transformedUsers);
-        setEpics(projectData.epics || []);
-        setProjectMembers(projectData.members || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [projectId, navigate]);
-
+  const [hasActiveSprint, setHasActiveSprint] = useState(false);
+  
+ useEffect(() => {
+     const fetchInitialData = async () => {
+       if (!projectId) {
+         setError("Project ID is missing from the URL.");
+         setIsLoading(false);
+         return;
+       }
+ 
+       setIsLoading(true);
+       const authToken = localStorage.getItem("authToken");
+       if (!authToken) {
+         navigate("/login");
+         return;
+       }
+ 
+       try {
+         const sprintDashboardUrl = `${API_BASE_URL}/sprints/dashboard/?project=${projectId}`;
+         const projectDataUrl = `${API_BASE_URL}/projects/${projectId}/`;
+         const checkActiveUrl = `${API_BASE_URL}/sprints/check-active/?project_id=${projectId}`;
+ 
+         const [sprintResponse, projectResponse,activeCheckResponse] = await Promise.all([
+           fetch(sprintDashboardUrl, {
+             headers: { Authorization: `Bearer ${authToken}` },
+           }),
+           fetch(projectDataUrl, {
+             headers: { Authorization: `Bearer ${authToken}` },
+           }),
+           fetch(checkActiveUrl, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            }),
+         ]);
+ 
+         if (!sprintResponse.ok || !projectResponse.ok || !activeCheckResponse.ok) {
+           throw new Error(`Failed to fetch all necessary data.`);
+         }
+ 
+         const sprintData = await sprintResponse.json();
+         const projectData = await projectResponse.json();
+         const activeCheckData = await activeCheckResponse.json();
+         setHasActiveSprint(activeCheckData.is_active_sprint);
+ 
+         const allSprintsFromNewAPI = [
+           ...(sprintData.active_sprints || []),
+           ...(sprintData.upcoming_sprints || []),
+           ...(sprintData.completed_sprints || []),
+         ];
+         const allTasksFromOldAPI = projectData.tasks || [];
+ 
+         const formattedBoardData = {
+           items: {},
+           sprints: [],
+           backlog: { id: "backlog", name: "Backlog", itemIds: [] },
+           itemCounter: allTasksFromOldAPI.length,
+         };
+ 
+         allTasksFromOldAPI.forEach((task) => {
+           if (task.priority && typeof task.priority === "string") {
+             const priorityStr = task.priority;
+             task.priority =
+               priorityStr.charAt(0).toUpperCase() +
+               priorityStr.slice(1).toLowerCase();
+           }
+           formattedBoardData.items[task.id] = {
+             ...task,
+             assignee:
+               task.assignees.length > 0 ? task.assignees[0].user.id : null,
+           };
+         });
+ 
+         formattedBoardData.sprints = allSprintsFromNewAPI.map((sprint) => ({
+           id: sprint.id,
+           name: sprint.name,
+           goal: sprint.goal,
+           startDate: sprint.start_date,
+           endDate: sprint.end_date,
+           isActive: sprint.is_active,
+           is_ended: sprint.is_ended,
+           epic: sprint.epic,
+ 
+           itemIds: (sprint.tasks || []).map((task) => task.id),
+         }));
+ 
+         formattedBoardData.backlog.itemIds = allTasksFromOldAPI
+           .filter((task) => task.sprint === null)
+           .map((task) => task.id);
+ 
+         const transformedUsers = (projectData.members || []).map((member) => ({
+           id: member.user.id,
+           membershipId: member.id,
+           name:
+             member.user.first_name && member.user.last_name
+               ? `${member.user.first_name} ${member.user.last_name}`.trim()
+               : member.user.email,
+           email: member.user.email,
+         }));
+ 
+         setProjectName(projectData.name || "");
+         setBoardData(formattedBoardData);
+         setUsers(transformedUsers);
+         setEpics(projectData.epics || []);
+         setProjectMembers(projectData.members || []);
+       } catch (err) {
+         setError(err.message);
+       } finally {
+         setIsLoading(false);
+       }
+     };
+ 
+     fetchInitialData();
+   }, [projectId, navigate]);
   const handleAddNewSprint = async (e) => {
     e.preventDefault();
     if (newSprintName.trim() === "") return;
@@ -288,6 +294,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
     });
 
     setSprintToStart(null);
+    setHasActiveSprint(true);
 
     const authToken = localStorage.getItem("authToken");
     const fullUrl = `${API_BASE_URL}/sprints/${sprintId}/activate/`;
@@ -328,6 +335,9 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
       );
       setError("Failed to start the sprint. Please try again.");
       setBoardData(originalBoardData);
+
+      const originallyHadActiveSprint = originalBoardData.sprints.some(s => s.isActive);
+     setHasActiveSprint(originallyHadActiveSprint);
     }
   };
 
@@ -785,7 +795,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
     });
   };
 
-  const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
+   const handleCompleteSprint = async (sprintId, openIssueIds, destination) => {
     const authToken = localStorage.getItem("authToken");
 
     try {
@@ -854,6 +864,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
           backlog: newBacklog,
         };
       });
+      setHasActiveSprint(false);
     } catch (error) {
       console.error("Error completing sprint:", error);
       setError("Failed to complete the sprint. Please check the console.");
@@ -1270,6 +1281,7 @@ const handleCloseModal = () => setSelectedItemId(null);
         selectedEpicId={selectedEpicId}
         setSelectedEpicId={setSelectedEpicId}
         epics={epics}
+        hasActiveSprint={hasActiveSprint}
       />
 
       <ItemDetailModal

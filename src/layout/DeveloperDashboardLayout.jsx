@@ -7,7 +7,7 @@ import DeveloperUppernavbar from "../components/developer/DeveloperUppernavbar";
 import Modal from "../components/developerDashboardpages/Project management developer/DevModal.jsx";
 const pathsWithInnerNav = [
    '/developer/backlog', '/developer/summary', '/developer/list', '/developer/board', '/developer/timeline',
-  '/developer/pages', '/developer/code', '/developer/forms', '/developer/calendar', '/developer/all-work', '/developer/archived-work-items',
+  '/pages', '/developer/code', '/developer/forms', '/developer/calendar', '/developer/all-work', '/developer/archived-work-items',
   '/developer/deployments', '/developer/goals', '/developer/on-call', '/developer/releases', '/developer/reports', '/developer/security', '/developer/shortcuts'
 ];
 
@@ -21,9 +21,8 @@ const DeveloperDashboardLayout = ({children}) => {
     const openModal = () => setIsInviteModalOpen(true);
     const closeModal = () => setIsInviteModalOpen(false);
     // ---------------------------------------------
-
-  const showinner = pathsWithInnerNav.some((path) =>
-    location.pathname.startsWith(path)
+const showinner = pathsWithInnerNav.some((path) =>
+    location.pathname.includes(path)
   );
 
   useEffect(() => {

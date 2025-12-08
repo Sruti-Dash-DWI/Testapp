@@ -10,7 +10,8 @@ import Modal from "../components/Dashboardpages/projectmanager/Project managemen
 
 const pathsWithInnerNav = [
   '/pm/backlog', '/pm/summary', '/pm/list', '/pm/board', '/pm/timeline', '/pm/calendar',
-  '/pm/pages', '/pm/code', '/pm/forms', '/pm/all-work', '/pm/archived-work-items',
+  '/pages', // CHANGED: Changed from '/pm/pages' to '/pages' to match URL structure
+  '/pm/code', '/pm/forms', '/pm/all-work', '/pm/archived-work-items',
   '/pm/deployments', '/pm/goals', '/pm/on-call', '/pm/releases', '/pm/reports', 
   '/pm/security', '/pm/shortcuts'
 ];
@@ -24,8 +25,10 @@ const Pmdasboardlayout = () => {
   const openModal = () => setIsInviteModalOpen(true);
   const closeModal = () => setIsInviteModalOpen(false);
 
+  // CHANGED: Use .includes() instead of .startsWith()
+  // This ensures it catches '/pm/projects/123/pages' correctly
   const showinner = pathsWithInnerNav.some((path) =>
-    location.pathname.startsWith(path)
+    location.pathname.includes(path)
   );
 
   useEffect(() => {
@@ -37,12 +40,10 @@ const Pmdasboardlayout = () => {
     }
   }, [location.pathname]);
 
-  // This effect closes the nav on smaller screens when you navigate to a new page
   useEffect(() => {
     if (window.innerWidth < 768) setIsNavOpen(false);
   }, [location]);
 
-  // This effect handles resizing the browser window
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) setIsNavOpen(false);
@@ -54,7 +55,6 @@ const Pmdasboardlayout = () => {
 
   const toggleNav = () => setIsNavOpen((prev) => !prev);
 
-  // ... (rest of the state and logic for navItems remains the same)
   const initialNavItems = [
     { id: "1", text: "Backlog", default: true, description: "View and manage your product backlog." },
     { id: "18", text: "Summary", description: "Get a high-level overview of your project progress." },
@@ -89,7 +89,6 @@ const Pmdasboardlayout = () => {
   const availableOptions = allPossibleOptions.filter(
     (p) => !navItems.some((n) => n.id === p.id)
   );
-
 
   return (
     <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>

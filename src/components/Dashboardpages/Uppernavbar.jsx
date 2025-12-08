@@ -78,28 +78,50 @@ export default function UpperNavbar() {
   const navigate = useNavigate();
   const { theme, toggleTheme, colors } = useTheme();
 
-  useEffect(() => {
+ useEffect(() => {
     const getUserDetails = async () => {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
-// added "/" at the end of URL to fix 308 error
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
+
+      // Safety check: Don't run fetch if ID or Token are missing
+      if (!userId || !authToken) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': `Bearer ${authToken}` 
+            'Authorization': `Bearer ${authToken}`
           },
         });
 
+        // 1. Check if the API request was successful
+        if (!response.ok) {
+          console.error("Failed to fetch user details:", response.status);
+          return; 
+        }
+
         const user = await response.json();
-        const userNameInitial = user.first_name.charAt(0);
-        const fullName = `${user.first_name} ${user.last_name || ''}`.trim();
+
+        // 2. Add safety checks for first_name to prevent "undefined" errors
+        const firstName = user.first_name || ''; 
+        const lastName = user.last_name || '';
+
+        // 3. Only get charAt if the string exists, otherwise use a default
+        const userNameInitial = firstName.length > 0 ? firstName.charAt(0).toUpperCase() : 'U';
+        const fullName = `${firstName} ${lastName}`.trim();
+
         setUserInitial(userNameInitial);
-        setUserName(fullName);
+        setUserName(fullName || 'User'); // Fallback name
         setUserRole(user.role || 'User'); 
-      };
-      getUserDetails();
+
+      } catch (error) {
+        console.error("An error occurred while fetching user details:", error);
+      }
+    };
+
+    getUserDetails();
   }, []);
 
   useEffect(() => {

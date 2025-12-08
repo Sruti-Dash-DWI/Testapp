@@ -64,7 +64,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
 
     return (
         <div 
-            className={`transition-all duration-300 border-r h-full flex flex-col p-5 overflow-y-hidden scrollbar-thin ${isOpen ? 'w-70' : 'w-20 items-center'}`}
+            className={`transition-all duration-300 border-r h-full flex flex-col p-5 overflow-y-auto scrollbar-thin ${isOpen ? 'w-70' : 'w-20 items-center'}`}
             style={{
                 backgroundColor: colors.background,
                 color: colors.text,

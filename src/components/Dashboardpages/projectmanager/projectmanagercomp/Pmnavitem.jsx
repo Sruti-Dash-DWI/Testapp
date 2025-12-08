@@ -10,20 +10,34 @@ const Pmnavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(item.text);
-
+     const { theme, colors } = useTheme();
     const contextMenuRef = useRef(null);
     const location = useLocation();
 
     const activeProjectId = localStorage.getItem('activeProjectId');
-    const slug = item.text.toLowerCase().replace(/\s+/g, '-');
-    const { theme, colors } = useTheme();
+    
+    // 1. Standardize text processing
+    const lowerText = item.text.toLowerCase();
+    const slug = lowerText.replace(/\s+/g, '-');
 
-    // --- UPDATED LOGIC ---
-    // Added the '/pm' prefix to all generated routes.
-    const routePath = activeProjectId ? `/pm/${slug}/${activeProjectId}` : '/pm/projects';
-    const basePath = `/pm/${slug}`;
+    // 2. Define Route Path logic
+    let routePath;
+    if (!activeProjectId) {
+        routePath = '/pm/projects';
+    } else if (slug === 'pages') {
+        // SPECIAL CASE: Pages route is /pm/projects/:id/pages
+        routePath = `/pm/projects/${activeProjectId}/pages`;
+    } else {
+        // STANDARD CASE: /pm/:slug/:id
+        routePath = `/pm/${slug}/${activeProjectId}`;
+    }
+
+    // 3. Define Active State logic
+    const basePath = slug === 'pages'
+        ? `/pm/projects/${activeProjectId}/pages`
+        : `/pm/${slug}`;
+
     const isActive = location.pathname.startsWith(basePath);
-
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {

@@ -17,15 +17,29 @@ const SmNavitem = ({ item, onDragStart, onDrop, onMove, onRename, onSetDefault, 
 
     const activeProjectId = localStorage.getItem('activeProjectId');
 
+// Convert text to slug
+const slug = item.text.toLowerCase().replace(/\s+/g, '-');
 
-    const slug = item.text.toLowerCase().replace(/\s+/g, '-');
+let routePath;
 
+if (!activeProjectId) {
+    routePath = '/sm/projects';
+} 
+else if (slug === 'pages') {
+    // Apply the same rule as NavItem.jsx
+    routePath = `/sm/projects/${activeProjectId}/pages`;
+} 
+else {
+    routePath = `/sm/${slug}/${activeProjectId}`;
+}
 
-    const routePath = activeProjectId ? `/sm/${slug}/${activeProjectId}` : '/sm/projects';
+// Active route logic
+const basePath = slug === 'pages'
+    ? `/sm/projects/${activeProjectId}/pages`
+    : `/sm/${slug}`;
 
+const isActive = location.pathname.startsWith(basePath);
 
-    const basePath = `/sm/${slug}`;
-    const isActive = location.pathname.startsWith(basePath);
     const { theme, colors } = useTheme();
 
 

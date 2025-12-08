@@ -42,10 +42,15 @@ import DevelopersPageContent from "../components/developerDashboardpages/Develop
 import Developerprojectmanager from "../components/developerDashboardpages/Project management developer/DevTeammanagement.jsx";
 import DevEditUserModal from "../components/developerDashboardpages/Project management developer/DevEditUserModal.jsx";
 import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
+import { DeveloperFormDashboard, DeveloperFormEditor } from '../components/developerDashboardpages/Developerforms.jsx';
+import DeveloperTeams from "../components/developerDashboardpages/developerteams/DeveloperTeams.jsx";
+import DeveloperPeople from "../components/developerDashboardpages/developerteams/DeveloperPeople.jsx";
+import DeveloperTeamDetails from "../components/developerDashboardpages/developerteams/DeveloperTeamDetails.jsx";
 
 import DevDocuments from "../pages/developerPages/sidenav_pages/DevDocuments.jsx";
 import DevNotification from "../pages/developerPages/sidenav_pages/DevNotification.jsx";
 import DevSettings from "../pages/developerPages/sidenav_pages/DevSettings.jsx";
+import DeveloperPageContent from "../components/developerDashboardpages/DeveloperPageContent.jsx";
 
 // Tester imports
 import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
@@ -62,6 +67,10 @@ import TesterTimeline from "../components/testerDashboardPages/TesterTimeline.js
 import TesterList from "../components/testerDashboardPages/TesterList.jsx";
 import TesterPageContent from "../components/testerDashboardPages/TesterPageContent.jsx";
 import TesterTeammanagement from "../components/testerDashboardPages/testerProject management/TesterTeammanagement.jsx";
+import { TesterFormDashboard, TesterFormEditor } from '../components/testerDashboardPages/Testerforms.jsx';
+import TesterTeams from "../components/testerDashboardPages/testerteams/Testerteams.jsx";
+import TesterPeople from "../components/testerDashboardPages/testerteams/Testerpeople.jsx";
+import TesterTeamDetails from "../components/testerDashboardPages/testerteams/Testerteamdetails.jsx";
 
 // Project Manager imports
 import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
@@ -80,6 +89,11 @@ import PmList from "../components/Dashboardpages/projectmanager/pmpages/Pmlist.j
 import PmBoard from "../components/Dashboardpages/projectmanager/pmpages/Pmboard.jsx";
 import PmTimeline from "../components/Dashboardpages/projectmanager/pmpages/Pmtimeline.jsx";
 import PmCalendar from "../components/Dashboardpages/projectmanager/pmpages/Pmcalendar.jsx";
+import PmPageContent from "../components/Dashboardpages/projectmanager/pmpages/Pmpagecontent.jsx";
+import { PmFormDashboard, PmFormEditor } from '../components/Dashboardpages/projectmanager/pmpages/Pmforms.jsx';
+import PmTeams from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteams.jsx";
+import PmPeople from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmpeople.jsx";
+import PmTeamDetails from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteamdetails.jsx";
 
 // Scrum Master imports
 import SmProjects from "../pages/scrummasterpages/SmProjects.jsx";
@@ -97,6 +111,10 @@ import SmDashboardlayout from "../layout/Smdashboardlayout.jsx";
 import SmDocuments from "../pages/scrummasterpages/sidenav_pages/SmDocuments.jsx";
 import SmNotification from "../pages/scrummasterpages/sidenav_pages/SmNotification.jsx";
 import SmSettings from "../pages/scrummasterpages/sidenav_pages/SmSettings.jsx";
+import { SmFormDashboard, SmFormEditor } from '../components/Smdashboardpages/SmForm.jsx';
+import SmTeams from "../components/Scrummaster/smteams/SmTeams.jsx";
+import SmPeople from "../components/Scrummaster/smteams/Smpeople.jsx";
+import SmTeamDetails from "../components/Scrummaster/smteams/SmTeamDetails.jsx";
 
 const AppRouter = () => {
   return (
@@ -170,9 +188,15 @@ const AppRouter = () => {
             <Route path="/developer/timeline/:projectId" element={<DevelopersTimeline />} />
             <Route path="/developer/summary/:projectId" element={<DevelopersSummary />} />
             <Route path="/developer/list/:projectId" element={<DevelopersList />} />
-            <Route path="/developer/page-content/:projectId" element={<DevelopersPageContent />} />
+          <Route path="/developer/projects/:projectId/pages" element={<DeveloperPageContent />} />
             <Route path="/developer/dev-user-details" element={<Developerprojectmanager />} />
             <Route path="/developer/dev-user-details/:memberId" element={<DevEditUserModal />} />
+            <Route path="/developer/forms/:projectId" element={<DeveloperFormDashboard />} />
+          <Route path="/developer/forms/:projectId/:formId" element={<DeveloperFormEditor />} />
+
+          <Route path="/developer/teams/teams" element={<DeveloperTeams />} />
+          <Route path="/developer/teams/people" element={<DeveloperPeople />} />
+          <Route path="/developer/teams/:teamId" element={<DeveloperTeamDetails />} />
         </Route> 
         
         
@@ -190,8 +214,14 @@ const AppRouter = () => {
         <Route path="/tester/timeline/:projectId" element={<TesterTimeline />} /> 
         <Route path="/tester/summary/:projectId" element={<TesterSummary/>} />
         <Route path="/tester/list/:projectId" element={<TesterList/>} />
-        <Route path="/tester/pagecontent/:projectId" element={<TesterPageContent/>} />
+        <Route path="/tester/projects/:projectId/pages" element={<TesterPageContent />} />
         <Route path="/tester/tester-user-details" element={<TesterTeammanagement/>} />
+        <Route path="/tester/forms/:projectId" element={<TesterFormDashboard />} />
+          <Route path="/tester/forms/:projectId/:formId" element={<TesterFormEditor />} />
+
+           <Route path="/tester/teams/teams" element={<TesterTeams />} />
+          <Route path="/tester/teams/people" element={<TesterPeople />} />
+          <Route path="/tester/teams/:teamId" element={<TesterTeamDetails />} />
         </Route>
 
 
@@ -210,6 +240,13 @@ const AppRouter = () => {
           <Route path="/pm/timeline/:projectId" element={<PmTimeline />} />
           <Route path="/pm/calendar/:projectId" element={<PmCalendar />} />
           <Route path="/pm/user-details" element={<Pmprojectmanager />} />
+          <Route path="/pm/projects/:projectId/pages" element={<PmPageContent />} />
+           <Route path="/pm/forms/:projectId" element={<PmFormDashboard />} />
+          <Route path="/pm/forms/:projectId/:formId" element={<PmFormEditor />} />
+         
+          <Route path="/pm/teams/teams" element={<PmTeams />} />
+          <Route path="/pm/teams/people" element={<PmPeople />} />
+          <Route path="/pm/teams/:teamId" element={<PmTeamDetails />} />
         </Route>
         {/* </Route> */}
 
@@ -226,11 +263,29 @@ const AppRouter = () => {
           <Route path="/sm/timeline/:projectId" element={<SmTimeline />} />
           <Route path="/sm/summary/:projectId" element={<SmSummary />} />
           <Route path="/sm/list/:projectId" element={<SmList />} />
-          <Route path="/sm/page-content/:projectId" element={<SmPageContent />} />
+          <Route path="/sm/projects/:projectId/pages" element={<SmPageContent />} />
+          <Route path="/sm/forms/:projectId" element={<SmFormDashboard />} />
+          <Route path="/sm/forms/:projectId/:formId" element={<SmFormEditor />} />
+
+          {/* 1. User Details (Matches "For You" in SideNav) */}
           <Route path="/sm/user-details" element={<Smprojectmanager />} />
+          
+          {/* 2. Teams Page (List of all teams) */}
+          <Route path="/sm/teams/teams" element={<SmTeams />} />
+
+          {/* 3. People Page */}
+          <Route path="/sm/teams/people" element={<SmPeople />} />
+          
+          {/* 4. Single Team Details (IMPORTANT: This was missing) */}
+          <Route path="/sm/teams/:teamId" element={<SmTeamDetails />} />
+          
+          {/* ------------------------------------------- */}
+
           <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
-        </Route> 
-         {/* </Route>  */}
+        </Route>
+             
+          
+        
       </Routes>
     </Router>
   );
