@@ -155,7 +155,7 @@ const Settings = () => {
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/users/me/`, {
+                const response = await fetch(`${API_BASE_URL}/users/me/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");
@@ -176,7 +176,7 @@ const Settings = () => {
         const authToken = localStorage.getItem('authToken');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/`, {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

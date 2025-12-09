@@ -109,7 +109,7 @@ const SmSettings = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
+                const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");
@@ -130,7 +130,7 @@ const SmSettings = () => {
         const authToken = localStorage.getItem('authToken');
 
         try {
-            const response = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
+            const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

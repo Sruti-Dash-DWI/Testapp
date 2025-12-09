@@ -176,7 +176,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
 
     const newSprintPayload = {
       name: newSprintName,
-      goal: "",
+      goal: null,
       project: parseInt(projectId, 10),
       epic: selectedEpicId,
       start_date: formatDateForAPI(today),
