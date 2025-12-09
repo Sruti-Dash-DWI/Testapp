@@ -83,8 +83,8 @@ export default function SmUpperNavbar() {
     const getUserDetails = async () => {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
-// added "/" at the end of URL to fix 308 error
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
+
+      const response = await fetch(`${API_BASE_URL}/users/me/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

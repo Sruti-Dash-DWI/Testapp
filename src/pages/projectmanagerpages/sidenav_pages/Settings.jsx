@@ -155,7 +155,7 @@ const Settings = () => {
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/`, {
+                const response = await fetch(`${API_BASE_URL}/admin/users/me/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");

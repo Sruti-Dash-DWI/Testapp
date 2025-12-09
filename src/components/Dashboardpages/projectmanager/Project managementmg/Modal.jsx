@@ -182,7 +182,7 @@ const Modal = ({ isOpen, onClose }) => {
                   </p>
                 )}
 
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Invitation Type
                   </label>
@@ -196,7 +196,7 @@ const Modal = ({ isOpen, onClose }) => {
                       Invite to a Organization
                     </option>
                   </select>
-                </div>
+                </div> */}
 
                 {inviteType === "project" && (
                   <div className="mb-4">

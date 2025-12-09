@@ -103,7 +103,7 @@ const SetPasswordPage = () => {
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="New Password"
                                             required
-                                            // STYLES ARE NOW SELF-CONTAINED HERE
+                                         
                                             className="w-full px-4 py-3 border border-white/20 rounded-lg shadow-sm bg-black/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                                         />
                                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">

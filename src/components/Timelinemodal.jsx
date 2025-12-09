@@ -61,8 +61,8 @@ const Timelinemodal = ({
 
     // Prepare data for a PATCH request (partial update)
     const detailsData = {
-      assignee_id: assignee || null,
-      team_id: team || null,
+      // assignee_id: assignee || null,
+      // team_id: team || null,
       end_date: endDate || null,
       start_date: startDate || null,
     };
@@ -135,7 +135,7 @@ const Timelinemodal = ({
           )}
 
           {/* Assignee */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-semibold text-gray-200 mb-1">
               Assignee
             </label>
@@ -150,13 +150,13 @@ const Timelinemodal = ({
               {users.map((user) => (
                 <option key={user.id} className="text-black" value={user.id}>
                   {user.username} {/* Assuming user object has id and username */}
-                </option>
+                {/* </option>
               ))}
             </select>
-          </div>
+          </div> */} 
 
           {/* Team */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-semibold text-gray-200 mb-1">
               Team
             </label>
@@ -171,10 +171,10 @@ const Timelinemodal = ({
               {teamsList.map((team) => (
                 <option key={team.id} className="text-black" value={team.id}>
                   {team.name} {/* Assuming team object has id and name */}
-                </option>
+                {/* </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* Start Date */}
           <div>

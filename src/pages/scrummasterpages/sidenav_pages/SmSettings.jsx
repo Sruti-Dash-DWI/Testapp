@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,} from 'react';
 
 import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
-
+import { useTheme } from '../../../context/ThemeContext';
 
 const EditProfileModal = ({ onClose, userData, onSave }) => {
+     const { colors, theme } = useTheme();
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -37,11 +38,17 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
         setLoading(false);
     };
 
+    const modalBgStyle = {
+        backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        color: colors.text,
+        borderColor: colors.border
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md" onClick={onClose}>
             <div 
                 className="rounded-2xl shadow-2xl w-full max-w-md m-4 text-gray-800"
-                style={{ background: "linear-gradient(135deg, #ad97fd 0%, #f6a5dc 100%)" }}
+                style={modalBgStyle}
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-5 border-b border-white/30">

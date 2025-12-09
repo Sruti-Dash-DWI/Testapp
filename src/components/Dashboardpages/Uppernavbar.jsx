@@ -87,7 +87,7 @@ export default function UpperNavbar() {
       if (!userId || !authToken) return;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
+        const response = await fetch(`${API_BASE_URL}/admin/users/me/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
