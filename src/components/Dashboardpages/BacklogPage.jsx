@@ -179,7 +179,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
 
     const newSprintPayload = {
       name: newSprintName,
-      goal: "",
+      goal: null,
       project: parseInt(projectId, 10),
       epic: selectedEpicId,
       start_date: formatDateForAPI(today),
@@ -206,7 +206,7 @@ const selectedItem = selectedItemId ? boardData.items[selectedItemId] : null;
         );
       }
 
-      const createdSprint = await response.json();
+    const createdSprint = await response.json();
       setBoardData((prevData) => ({
         ...prevData,
         sprints: [...prevData.sprints, { ...createdSprint, itemIds: [] }],

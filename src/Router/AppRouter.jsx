@@ -27,6 +27,7 @@ import TeamDetails from "../pages/teams/TeamDetails.jsx";
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
 import Settings from "../pages/sidenav_pages/Settings.jsx";
+import GoalsPa from "../components/Dashboardpages/Goals.jsx";
 
 import Dummypage from "../pages/Dummypage.jsx";
 
@@ -159,7 +160,7 @@ const AppRouter = () => {
           <Route path='/backlog' element={<Projects />} />
           <Route path="/forms/:projectId" element={<FormDashboard />} />
           <Route path="/forms/:projectId/:formId" element={<FormEditor />} /> 
-
+          <Route path="/goals/:projectId" element={<GoalsPa />} /> 
           
           <Route path="/projects/:projectId/pages" element={<PageContent />} />
           {/* <Route path="/code/:pageId" element={<PageContent page={{ text: 'Code', description: 'Browse your repositories and connect your work.' }} />} /> */}
