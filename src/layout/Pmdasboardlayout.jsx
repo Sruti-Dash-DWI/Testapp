@@ -10,10 +10,10 @@ import Modal from "../components/Dashboardpages/projectmanager/Project managemen
 
 const pathsWithInnerNav = [
   '/pm/backlog', '/pm/summary', '/pm/list', '/pm/board', '/pm/timeline', '/pm/calendar',
-  '/pages', // CHANGED: Changed from '/pm/pages' to '/pages' to match URL structure
-  '/pm/code', '/pm/forms', '/pm/all-work', '/pm/archived-work-items',
-  '/pm/deployments', '/pm/goals', '/pm/on-call', '/pm/releases', '/pm/reports', 
-  '/pm/security', '/pm/shortcuts'
+  '/pages',
+   '/pm/forms', 
+ '/pm/goals', '/pm/releases', '/pm/reports', 
+ 
 ];
 
 const Pmdasboardlayout = () => {
@@ -63,19 +63,16 @@ const Pmdasboardlayout = () => {
   ];
   const otherAvailableOptions = [
     { id: "4", text: "Pages", description: "Create and collaborate on project documentation." },
-    { id: "5", text: "Code", description: "Connect your code repositories to your project." },
+   
     { id: "6", text: "Forms", description: "Create forms to collect data and feedback." },
     { id: "7", text: "Calendar", description: "View project tasks and deadlines on a calendar." },
-    { id: "12", text: "All work", description: "View all the work items in your project. Use built-in filters and text search to find work items." },
-    { id: "8", text: "Archived work items", description: "Access items that have been archived and are no longer active." },
-    { id: "9", text: "Deployments", description: "Track your software deployments and release cycles." },
+
+  
     { id: "10", text: "Goals", description: "Set and monitor project goals and objectives." },
     { id: "11", text: "List", description: "A simple list view of all your tasks and items." },
-    { id: "13", text: "On-call", description: "Manage on-call schedules and escalations." },
+  
     { id: "14", text: "Releases", description: "Oversee product releases and versioning." },
     { id: "15", text: "Reports", description: "Generate reports to analyze project progress." },
-    { id: "16", text: "Security", description: "Manage security-related tasks and vulnerabilities." },
-    { id: "17", text: "Shortcuts", description: "Create shortcuts to important links and resources." },
   ];
   const allPossibleOptions = [...initialNavItems, ...otherAvailableOptions];
   const [navItems, setNavItems] = useState(

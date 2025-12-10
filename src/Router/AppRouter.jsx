@@ -52,6 +52,7 @@ import DevDocuments from "../pages/developerPages/sidenav_pages/DevDocuments.jsx
 import DevNotification from "../pages/developerPages/sidenav_pages/DevNotification.jsx";
 import DevSettings from "../pages/developerPages/sidenav_pages/DevSettings.jsx";
 import DeveloperPageContent from "../components/developerDashboardpages/DeveloperPageContent.jsx";
+import DeveloperGoals from "../components/developerDashboardpages/Developergoals.jsx";
 
 // Tester imports
 import TesterProjects from "../pages/testerPages/TesterProjects.jsx";
@@ -72,6 +73,7 @@ import { TesterFormDashboard, TesterFormEditor } from '../components/testerDashb
 import TesterTeams from "../components/testerDashboardPages/testerteams/Testerteams.jsx";
 import TesterPeople from "../components/testerDashboardPages/testerteams/Testerpeople.jsx";
 import TesterTeamDetails from "../components/testerDashboardPages/testerteams/Testerteamdetails.jsx";
+import Testergoals from "../components/testerDashboardPages/Testergoals.jsx";
 
 // Project Manager imports
 import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
@@ -95,6 +97,7 @@ import { PmFormDashboard, PmFormEditor } from '../components/Dashboardpages/proj
 import PmTeams from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteams.jsx";
 import PmPeople from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmpeople.jsx";
 import PmTeamDetails from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteamdetails.jsx";
+import Pmgoals from "../components/Dashboardpages/projectmanager/pmpages/Pmgoals.jsx";
 
 // Scrum Master imports
 import SmProjects from "../pages/scrummasterpages/SmProjects.jsx";
@@ -116,6 +119,7 @@ import { SmFormDashboard, SmFormEditor } from '../components/Smdashboardpages/Sm
 import SmTeams from "../components/Scrummaster/smteams/SmTeams.jsx";
 import SmPeople from "../components/Scrummaster/smteams/Smpeople.jsx";
 import SmTeamDetails from "../components/Scrummaster/smteams/SmTeamDetails.jsx";
+import Smgoals from "../components/Smdashboardpages/Smgoals.jsx";
 
 const AppRouter = () => {
   return (
@@ -194,6 +198,7 @@ const AppRouter = () => {
             <Route path="/developer/dev-user-details/:memberId" element={<DevEditUserModal />} />
             <Route path="/developer/forms/:projectId" element={<DeveloperFormDashboard />} />
           <Route path="/developer/forms/:projectId/:formId" element={<DeveloperFormEditor />} />
+          <Route path="/developer/goals/:projectId" element={<DeveloperGoals />} />
 
           <Route path="/developer/teams/teams" element={<DeveloperTeams />} />
           <Route path="/developer/teams/people" element={<DeveloperPeople />} />
@@ -219,6 +224,7 @@ const AppRouter = () => {
         <Route path="/tester/tester-user-details" element={<TesterTeammanagement/>} />
         <Route path="/tester/forms/:projectId" element={<TesterFormDashboard />} />
           <Route path="/tester/forms/:projectId/:formId" element={<TesterFormEditor />} />
+          <Route path="/tester/goals/:projectId" element={<Testergoals/>}/>
 
            <Route path="/tester/teams/teams" element={<TesterTeams />} />
           <Route path="/tester/teams/people" element={<TesterPeople />} />
@@ -244,6 +250,7 @@ const AppRouter = () => {
           <Route path="/pm/projects/:projectId/pages" element={<PmPageContent />} />
            <Route path="/pm/forms/:projectId" element={<PmFormDashboard />} />
           <Route path="/pm/forms/:projectId/:formId" element={<PmFormEditor />} />
+          <Route path="/pm/goals/:projectId" element={<Pmgoals />} />
          
           <Route path="/pm/teams/teams" element={<PmTeams />} />
           <Route path="/pm/teams/people" element={<PmPeople />} />
@@ -267,6 +274,7 @@ const AppRouter = () => {
           <Route path="/sm/projects/:projectId/pages" element={<SmPageContent />} />
           <Route path="/sm/forms/:projectId" element={<SmFormDashboard />} />
           <Route path="/sm/forms/:projectId/:formId" element={<SmFormEditor />} />
+          <Route path="/sm/goals/:projectId" element={<Smgoals />} /> 
 
           {/* 1. User Details (Matches "For You" in SideNav) */}
           <Route path="/sm/user-details" element={<Smprojectmanager />} />

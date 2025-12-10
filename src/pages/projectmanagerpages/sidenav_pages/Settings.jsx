@@ -205,8 +205,8 @@ const Settings = () => {
     const settingCards = [
         { title: "Edit Profile", description: "Update your personal details.", icon: UserCog, color: "bg-blue-100", action: () => setShowEditModal(true), disabled: loadingUser },
         { title: "Manage Permissions", description: "Control user roles and access.", icon: Shield, color: "bg-yellow-100", action: () => alert("Feature coming soon!") },
-        { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
-        { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
+        // { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
+        // { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
     ];
 
     return (
@@ -218,7 +218,7 @@ const Settings = () => {
           }}>
                 <h1 className="text-3xl font-bold" style={{ color: colors.text }}>Settings</h1>
                 <p className="mt-1" style={{ color: colors.text, opacity: 0.8 }}>Manage your account settings and preferences.</p>
-            
+    
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8" >
                     {settingCards.map((card, index) => (
                         <div 

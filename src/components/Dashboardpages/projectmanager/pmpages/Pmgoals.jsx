@@ -13,12 +13,12 @@ import {
   Loader2,
   X
 } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const STATUS_OPTIONS = ['ON_TRACK', 'AT_RISK', 'OFF_TRACK'];
 
-const Goals = () => {
+const Pmgoals = () => {
   const { projectId } = useParams();
   const { colors } = useTheme(); 
 
@@ -209,4 +209,4 @@ const Goals = () => {
   );
 };
 
-export default Goals;
+export default Pmgoals;

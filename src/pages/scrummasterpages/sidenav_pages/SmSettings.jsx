@@ -3,6 +3,7 @@ import React, { useState, useEffect ,} from 'react';
 import { UserCog, LogOut, Shield, Bell, X } from 'lucide-react';
 import { useTheme } from '../../../context/ThemeContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const EditProfileModal = ({ onClose, userData, onSave }) => {
      const { colors, theme } = useTheme();
     const [formData, setFormData] = useState({
@@ -109,7 +110,7 @@ const SmSettings = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error("Could not fetch user data.");
@@ -130,13 +131,12 @@ const SmSettings = () => {
         const authToken = localStorage.getItem('authToken');
 
         try {
-            const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
                 },
-                // Send only changed fields along with the full user object
                 body: JSON.stringify({ ...currentUser, ...updatedData })
             });
 
@@ -163,8 +163,8 @@ const SmSettings = () => {
     const settingCards = [
         { title: "Edit Profile", description: "Update your personal details.", icon: UserCog, color: "bg-blue-100", action: () => setShowEditModal(true), disabled: loadingUser },
         { title: "Manage Permissions", description: "Control user roles and access.", icon: Shield, color: "bg-yellow-100", action: () => alert("Feature coming soon!") },
-        { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
-        { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
+        // { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
+        // { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
     ];
 
     return (

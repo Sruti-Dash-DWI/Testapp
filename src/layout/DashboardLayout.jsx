@@ -11,8 +11,8 @@ import Modal from "../components/Dashboardpages/Project management/Modal";
 
 const pathsWithInnerNav = [
   '/backlog', '/summary', '/list', '/board', '/timeline',
-  '/pages', '/code', '/forms', '/calendar', '/all-work', '/archived-work-items',
-  '/deployments', '/goals', '/on-call', '/releases', '/reports', '/security', '/shortcuts'
+  '/pages',  '/forms', '/calendar',  
+   '/goals',  '/releases', '/reports'
 ];
 
 const DashboardLayout = () => {
@@ -63,15 +63,10 @@ const showinner = pathsWithInnerNav.some((path) =>
   ];
   const otherAvailableOptions = [
     { id: "4", text: "Pages", description: "Create and collaborate on project documentation." },
-   
     { id: "6", text: "Forms", description: "Create forms to collect data and feedback." },
     { id: "7", text: "Calendar", description: "View project tasks and deadlines on a calendar." },
-   
-    
-   
     { id: "10", text: "Goals", description: "Set and monitor project goals and objectives." },
     { id: "11", text: "List", description: "A simple list view of all your tasks and items." },
-    
     { id: "14", text: "Releases", description: "Oversee product releases and versioning." },
     { id: "15", text: "Reports", description: "Generate reports to analyze project progress." },
    
