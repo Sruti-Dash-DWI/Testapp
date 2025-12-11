@@ -22,8 +22,9 @@ import ForYou from "../pages/teams/ForYou.jsx";
 import People from "../pages/teams/People.jsx";
 import Teams from "../pages/teams/Teams.jsx";
 import TeamDetails from "../pages/teams/TeamDetails.jsx";
-//import Statisticspage from "../pages/sidenav_pages/Statisticspage.jsx";
-//import Wallet from "../pages/sidenav_pages/Wallet.jsx";
+import Testdev from "../pages/testcases/Testdev.jsx";
+import Testsuite from "../pages/testcases/Testsuite.jsx";
+
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
 import Settings from "../pages/sidenav_pages/Settings.jsx";
@@ -147,12 +148,17 @@ const AppRouter = () => {
           
           <Route path='/projects' element={<Projects />} />
 
+          {/* Teams */}
           <Route path="/teams/for-you" element={<Projectmanager />} />
           <Route path="/teams/people" element={<People />} />
           <Route path="/teams/teams" element={<Teams />} />
           <Route path="/teams/:teamId" element={<TeamDetails />} />
+
+          {/* Testcase */}
+          <Route path="/testcases/testdev/" element={<Testdev />} />
+          <Route path="/testcases/testsuite/" element={<Testsuite />} />
           
-          
+          {/* Task management */}
           <Route path='/backlog/:projectId' element={<BacklogPage />} />
           <Route path='/summary/:projectId' element={<Summary />} />
           <Route path='/list/:projectId' element={<List />} />

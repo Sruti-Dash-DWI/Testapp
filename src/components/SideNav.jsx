@@ -8,6 +8,7 @@ const UserManagementIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width=
 const InviteIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>);
 const UserDetailsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
 const TeamsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
+const TestdevIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
 const ForYouIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
 const TeamGroupIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
 const PeopleIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
@@ -20,6 +21,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isTeamsOpen, setIsTeamsOpen] = useState(false);
+    const [isTestdevOpen, setIsTestdevOpen] = useState(false);
     const [error, setError] = useState(null);
     const { theme, colors } = useTheme();
 
@@ -324,6 +326,85 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                                 >
                                     <PeopleIcon />
                                     <span>People</span>
+                                </NavLink>
+                            </li>
+                        </ul>
+                    )}
+                </li>
+
+                {/*Test cases*/}
+                <li>
+                    <button 
+                        onClick={() => setIsTestdevOpen(!isTestdevOpen)}
+                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
+                        style={{
+                            backgroundColor: 'transparent',
+                            color: colors.text,
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                    >
+                        <TestdevIcon />
+                        {isOpen && <span className="flex-grow text-left">Test Cases</span>}
+                        {isOpen && (
+                            <svg className={`w-4 h-4 transition-transform ${isTestdevOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                        )}
+                    </button>
+                    {isOpen && isTestdevOpen && (
+                        <ul 
+                            className="mt-2 space-y-1 pl-8 ml-5"
+                            style={{
+                                borderLeft: `1px solid ${colors.border}`,
+                            }}
+                        >
+                            <li>
+                                <NavLink 
+                                    to="/testcases/testdev"
+                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    style={({ isActive }) => ({
+                                        backgroundColor: isActive ? undefined : 'transparent',
+                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                    })}
+                                    onMouseEnter={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = 'transparent';
+                                        }
+                                    }}
+                                >
+                                    <ForYouIcon />
+                                    <span>Test Development</span>
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink 
+                                    to="/testcases/testsuite"
+                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    style={({ isActive }) => ({
+                                        backgroundColor: isActive ? undefined : 'transparent',
+                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
+                                    })}
+                                    onMouseEnter={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                            e.currentTarget.style.backgroundColor = 'transparent';
+                                        }
+                                    }}
+                                >
+                                    <TeamGroupIcon />
+                                    <span>Test Execution</span>
                                 </NavLink>
                             </li>
                         </ul>

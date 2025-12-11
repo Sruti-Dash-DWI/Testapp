@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layout/DashboardLayout';
 import { UserCog, LogOut, Shield, Bell, X, Save } from 'lucide-react';
+import CreateRoleModal from '../../components/modals/CreateRoleModal';
 import { useTheme } from '../../context/ThemeContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -136,9 +137,11 @@ const EditProfileModal = ({ onClose, userData, onSave }) => {
     );
 };
 
+
 // --- Main Settings Component ---
 const Settings = () => {
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showRoleModal, setShowRoleModal] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const { theme, toggleTheme, colors } = useTheme();
@@ -196,6 +199,13 @@ const Settings = () => {
         }
     };
 
+    const handleCreateRole = (roleData) => {
+        console.log('Creating new role:', roleData);
+        // Here you would typically make an API call to create the role
+        // For now, we'll just show an alert
+        alert(`Role "${roleData.name}" created with permissions: ${roleData.permissions.join(', ')}`);
+    };
+
     const handleLogout = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userId'); 
@@ -204,7 +214,7 @@ const Settings = () => {
 
     const settingCards = [
         { title: "Edit Profile", description: "Update your personal details.", icon: UserCog, color: "bg-blue-100", action: () => setShowEditModal(true), disabled: loadingUser },
-        { title: "Manage Permissions", description: "Control user roles and access.", icon: Shield, color: "bg-yellow-100", action: () => alert("Feature coming soon!") },
+        { title: "Manage Permissions", description: "Control user roles and access.", icon: Shield, color: "bg-yellow-100", action: () => setShowRoleModal(true) },
         // { title: "Notifications", description: "Set your alert preferences.", icon: Bell, color: "bg-green-100", action: () => alert("Feature coming soon!") },
         // { title: "Logout", description: "Sign out of your account.", icon: LogOut, color: "bg-red-100", action: handleLogout },
     ];
@@ -239,6 +249,13 @@ const Settings = () => {
                     onClose={() => setShowEditModal(false)}
                     userData={currentUser}
                     onSave={handleUpdateUser}
+                />
+            )}
+            
+            {showRoleModal && (
+                <CreateRoleModal
+                    onClose={() => setShowRoleModal(false)}
+                    onCreate={handleCreateRole}
                 />
             )}
         </>
