@@ -303,10 +303,10 @@ const handleCreateManualTestCase = async () => {
       {/* Create Module Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 border border-gray-200">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 border border-gray-200" style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}>
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Create Module</h2>
+              <h2 className="text-xl font-semibold text-gray-900" style={{color: colors.text}}>Create Module</h2>
               <button 
                 onClick={() => setShowCreateModal(false)}
                 className="p-1 hover:bg-gray-100 rounded"
@@ -316,10 +316,10 @@ const handleCreateManualTestCase = async () => {
             </div>
 
             {/* Modal Body */}
-            <div className="space-y-4">
+            <div className="space-y-4" >
               {/* Name Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1" style={{color: colors.text}} >
                   <span className="text-red-500">*</span> Name
                 </label>
                 <input
@@ -333,7 +333,7 @@ const handleCreateManualTestCase = async () => {
 
               {/* Description Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1" style={{color: colors.text}}>
                   Description
                 </label>
                 <textarea
@@ -351,10 +351,10 @@ const handleCreateManualTestCase = async () => {
 
               {/* Parent Module Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1" style={{color: colors.text}}>
                   <span className="text-red-500">*</span>Parent Module
                 </label>
-                <div className="px-3 py-2 border border-gray-300 rounded bg-gray-50 text-gray-700">
+                <div className="px-3 py-2 border border-gray-300 rounded bg-gray-50 text-gray-700" style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}>
                   Root Module
                 </div>
               </div>
@@ -395,10 +395,10 @@ const handleCreateManualTestCase = async () => {
       {/* Create Manual Test Case Modal */}
       {showManualTestCaseModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg mx-4 mt-8 mb-8">
+          <div className="rounded-lg shadow-2xl w-full max-w-lg mx-4 mt-8 mb-8" style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">Create Manual Test Case</h2>
+              <h2 className="text-xl font-semibold text-gray-800" style={{color: colors.text}}>Create Manual Test Case</h2>
               <button 
                 onClick={() => setShowManualTestCaseModal(false)}
                 className="text-gray-400 hover:text-gray-600 focus:outline-none"
@@ -408,10 +408,10 @@ const handleCreateManualTestCase = async () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6" style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}>
               {/* Radio Buttons */}
               <div className="space-y-2">
-                <p className="text-gray-700">
+                <p className="text-gray-700" style={{color: colors.text}}>
                   Do you want to create a new Manual test case or add to existing Automation script ?
                 </p>
                 <div className="space-y-2">
@@ -424,7 +424,7 @@ const handleCreateManualTestCase = async () => {
                       onChange={() => setManualTestCaseData({...manualTestCaseData, creationType: 'new'})}
                       className="form-radio text-blue-600 h-4 w-4"
                     />
-                    <span className="text-gray-900">Create new Manual test case</span>
+                    <span className="text-gray-900" style={{color: colors.text}}>Create new Manual test case</span>
                   </label>
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
@@ -435,7 +435,7 @@ const handleCreateManualTestCase = async () => {
                       onChange={() => setManualTestCaseData({...manualTestCaseData, creationType: 'add'})}
                       className="form-radio text-blue-600 h-4 w-4"
                     />
-                    <span className="text-gray-900">Add Manual test case to existing Automation script</span>
+                    <span className="text-gray-900" style={{color: colors.text}}>Add Manual test case to existing Automation script</span>
                   </label>
                 </div>
               </div>
@@ -444,7 +444,7 @@ const handleCreateManualTestCase = async () => {
               <div className="grid grid-cols-2 gap-4">
                 {/* Name */}
                 <div className="col-span-1">
-                  <label htmlFor="mtc-name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="mtc-name" className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                     <span className="text-red-500">*</span> Name
                   </label>
                   <input
@@ -454,12 +454,13 @@ const handleCreateManualTestCase = async () => {
                     onChange={(e) => setManualTestCaseData({...manualTestCaseData, name: e.target.value})}
                     placeholder="Enter script name"
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                    style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                   />
                 </div>
 
                 {/* Type */}
                 <div className="col-span-1">
-                  <label htmlFor="mtc-type" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="mtc-type" className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                     <span className="text-red-500">*</span> Type
                   </label>
                   <select
@@ -467,6 +468,7 @@ const handleCreateManualTestCase = async () => {
                     value={manualTestCaseData.type}
                     onChange={(e) => setManualTestCaseData({...manualTestCaseData, type: e.target.value})}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                    style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                   >
                     <option value="">Select script type</option>
                     <option value="functional">Functional</option>
@@ -477,7 +479,7 @@ const handleCreateManualTestCase = async () => {
 
               {/* Description */}
               <div className="space-y-1">
-                <label htmlFor="mtc-description" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="mtc-description" className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                   Description
                 </label>
                 <textarea
@@ -488,13 +490,14 @@ const handleCreateManualTestCase = async () => {
                   placeholder="Your description goes here"
                   maxLength="200"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 resize-none focus:ring-blue-500 focus:border-blue-500"
+                  style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                 />
                 <div className="text-right text-xs text-gray-500">{manualTestCaseData.description.length}/200</div>
               </div>
               
               {/* Parent Module */}
               <div className="space-y-1">
-                <label htmlFor="mtc-parentModule" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="mtc-parentModule" className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                   <span className="text-red-500">*</span> Parent Module
                 </label>
                 <select
@@ -502,6 +505,7 @@ const handleCreateManualTestCase = async () => {
                   value={manualTestCaseData.parentModule}
                   onChange={(e) => setManualTestCaseData({...manualTestCaseData, parentModule: e.target.value})}
                   className="w-full text-left bg-white border border-gray-300 rounded-md shadow-sm p-2 text-gray-700 hover:bg-gray-50 focus:outline-none appearance-none pr-8"
+                  style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                 >
                   <option value="">Choose Module</option>
                   <option value="module_1">Module A</option>
@@ -511,7 +515,7 @@ const handleCreateManualTestCase = async () => {
 
               {/* Testcase Template */}
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                   <span className="text-red-500">*</span> Testcase Template
                 </label>
                 <div className="flex justify-between items-center">
@@ -520,6 +524,7 @@ const handleCreateManualTestCase = async () => {
                     value={manualTestCaseData.testcaseTemplate}
                     onChange={(e) => setManualTestCaseData({...manualTestCaseData, testcaseTemplate: e.target.value})}
                     className="flex-1 border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                    style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                   >
                     <option>FireFlink Manual Test Case Template</option>
                   </select>
@@ -535,7 +540,7 @@ const handleCreateManualTestCase = async () => {
               
               {/* Labels */}
               <div className="space-y-1">
-                <label htmlFor="mtc-labels" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="mtc-labels" className="block text-sm font-medium text-gray-700" style={{color: colors.text}}>
                   Labels
                 </label>
                 <select
@@ -543,6 +548,7 @@ const handleCreateManualTestCase = async () => {
                   value={manualTestCaseData.labels}
                   onChange={(e) => setManualTestCaseData({...manualTestCaseData, labels: e.target.value})}
                   className="w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-500 appearance-none bg-white pr-8"
+                  style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
                 >
                   <option value="">Labels</option>
                   <option value="critical">Critical</option>
@@ -566,7 +572,8 @@ const handleCreateManualTestCase = async () => {
                     labels: '',
                   });
                 }}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none"
+                className="px-4 py-2 text-gray-700 border border-gray-700 rounded-md hover:bg-gray-50 focus:outline-none"
+                style={{backgroundColor: colors.card, color: colors.text, borderColor: colors.border}}
               >
                 Cancel
               </button>
