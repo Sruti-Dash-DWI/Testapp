@@ -99,8 +99,16 @@ const Developerteamdetails = () => {
     };
 
     const handleTeamUpdated = (updatedTeam) => {
-        setTeam(updatedTeam);
+        
+        setTeam((prevTeam) => ({
+            ...prevTeam,       
+            ...updatedTeam,    
+            team_memberships: prevTeam.team_memberships 
+        }));
+
         setToast({ show: true, message: 'Your team settings have been saved', type: 'success' });
+        
+     
     };
 
     const getInitials = (firstName, lastName) => {
@@ -337,7 +345,7 @@ const Developerteamdetails = () => {
                                             color: colors.text,
                                         }}
                                     >
-                                        {team.members?.length || 0}
+                                        {team.team_memberships?.length || 0}
                                     </span>
                                     <button className="w-6 h-6 rounded-full flex items-center justify-center"
                                         style={{
@@ -364,8 +372,8 @@ const Developerteamdetails = () => {
                                     backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
                                     border: `1px solid ${colors.border}`,
                                 }}>
-                                {team.members && team.members.length > 0 ? (
-                                    team.members.map((member) => (
+                                {team.team_memberships && team.team_memberships.length > 0 ? (
+                                    team.team_memberships.map((member) => (
                                         <div key={member.user?.id || member.id} className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
                                                 style={{
@@ -380,7 +388,21 @@ const Developerteamdetails = () => {
                                                 </p>
                                                 <p className="text-xs" style={{ color: theme === 'dark' ? '#9ca3af' : '#6b7280' }}>
                                                     {member.role || 'Member'}
+
+                                                    {member.status === 'PENDING' ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold"
+                                style={{ backgroundColor: '#fef3c7', color: '#d97706' }}>
+                                Pending
+                            </span>
+                        ) : member.status === 'ACCEPTED' ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold"
+                                style={{ backgroundColor: '#dcfce7', color: '#16a34a' }}>
+                                Accepted
+                            </span>
+                        ) : null}
                                                 </p>
+
+                                                
                                             </div>
                                         </div>
                                     ))

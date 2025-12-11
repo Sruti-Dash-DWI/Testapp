@@ -1,14 +1,8 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+
+
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../../context/ThemeContext';
-
-// const MailIcon = () => (
-//   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-//     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-//     <polyline points="22,6 12,13 2,6"></polyline>
-//   </svg>
-// );
-
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -61,21 +55,13 @@ const BellIcon = () => (
   </svg>
 );
 
-// const HelpIcon = () => (
-//     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-//         <circle cx="12" cy="12" r="10"></circle>
-//         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-//         <line x1="12" y1="17" x2="12.01" y2="17"></line>
-//     </svg>
-// );
-
-export default function Pmuppernavr() {
+export default function Pmuppernavr({ notificationCount }) {
   const [userInitial, setUserInitial] = useState('A');
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const { theme, toggleTheme, colors } = useTheme();
@@ -84,24 +70,28 @@ export default function Pmuppernavr() {
     const getUserDetails = async () => {
       const userId = localStorage.getItem('userId');
       const authToken = localStorage.getItem('authToken');
-// added "/" at the end of URL to fix 308 error
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${authToken}` 
-          },
-        });
-
-        const user = await response.json();
-        const userNameInitial = user.first_name.charAt(0);
-        const fullName = `${user.first_name} ${user.last_name || ''}`.trim();
-        setUserInitial(userNameInitial);
-        setUserName(fullName);
-        setUserRole(user.role || 'User'); // Assuming role field exists in user object
-      };
-      getUserDetails();
+      
+      try {
+          const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${authToken}` 
+            },
+          });
+    
+          const user = await response.json();
+          const userNameInitial = user.first_name.charAt(0);
+          const fullName = `${user.first_name} ${user.last_name || ''}`.trim();
+          setUserInitial(userNameInitial);
+          setUserName(fullName);
+          setUserRole(user.role || 'User');
+      } catch (error) {
+          console.error("Error fetching user details", error);
+      }
+    };
+    getUserDetails();
   }, []);
 
   useEffect(() => {
@@ -169,10 +159,21 @@ export default function Pmuppernavr() {
         >
           {theme === "dark" ? <SunIcon /> : <MoonIcon />}
         </button>
-        <button className="icon-button p-2.5 rounded-full  relative" aria-label="Notifications">
+        
+        {/* NOTIFICATION BUTTON WITH BADGE */}
+        <button 
+            className="icon-button p-2.5 rounded-full relative hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" 
+            aria-label="Notifications"
+            onClick={() => navigate('/pm/notifications')}
+        >
             <BellIcon />
-            <span className="notification-dot"></span>
-          </button>
+            {notificationCount > 0 && (
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-bounce shadow-sm ring-1 ring-white dark:ring-slate-900">
+                    {notificationCount}
+                </span>
+            )}
+        </button>
+
         <button className="create-button flex items-center gap-2 py-2.5 px-5 bg-blue-600 text-white rounded-xl text-sm font-semibold relative z-10">
             <PlusIcon /> Create
           </button>

@@ -3,7 +3,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { X, ChevronDown } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
+/* --- CHANGED: Added 'onError' to the props list --- */
+const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded, onError }) => {
     const { theme, colors } = useTheme();
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -91,17 +92,35 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
                     'Authorization': `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({
-                    members_to_invite: selectedUsers
+                    members_to_invite: selectedUsers,
+                    role: role // Include selected role in the invite
                 })
             });
+
+            const data = await response.json();
 
             if (response.ok) {
                 onMembersAdded();
                 handleClose();
-                alert(`Invitations sent successfully to ${selectedUsers.length} user(s)`);
             } else {
-                const errorData = await response.json();
-                setError(errorData.error || 'Failed to send invitations');
+                /* --- CHANGED: Improved error handling logic --- */
+                if (data.members_to_invite) {
+                    // Check if the backend returned the specific "users do not exist" message
+                    const backendMsg = Array.isArray(data.members_to_invite) 
+                        ? data.members_to_invite[0] 
+                        : data.members_to_invite;
+                    
+                    // If 'onError' prop exists (passed from TeamDetails), use it to show Toast
+                    if (onError) {
+                        onError(backendMsg);
+                        handleClose(); // Close modal so user sees the toast
+                    } else {
+                        // Fallback to showing error inside modal
+                        setError(backendMsg);
+                    }
+                } else {
+                    setError(data.error || 'Failed to send invitations');
+                }
             }
         } catch (error) {
             console.error("Error inviting users:", error);
@@ -134,7 +153,10 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
                 style={{
                     backgroundColor: colors.background,
                     maxHeight: '90vh',
-                    overflowY: 'auto'
+                    minHeight: '400px',
+                    overflowY: 'auto',
+                    
+                   
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -307,8 +329,9 @@ const AddTeamMembersModal = ({ isOpen, onClose, teamId, onMembersAdded }) => {
                                     style={{
                                         backgroundColor: colors.background,
                                         border: `1px solid ${colors.border}`,
-                                        maxHeight: '240px',
-                                        overflowY: 'auto'
+                                        maxHeight: '150px',
+                                        overflowY: 'auto',
+                                        scrollbarWidth: 'thin',
                                     }}
                                 >
                                     {roles.map((roleOption) => (

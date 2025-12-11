@@ -1,6 +1,7 @@
 // src/layout/Pmdasboardlayout.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useLocation, Outlet } from "react-router-dom";
 import SideNav from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmsidenav"; 
 import Dashbordinnav from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmdashboardinnav";
@@ -20,13 +21,34 @@ const Pmdasboardlayout = () => {
   const [isNavOpen, setIsNavOpen] = useState(window.innerWidth >= 768);
   const [projectName, setProjectName] = useState('Scrum Project');
   const location = useLocation();
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const openModal = () => setIsInviteModalOpen(true);
   const closeModal = () => setIsInviteModalOpen(false);
 
-  // CHANGED: Use .includes() instead of .startsWith()
-  // This ensures it catches '/pm/projects/123/pages' correctly
+const fetchNotificationCount = useCallback(async () => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) return;
+
+        const response = await fetch(`${API_BASE_URL}/teams/invitations/pending/`, { 
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            setNotificationCount(Array.isArray(data) ? data.length : 0);
+        }
+    } catch (error) {
+        console.error("Error fetching notification count:", error);
+    }
+  }, []);
+
+  // --- 2. FETCH ON MOUNT ---
+  useEffect(() => {
+    fetchNotificationCount();
+  }, [fetchNotificationCount]);
   const showinner = pathsWithInnerNav.some((path) =>
     location.pathname.includes(path)
   );
@@ -91,11 +113,11 @@ const Pmdasboardlayout = () => {
     <div className="h-screen font-sans flex flex-col" style={{ background: "linear-gradient(135deg, #ffffff 0%, #ffffff 100%)", backgroundAttachment: "fixed", backgroundSize: "cover" }}>
           {isNavOpen && window.innerWidth < 768 && (<div onClick={toggleNav} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>)}
           <div className="md:px-0">
-            <Uppernavbar />
+            <Uppernavbar notificationCount={notificationCount}/>
           </div>
           <div className="flex-1 flex overflow-hidden">
             <div className={`fixed top-0 left-0 h-full p-4 md:p-0 md:relative md:h-full z-40 transition-transform duration-300 ${isNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-              <SideNav isOpen={isNavOpen} openInviteModal={openModal} />
+              <SideNav isOpen={isNavOpen} openInviteModal={openModal} notificationCount={notificationCount} />
             </div>
             <div className="flex-1 flex flex-col transition-all duration-300 overflow-hidden">
               {showinner && (
