@@ -282,16 +282,16 @@ const AppRouter = () => {
           <Route path="/sm/forms/:projectId/:formId" element={<SmFormEditor />} />
           <Route path="/sm/goals/:projectId" element={<Smgoals />} /> 
 
-          {/* 1. User Details (Matches "For You" in SideNav) */}
+          
           <Route path="/sm/user-details" element={<Smprojectmanager />} />
           
-          {/* 2. Teams Page (List of all teams) */}
+         
           <Route path="/sm/teams/teams" element={<SmTeams />} />
 
-          {/* 3. People Page */}
+          
           <Route path="/sm/teams/people" element={<SmPeople />} />
           
-          {/* 4. Single Team Details (IMPORTANT: This was missing) */}
+       
           <Route path="/sm/teams/:teamId" element={<SmTeamDetails />} />
           
           {/* ------------------------------------------- */}

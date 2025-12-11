@@ -35,7 +35,7 @@ const Developerteams = () => {
             }
         } catch (error) {
             console.error("Error fetching teams:", error);
-            // Mock data for demonstration
+            
             setTeams([
                 { 
                     id: 1, 
@@ -60,14 +60,14 @@ const Developerteams = () => {
     );
 
     const handleTeamClick = (teamId) => {
-        navigate(`/teams/${teamId}`);
+        navigate(`/developer/teams/${teamId}`);
     };
 
     const handleTeamCreated = (teamId) => {
-        // Refresh the teams list
+      
         fetchTeams();
-        // Navigate to the newly created team's details page
-        navigate(`/teams/${teamId}`);
+      
+        navigate(`/developer/teams/${teamId}`);
     };
 
     return (
