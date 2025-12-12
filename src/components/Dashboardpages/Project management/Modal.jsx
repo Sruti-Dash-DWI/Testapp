@@ -25,19 +25,21 @@ const ProjectsIcon = () => (
 const Modal = ({ isOpen, onClose }) => {
   const [inviteType, setInviteType] = useState("project");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("DEVELOPER");
+  
+  const [role, setRole] = useState(""); 
 
   const [projects, setProjects] = useState([]);
+  const [roles, setRoles] = useState([]); // State for dynamic roles
   const [selectedProjectId, setSelectedProjectId] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // --- NEW: Fetch projects when the modal opens ---
+  // --- Fetch projects and roles when the modal opens ---
   useEffect(() => {
     if (isOpen) {
-      const fetchProjectsForManager = async () => {
+      const fetchData = async () => {
         try {
           const authToken = localStorage.getItem("authToken");
           if (!authToken) {
@@ -45,25 +47,45 @@ const Modal = ({ isOpen, onClose }) => {
             return;
           }
 
-          const response = await fetch(`${API_BASE_URL}/projects/`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
+          const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          };
 
-          if (!response.ok) throw new Error("Could not fetch your projects.");
+         
+          const [projectsRes, rolesRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/projects/`, { headers }),
+            fetch(`${API_BASE_URL}/roles/`, { headers }),
+          ]);
 
-          const data = await response.json();
-          const allProjects = Object.values(data).flat();
+          if (!projectsRes.ok) throw new Error("Could not fetch projects.");
+          if (!rolesRes.ok) throw new Error("Could not fetch roles.");
+
+          const projectsData = await projectsRes.json();
+          const rolesData = await rolesRes.json();
+
+         
+          const allProjects = Object.values(projectsData).flat();
           setProjects(allProjects);
+
+          setRoles(rolesData);
+          
+          
+          if (rolesData.length > 0) {
+           
+            const currentRoleExists = rolesData.some(r => r.name === role);
+            if (!role || !currentRoleExists) {
+                setRole(rolesData[0].name);
+            }
+          }
+
         } catch (err) {
-          console.error("Error fetching projects for modal:", err);
+          console.error("Error fetching data for modal:", err);
           setError(err.message);
         }
       };
 
-      fetchProjectsForManager();
+      fetchData();
     }
   }, [isOpen]);
 
@@ -72,8 +94,9 @@ const Modal = ({ isOpen, onClose }) => {
     setTimeout(() => {
       setInviteType("project");
       setEmail("");
-      setRole("DEVELOPER");
+      setRole(""); // Reset role
       setProjects([]);
+      setRoles([]); // Clear roles
       setSelectedProjectId("");
       setSuccess(false);
       setIsSubmitting(false);
@@ -102,14 +125,13 @@ const Modal = ({ isOpen, onClose }) => {
       }
       fetchUrl = `${API_BASE_URL}/projects/${selectedProjectId}/members/invite-member/`;
     } else {
-      // Organization-invite logic
-      fetchUrl = `${API_BASE_URL}/users/invite/`; // <-- This is your new organization API endpoint
+     
+      fetchUrl = `${API_BASE_URL}/users/invite/`;
     }
-  
+
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(fetchUrl, {
-        // Use the dynamic fetchUrl
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +152,7 @@ const Modal = ({ isOpen, onClose }) => {
       setTimeout(handleCloseAndReset, 2000);
     } catch (err) {
       setError(err.message);
-      IsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -210,37 +232,9 @@ const Modal = ({ isOpen, onClose }) => {
                   >
                     <option value="project">
                       {" "}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                        />
-                      </svg>
                       Invite to a Project
                     </option>
                     <option value="organization">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A9.06 9.06 0 0 1 6 18.719m12 0a9.06 9.06 0 0 0-6-2.18c-2.17 0-4.207.576-5.963 1.584m11.926 0-4.86-3.86m0 0a9.06 9.06 0 0 1-6 2.18m6-2.18a9.06 9.06 0 0 0-6-2.18c-2.17 0-4.207.576-5.963 1.584m11.926 0-4.86-3.86m0 0a9.06 9.06 0 0 1 6-2.18m-6 2.18a9.06 9.06 0 0 0 6 2.18m0-10.5c-.378-.447-.84-.817-1.343-1.128a4.5 4.5 0 0 0-6.314 0c-.503.311-.965.681-1.343 1.128M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                        />
-                      </svg>
                       Invite to a Organization
                     </option>
                   </select>
@@ -291,10 +285,15 @@ const Modal = ({ isOpen, onClose }) => {
                     onChange={(e) => setRole(e.target.value)}
                     className="modal-input w-full p-3 rounded-lg bg-white/70 border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   >
-                    <option value="SCRUM_MASTER">Scrum Master</option>
-                    <option value="MANAGER">Project Manager</option>
-                    <option value="DEVELOPER">Developer</option>
-                    <option value="TESTER">Tester</option>
+                    {roles.length === 0 ? (
+                        <option value="" disabled>Loading roles...</option>
+                    ) : (
+                        roles.map((r) => (
+                            <option key={r.id} value={r.name}>
+                                {r.name}
+                            </option>
+                        ))
+                    )}
                   </select>
                 </div>
                 <div className="flex justify-end gap-3">
