@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import SmDashboardlayout from '../../layout/Smdashboardlayout';
 import { Link } from "react-router-dom"
 import { MoreVertical } from 'lucide-react';
-import SmManageTeamModal from '../../components/Scrummaster/SmManageTeamModal';
+import SmManageTeamModal from '../../components/scrummaster/SmManageTeamModal';
 import { useTheme } from '../../context/ThemeContext';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

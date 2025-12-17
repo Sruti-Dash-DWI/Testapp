@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
 import { Users, Plus, MoreHorizontal, Info, CheckSquare } from 'lucide-react';
-import AddTeamMembersModal from '../../../components/modals/AddTeamMembersModal';
-import TeamSettingsModal from '../../../components/modals/TeamSettingsModal';
-import Toast from '../../../components/Toast';
+import AddTeamMembersModal from '../../modals/AddTeamMembersModal';
+import TeamSettingsModal from '../../modals/TeamSettingsModal';
+import Toast from '../../Toast';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Developerteamdetails = () => {

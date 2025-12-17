@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
 import { Search, Users } from 'lucide-react';
-import CreateTeamModal from '../../../components/modals/CreateTeamModal';
+import CreateTeamModal from '../../modals/CreateTeamModal';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Developerteams = () => {

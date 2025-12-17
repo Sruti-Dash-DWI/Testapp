@@ -976,7 +976,7 @@ const handleDeleteComment = async (taskId, activityId) => {
   const authToken = localStorage.getItem("authToken");
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/tasks/${taskId}/delete-activity/${activityId}/`,
+      `${API_BASE_URL}/tasks/${taskId}/delete-activity/${activityId}/`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${authToken}` },

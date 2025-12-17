@@ -4,7 +4,7 @@ import DeveloperSideNav from "../components/developer/DeveloperSideNav";
 import DeveloperDashboardinNav from "../components/developer/DeveloperDashboardinNav";
 import DeveloperDashboardheader from "../components/developer/DeveloperDashboardheader";
 import DeveloperUppernavbar from "../components/developer/DeveloperUppernavbar";
-import Modal from "../components/developerDashboardpages/Project management developer/DevModal.jsx";
+import Modal from "../components/developerDashboardpages/projectmanagementdeveloper/DevModal.jsx";
 const pathsWithInnerNav = [
    '/developer/backlog', '/developer/summary', '/developer/list', '/developer/board', '/developer/timeline',
   '/pages',  '/developer/forms', '/developer/calendar',

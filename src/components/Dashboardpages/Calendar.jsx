@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search, Calendar as CalendarIcon, MoreHorizontal, Plus, ChevronDown, X, AlertCircle, Grid } from 'lucide-react';
 
-import { ItemDetailModal, EditSprintModal } from "../Dashboardpages/backlog/BacklogModals";
+import { ItemDetailModal, EditSprintModal } from "./backlog/BacklogModals";
 import { useTheme } from '../../context/ThemeContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;

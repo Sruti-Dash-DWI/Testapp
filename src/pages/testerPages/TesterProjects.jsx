@@ -151,7 +151,7 @@ const DeveloperProjects = () => {
   //     }
 
   //     try {
-  //       const response = await fetch('http://localhost:8000/api/projects/', {
+  //       const response = await fetch(`${API_BASE_URL}/projects/`, {
   //         method: 'POST',
   //         headers: {
   //           'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ const DeveloperProjects = () => {
   //   if (userConfirmed) {
   //     try {
   //       const authToken = localStorage.getItem('authToken');
-  //       const response = await fetch(`http://localhost:8000/api/projects/${activeProjectId}/`, {
+  //       const response = await fetch(`${API_BASE_URL}/projects/${activeProjectId}/`, {
   //         method: 'DELETE',
   //         headers: {
   //           'Authorization': `Bearer ${authToken}`

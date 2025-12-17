@@ -8,16 +8,16 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
-import { FormDashboard, FormEditor } from '../components/Dashboardpages/Form.jsx';
+import { FormDashboard, FormEditor } from '../components/dashboardpages/Form.jsx';
 
 import Projects from "../pages/Projects.jsx";
-import BacklogPage from "../components/Dashboardpages/BacklogPage.jsx";
-import Board from "../components/Dashboardpages/Board.jsx";
-import Calendar from "../components/Dashboardpages/Calendar.jsx";
-import Timeline from "../components/Dashboardpages/Timeline.jsx";
-import PageContent from "../components/Dashboardpages/PageContent.jsx";
-import Summary from "../components/Dashboardpages/Summary.jsx";
-import List from "../components/Dashboardpages/List.jsx";
+import BacklogPage from "../components/dashboardpages/BacklogPage.jsx";
+import Board from "../components/dashboardpages/Board.jsx";
+import Calendar from "../components/dashboardpages/Calendar.jsx";
+import Timeline from "../components/dashboardpages/Timeline.jsx";
+import PageContent from "../components/dashboardpages/PageContent.jsx";
+import Summary from "../components/dashboardpages/Summary.jsx";
+import List from "../components/dashboardpages/List.jsx";
 import ForYou from "../pages/teams/ForYou.jsx";
 import People from "../pages/teams/People.jsx";
 import Teams from "../pages/teams/Teams.jsx";
@@ -28,7 +28,7 @@ import Testsuite from "../pages/testcases/Testsuite.jsx";
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
 import Settings from "../pages/sidenav_pages/Settings.jsx";
-import GoalsPa from "../components/Dashboardpages/Goals.jsx";
+import GoalsPa from "../components/dashboardpages/Goals.jsx";
 
 import Dummypage from "../pages/Dummypage.jsx";
 
@@ -41,8 +41,8 @@ import DevelopersTimeline from "../components/developerDashboardpages/DeveloperT
 import DevelopersSummary from "../components/developerDashboardpages/DeveloperSummary.jsx";
 import DevelopersList from "../components/developerDashboardpages/DeveloperList.jsx";
 import DevelopersPageContent from "../components/developerDashboardpages/DeveloperPageContent.jsx";
-import Developerprojectmanager from "../components/developerDashboardpages/Project management developer/DevTeammanagement.jsx";
-import DevEditUserModal from "../components/developerDashboardpages/Project management developer/DevEditUserModal.jsx";
+import Developerprojectmanager from "../components/developerDashboardpages/projectmanagementdeveloper/DevTeammanagement.jsx";
+import DevEditUserModal from "../components/developerDashboardpages/projectmanagementdeveloper/DevEditUserModal.jsx";
 import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
 import { DeveloperFormDashboard, DeveloperFormEditor } from '../components/developerDashboardpages/Developerforms.jsx';
 import DeveloperTeams from "../components/developerDashboardpages/developerteams/DeveloperTeams.jsx";
@@ -69,7 +69,7 @@ import TesterCalendar from "../components/testerDashboardPages/TesterCalendar.js
 import TesterTimeline from "../components/testerDashboardPages/TesterTimeline.jsx";
 import TesterList from "../components/testerDashboardPages/TesterList.jsx";
 import TesterPageContent from "../components/testerDashboardPages/TesterPageContent.jsx";
-import TesterTeammanagement from "../components/testerDashboardPages/testerProject management/TesterTeammanagement.jsx";
+import TesterTeammanagement from "../components/testerDashboardPages/testerProjectmanagement/TesterTeammanagement.jsx";
 import { TesterFormDashboard, TesterFormEditor } from '../components/testerDashboardPages/Testerforms.jsx';
 import TesterTeams from "../components/testerDashboardPages/testerteams/Testerteams.jsx";
 import TesterPeople from "../components/testerDashboardPages/testerteams/Testerpeople.jsx";
@@ -77,50 +77,50 @@ import TesterTeamDetails from "../components/testerDashboardPages/testerteams/Te
 import Testergoals from "../components/testerDashboardPages/Testergoals.jsx";
 
 // Project Manager imports
-import Projectmanager from "../components/Dashboardpages/Project management/Teammanagement.jsx";
-import Pmprojectmanager from "../components/Dashboardpages/projectmanager/Project managementmg/PmTeammanagement.jsx"
+import Projectmanager from "../components/dashboardpages/projectmanagement/Teammanagement.jsx";
+import Pmprojectmanager from "../components/dashboardpages/projectmanager/projectmanagementmg/PmTeammanagement.jsx"
 
 import PmProjects from "../pages/projectmanagerpages/PmProjects.jsx";
-import SetPasswordPage from "../components/Dashboardpages/Project management/Setpassword.jsx";
+import SetPasswordPage from "../components/dashboardpages/projectmanagement/Setpassword.jsx";
 import Pmdashboardlayout from "../layout/Pmdasboardlayout.jsx";
-import PmBacklogPage from "../components/Dashboardpages/projectmanager/pmpages/Pmbacklogpage.jsx";
+import PmBacklogPage from "../components/dashboardpages/projectmanager/pmpages/Pmbacklogpage.jsx";
 
 import PmDocuments from "../pages/projectmanagerpages/sidenav_pages/Documents.jsx";
 import PmNotifications from "../pages/projectmanagerpages/sidenav_pages/Notification.jsx";
 import PmSettings from "../pages/projectmanagerpages/sidenav_pages/Settings.jsx";
-import PmSummary from "../components/Dashboardpages/projectmanager/pmpages/Pmsummary.jsx";
-import PmList from "../components/Dashboardpages/projectmanager/pmpages/Pmlist.jsx";
-import PmBoard from "../components/Dashboardpages/projectmanager/pmpages/Pmboard.jsx";
-import PmTimeline from "../components/Dashboardpages/projectmanager/pmpages/Pmtimeline.jsx";
-import PmCalendar from "../components/Dashboardpages/projectmanager/pmpages/Pmcalendar.jsx";
-import PmPageContent from "../components/Dashboardpages/projectmanager/pmpages/Pmpagecontent.jsx";
-import { PmFormDashboard, PmFormEditor } from '../components/Dashboardpages/projectmanager/pmpages/Pmforms.jsx';
-import PmTeams from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteams.jsx";
-import PmPeople from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmpeople.jsx";
-import PmTeamDetails from "../components/Dashboardpages/projectmanager/pmpages/pmteams/Pmteamdetails.jsx";
-import Pmgoals from "../components/Dashboardpages/projectmanager/pmpages/Pmgoals.jsx";
+import PmSummary from "../components/dashboardpages/projectmanager/pmpages/Pmsummary.jsx";
+import PmList from "../components/dashboardpages/projectmanager/pmpages/Pmlist.jsx";
+import PmBoard from "../components/dashboardpages/projectmanager/pmpages/Pmboard.jsx";
+import PmTimeline from "../components/dashboardpages/projectmanager/pmpages/Pmtimeline.jsx";
+import PmCalendar from "../components/dashboardpages/projectmanager/pmpages/Pmcalendar.jsx";
+import PmPageContent from "../components/dashboardpages/projectmanager/pmpages/Pmpagecontent.jsx";
+import { PmFormDashboard, PmFormEditor } from '../components/dashboardpages/projectmanager/pmpages/Pmforms.jsx';
+import PmTeams from "../components/dashboardpages/projectmanager/pmpages/pmteams/Pmteams.jsx";
+import PmPeople from "../components/dashboardpages/projectmanager/pmpages/pmteams/Pmpeople.jsx";
+import PmTeamDetails from "../components/dashboardpages/projectmanager/pmpages/pmteams/Pmteamdetails.jsx";
+import Pmgoals from "../components/dashboardpages/projectmanager/pmpages/Pmgoals.jsx";
 
 // Scrum Master imports
 import SmProjects from "../pages/scrummasterpages/SmProjects.jsx";
-import SmBacklogPage from "../components/Smdashboardpages/SmBacklogPage.jsx";
-import SmBoard from "../components/Smdashboardpages/SmBoard.jsx";
-import SmCalendar from "../components/Smdashboardpages/SmCalendar.jsx";
-import SmTimeline from "../components/Smdashboardpages/SmTimeline.jsx";
-import SmSummary from "../components/Smdashboardpages/SmSummary.jsx";
-import SmList from "../components/Smdashboardpages/SmList.jsx";
-import SmPageContent from "../components/Smdashboardpages/SmPageContent.jsx";
-import Smprojectmanager from "../components/Smdashboardpages/Project management Sm/SmTeammanagement.jsx";
-import SmEditUserModal from "../components/Smdashboardpages/Project management Sm/SmEditUserModal.jsx";
+import SmBacklogPage from "../components/smdashboardpages/SmBacklogPage.jsx";
+import SmBoard from "../components/smdashboardpages/SmBoard.jsx";
+import SmCalendar from "../components/smdashboardpages/SmCalendar.jsx";
+import SmTimeline from "../components/smdashboardpages/SmTimeline.jsx";
+import SmSummary from "../components/smdashboardpages/SmSummary.jsx";
+import SmList from "../components/smdashboardpages/SmList.jsx";
+import SmPageContent from "../components/smdashboardpages/SmPageContent.jsx";
+import Smprojectmanager from "../components/smdashboardpages/projectmanagementsm/SmTeammanagement.jsx";
+import SmEditUserModal from "../components/smdashboardpages/projectmanagementsm/SmEditUserModal.jsx";
 //import DeveloperDashboardLayout from "../layout/DeveloperDashboardLayout.jsx";
 import SmDashboardlayout from "../layout/Smdashboardlayout.jsx";
 import SmDocuments from "../pages/scrummasterpages/sidenav_pages/SmDocuments.jsx";
 import SmNotification from "../pages/scrummasterpages/sidenav_pages/SmNotification.jsx";
 import SmSettings from "../pages/scrummasterpages/sidenav_pages/SmSettings.jsx";
-import { SmFormDashboard, SmFormEditor } from '../components/Smdashboardpages/SmForm.jsx';
-import SmTeams from "../components/Scrummaster/smteams/SmTeams.jsx";
-import SmPeople from "../components/Scrummaster/smteams/Smpeople.jsx";
-import SmTeamDetails from "../components/Scrummaster/smteams/SmTeamDetails.jsx";
-import Smgoals from "../components/Smdashboardpages/Smgoals.jsx";
+import { SmFormDashboard, SmFormEditor } from '../components/smdashboardpages/SmForm.jsx';
+import SmTeams from "../components/scrummaster/smteams/SmTeams.jsx";
+import SmPeople from "../components/scrummaster/smteams/Smpeople.jsx";
+import SmTeamDetails from "../components/scrummaster/smteams/SmTeamDetails.jsx";
+import Smgoals from "../components/smdashboardpages/Smgoals.jsx";
 
 const AppRouter = () => {
   return (

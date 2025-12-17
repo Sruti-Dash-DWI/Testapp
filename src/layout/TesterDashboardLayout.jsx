@@ -4,7 +4,7 @@ import TesterSideNav from "../components/tester/TesterSideNav";
 import TesterDashboardinNav from "../components/tester/TesterDashboardinNav";
 import TesterDashboardheader from "../components/tester/TesterDashboardheader";
 import TesterUppernavbar from "../components/tester/TesterUppernavbar";
-import Modal from "../components/testerDashboardPages/testerProject management/TesterModal";
+import Modal from "../components/testerDashboardPages/testerProjectmanagement/TesterModal";
 
 const pathsWithInnerNav = [
    '/tester/backlog', '/tester/summary', '/tester/list', '/tester/board', '/tester/timeline',

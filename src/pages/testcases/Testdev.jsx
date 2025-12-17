@@ -4,47 +4,9 @@ import { useNavigate } from 'react-router-dom'; // Add this import
 import { useTheme } from '../../context/ThemeContext';
 
 import { Home, RefreshCw, Play, Settings, Plus, Search, Filter, MoreVertical, HelpCircle, User, Grid, List, Menu, X } from 'lucide-react';
-// =============================
-// API FUNCTIONS
-// =============================
-async function createModuleAPI(moduleName, description) {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/api/qa/modules/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: moduleName,
-        description,
-        parentModule: "Root"
-      })
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json(); // expected { success: true, ... }
-  } catch (err) {
-    console.error("createModuleAPI error:", err);
-    return null;
-  }
-}
-
-async function createManualTestCaseAPI(testcaseData) {
-  try {
-    const res = await fetch("https://your-api.com/create-manual-testcase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(testcaseData)
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error("createManualTestCaseAPI error:", err);
-    return null;
-  }
-}
 
 export default function TestScriptsUI() {
-  const navigate = useNavigate(); // Add this hook
+  const navigate = useNavigate();
   const [loadingModule, setLoadingModule] = useState(false);
 const [loadingTestcase, setLoadingTestcase] = useState(false);
 
@@ -63,14 +25,8 @@ const [loadingTestcase, setLoadingTestcase] = useState(false);
   }
   setLoadingModule(true);
 
-  const result = await createModuleAPI(moduleName.trim(), description.trim());
-  if (result && (result.success || result.id)) {
-    alert("Module created successfully");
-    // optionally update a modules list state here
-  } else {
-    alert("Failed to create module");
-  }
-
+ 
+  
   setLoadingModule(false);
   setShowCreateModal(false);
   setShowAddModule(false);
@@ -85,14 +41,9 @@ const handleCreateManualTestCase = async () => {
   }
   setLoadingTestcase(true);
 
-  const payload = { ...manualTestCaseData };
-  const result = await createManualTestCaseAPI(payload);
-
-  if (result && (result.success || result.id)) {
-    alert("Manual test case created");
-  } else {
-    alert("Failed to create manual test case");
-  }
+  
+ 
+ 
 
   setLoadingTestcase(false);
   setShowManualTestCaseModal(false);

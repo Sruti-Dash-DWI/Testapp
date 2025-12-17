@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useLocation, Outlet } from "react-router-dom";
-import SmSideNav from "../components/Scrummaster/SmSideNav"; 
-import SmDashbordinnav from "../components/Scrummaster/SmDashboardinNav";
-import SmDashboardheader from "../components/Scrummaster/SmDashboardheader";
-import SmUppernavbar from "../components/Scrummaster/SmUppernavbar";
-import Modal from "../components/Smdashboardpages/Project management Sm/SmModal";
+import SmSideNav from "../components/scrummaster/SmSideNav"; 
+import SmDashbordinnav from "../components/scrummaster/SmDashboardinNav";
+import SmDashboardheader from "../components/scrummaster/SmDashboardheader";
+import SmUppernavbar from "../components/scrummaster/SmUppernavbar";
+import Modal from "../components/smdashboardpages/projectmanagementsm/SmModal";
 
 const pathsWithInnerNav = [
   '/sm/backlog', '/sm/summary', '/sm/list', '/sm/board', '/sm/timeline',

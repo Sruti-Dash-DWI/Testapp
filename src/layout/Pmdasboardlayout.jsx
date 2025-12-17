@@ -3,11 +3,11 @@
 import React, { useState, useEffect,useCallback } from "react";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useLocation, Outlet } from "react-router-dom";
-import SideNav from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmsidenav"; 
-import Dashbordinnav from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmdashboardinnav";
-import Dashboardheader from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmdashboardheader";
-import Uppernavbar from "../components/Dashboardpages/projectmanager/projectmanagercomp/Pmuppernav.jsx";
-import Modal from "../components/Dashboardpages/projectmanager/Project managementmg/Modal.jsx";
+import SideNav from "../components/dashboardpages/projectmanager/projectmanagercomp/Pmsidenav.jsx"; 
+import Dashbordinnav from "../components/dashboardpages/projectmanager/projectmanagercomp/Pmdashboardinnav.jsx";
+import Dashboardheader from "../components/dashboardpages/projectmanager/projectmanagercomp/Pmdashboardheader.jsx";
+import Uppernavbar from "../components/dashboardpages/projectmanager/projectmanagercomp/Pmuppernav.jsx";
+import Modal from "../components/dashboardpages/projectmanager/projectmanagementmg/Modal.jsx";
 
 const pathsWithInnerNav = [
   '/pm/backlog', '/pm/summary', '/pm/list', '/pm/board', '/pm/timeline', '/pm/calendar',

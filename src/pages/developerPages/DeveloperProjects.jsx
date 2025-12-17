@@ -137,94 +137,14 @@ const DeveloperProjects = () => {
     }));
   };
 
-  //CREATE PROJECT
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setLoading(true);
-  //     setError(null);
-
-  //     const authToken = localStorage.getItem('authToken');
-  //     if (!authToken) {
-  //       setError('You must be logged in to create a project.');
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     try {
-  //       const response = await fetch('http://localhost:8000/api/projects/', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Accept': 'application/json',
-  //           'Authorization': `Bearer ${authToken}`
-  //         },
-  //         body: JSON.stringify(formData)
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error('Failed to create project');
-  //       } 
-
-  //        window.dispatchEvent(new CustomEvent('projectListUpdated'));
-
-  //       fetchProjects();
-  //       handleClose();
-  //       setFormData({
-  //   name: '',
-  //   description: '',
-  //   owner: '',
-  //   status: 'PLANNED',
-  //   project_manager_id: ''
-  // });
-
-  //     } catch (error) {
-  //       console.error('Error creating project:', error);
-  //       setError('Failed to create project. Please check server connection.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  
 
   const handleProjectClick = (project) => {
     localStorage.setItem("activeProjectId", project.id);
     localStorage.setItem("activeProjectName", project.name);
   }
 
-  //DELETE FUNCTION
-  // const handleDelete = async (e, activeProjectId) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-
-  //   const userConfirmed = window.confirm(
-  //     "Are you sure you want to delete this project? This action cannot be undone."
-  //   );
-
-  //   if (userConfirmed) {
-  //     try {
-  //       const authToken = localStorage.getItem('authToken');
-  //       const response = await fetch(`http://localhost:8000/api/projects/${activeProjectId}/`, {
-  //         method: 'DELETE',
-  //         headers: {
-  //           'Authorization': `Bearer ${authToken}`
-  //         },
-  //       });
-
-  //       if (response.ok) {
-  //         setProjects(currentProjects =>
-  //           currentProjects.filter(project => project.id !== activeProjectId)
-  //         );
-  //         console.log(`Project with ID ${activeProjectId} deleted successfully.`);
-  //       } else {
-  //         const errorData = await response.json();
-  //         console.error("Failed to delete project:", errorData.message || response.statusText);
-  //         alert("Error: Could not delete the project.");
-  //       }
-  //     } catch (error) {
-  //       console.error("An error occurred during the delete request:", error);
-  //       alert("An error occurred. Please check your network and try again.");
-  //     }
-  //   }
-  // };
+  
 
   // --- FUNCTIONS ADDED FOR TEAM MODAL ---
   const handleOpenTeamModal = (project) => {
