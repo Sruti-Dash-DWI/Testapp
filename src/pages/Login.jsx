@@ -6,7 +6,7 @@ import { CiLock } from "react-icons/ci";
 import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import PrimaryBackground from "../components/PrimaryBackground";
-import { toast } from "react-toastify"; // ✅ Toastify import
+import { toast } from "react-toastify"; 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper function to decode JWT
@@ -31,9 +31,12 @@ function Login() {
       .required("Password is required"),
   });
 
-  // 🔹 Navigate by role
+ 
   const navigateByRole = (role) => {
     switch (role) {
+      case "ADMIN":
+        navigate("/sa/projects");
+        break;
       case "OWNER":
         navigate("/projects");
         break;

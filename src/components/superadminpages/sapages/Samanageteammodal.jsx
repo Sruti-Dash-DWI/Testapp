@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, X, AlertTriangle, Loader2, ShieldCheck, CheckSquare, Square } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext'; // Ensure this path is correct
+import { useTheme } from '../../../context/ThemeContext'; // Adjust path if necessary
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,7 +28,7 @@ const UnifiedSearchableDropdown = ({ allMembers, selections, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const { theme, colors } = useTheme(); // Use Theme Context
-
+    
     useClickOutside(dropdownRef, () => setIsOpen(false));
 
     // Filter members based on search term
@@ -136,7 +136,7 @@ const UnifiedSearchableDropdown = ({ allMembers, selections, onSelect }) => {
 };
 
 
-const ManageTeamModal = ({ project, onClose }) => {
+const Samanageteammodal = ({ project, onClose }) => {
     const [assignedMembers, setAssignedMembers] = useState([]);
     const [allAvailableMembers, setAllAvailableMembers] = useState([]);
     const [selections, setSelections] = useState({ developers: [], testers: [], managers: [] });
@@ -351,4 +351,4 @@ const ManageTeamModal = ({ project, onClose }) => {
     );
 };
 
-export default ManageTeamModal;
+export default Samanageteammodal;

@@ -1,6 +1,18 @@
 //Owner imports
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Superadminlayout from "../layout/Superadminlayout.jsx";
+import Saprojects from "../components/superadminpages/sapages/Saprojects.jsx";
+import Sanotifications from "../pages/sasidenavpages/Sanotification.jsx";
+import Sasettings from "../pages/sasidenavpages/Sasettings.jsx";
+import Saprojectmanager from "../components/superadminpages/saprojectmangement/Sateammangement.jsx";
+import Sapeople from "../components/superadminpages/sateams/Sapeople.jsx";
+import Sateams from "../components/superadminpages/sateams/Sateams.jsx";
+import Sateamdetails from "../components/superadminpages/sateams/Sateamdetails.jsx";
+import Satestdev from "../components/superadminpages/satestcase/Satestdev.jsx";
+import Satestsuite from "../components/superadminpages/satestcase/Satestsuite.jsx";
+
 import HomePage from "../pages/HomePage.jsx";
 import GenericPage from "../pages/GenericPage.jsx";
 import LoginPage from "../pages/Login.jsx";
@@ -184,6 +196,22 @@ const AppRouter = () => {
           <Route path="/reports/:pageId" element={<PageContent page={{ text: 'Reports', description: "Generate reports to analyze your team's progress." }} />} />
           <Route path="/security/:pageId" element={<PageContent page={{ text: 'Security', description: 'Manage security vulnerabilities and compliance.' }} />} />
           <Route path="/shortcuts/:pageId" element={<PageContent page={{ text: 'Shortcuts', description: 'Create quick links to important pages or resources.' }} />} />
+        </Route>
+
+        <Route element={<Superadminlayout />}>
+          <Route path="/sa/projects" element={<Saprojects />} />
+          <Route path="/sa/notifications" element={<Sanotifications />} />
+          <Route path="/sa/settings" element={<Sasettings />} />
+
+          <Route path="/sa/testcases/testdev/" element={<Satestdev />} />
+          <Route path="/sa/testcases/testsuite/" element={<Satestsuite />} />
+          
+
+          <Route path="/sa/teams/for-you" element={<Saprojectmanager />} />
+          <Route path="/sa/teams/people" element={<Sapeople />} />
+          <Route path="/sa/teams/teams" element={<Sateams />} />
+          <Route path="/sa/teams/:teamId" element={<Sateamdetails />} />
+
         </Route>
 
         {/* Developer Routes */}
