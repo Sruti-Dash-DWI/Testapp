@@ -1,43 +1,141 @@
 import React from "react";
+import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
+import { Linkedin, Instagram, Facebook, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const AboutUs = () => {
+const AboutUs = ({ isDark }) => {
   return (
-    <section id="about" className="min-h-screen bg-purple-100 flex flex-col justify-start px-6 md:px-20">
-      {/* Top semicircle gradient */}
-      <div className="absolute top left-1/2 transform -translate-x-1/2 w-96 h-48 rounded-b-full bg-gradient-to-b from-purple-500 to-transparent opacity-30"></div>
-      {/* About Us Title - positioned at top center */}
+    <section className={`py-15 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
+      <SectionHeader title="About Qora-AI" subtitle={["Qora-AI is built to help teams work with clarity", "bringing planning, execution, and collaboration into one unified workspace."]} isDark={isDark} />
 
-      <div className="text-center mb-60">
-        <h1 className="text-5xl md:text-6xl font-bold text-purple-800 text-about-heading mt-15 mb-8">
-          About Us
-        </h1>
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-10 items-center mb-24">
+          <ScrollReveal>
+            <h3 className={`text-4xl font-bold mb-8 leading-tight ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>
+              Reimagining the Future<br /> of Work.
+            </h3>
+            <p className="text-lg opacity-70 leading-relaxed mb-6">
+              At QORA-AI, we believe productivity isn't about doing more-it's about working smarter.
+              Our mission is to empower teams with intelligent tools that simplify work, foster collaboration,
+              and turn ideas into impact.
+            </p>
+          </ScrollReveal>
+          <TiltCard isDark={isDark} delay={0.2}>
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" className="rounded-2xl shadow-lg grayscale hover:grayscale-0 transition-all duration-700" alt="Team" />
+          </TiltCard>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-20 items-center mb-24">
+          <div>
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" className="rounded-2xl shadow-lg grayscale hover:grayscale-0 transition-all duration-700" alt="Team" />
+          </div>
+          <ScrollReveal>
+            {/* <h3 className={`text-4xl font-bold mb-8 leading-tight ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>
+              Reimagining the <br /> Future of Work.
+            </h3> */}
+            <p className="text-lg opacity-70 leading-relaxed mb-6">
+              QORA-AI provides a structured work management platform designed to help teams plan, track, and manage work throughout its lifecycle. The platform offers a visual workflow that enables clear task ownership, well-defined state transitions, and real-time progress visibility.
+            </p>
+          </ScrollReveal>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-20 items-center mb-24">
+          <ScrollReveal>
+            {/* <h3 className={`text-4xl font-bold mb-8 leading-tight ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>
+              Reimagining the <br /> Future of Work.
+            </h3> */}
+            <p className="text-lg opacity-70 leading-relaxed mb-6">
+              With integrated test case management, QORA-AI allows teams to create, organize, and validate test scenarios alongside ongoing work. This ensures strong traceability between requirements, execution, and outcomes, helping teams maintain consistent quality and reduce gaps between delivery and validation processes.
+            </p>
+          </ScrollReveal>
+          <TiltCard isDark={isDark} delay={0.2}>
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" className="rounded-2xl shadow-lg grayscale hover:grayscale-0 transition-all duration-700" alt="Team" />
+          </TiltCard>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          <TiltCard isDark={isDark} delay={0.3} className="h-full flex flex-col">
+            <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Our Story</h3>
+            <p className="opacity-70 leading-relaxed text-sm flex-grow">
+              QORA-AI was created to solve the challenge of managing work with clarity as teams and workflows grow more complex. Many existing tools address only parts of the process, leaving gaps between planning, execution, and validation. QORA-AI brings these elements together into a structured, unified platform that supports clear visibility, accountability, and reliable outcomes.
+            </p>
+          </TiltCard>
+          <TiltCard isDark={isDark} delay={0.4} className="h-full flex flex-col">
+            <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Our Mission</h3>
+            <p className="opacity-70 leading-relaxed text-sm flex-grow">
+              Our mission is to help teams work more effectively by providing a structured system that simplifies how work is planned, tracked, and validated. QORA-AI focuses on enabling consistency, collaboration, and transparency, allowing teams to deliver high-quality results while adapting to evolving workflows.
+            </p>
+          </TiltCard>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 items-center gap-50 max-w-5xl mx-auto">
-        {/* Left Text Section */}
-        <div>
-          <h3 className="text-4xl font-semibold text-purple-800 mb-4">
-            Who We Are
-          </h3>
-          <p className="text-gray-900 leading-relaxed  text-2xl">
-            At Quotient, we believe productivity isn’t about doing more — it’s
-            about working smarter. Our mission is to empower teams with
-            intelligent tools that simplify work, foster collaboration, and turn
-            ideas into impact.
+      {/* 8. FOOTER */}
+      <section className={`min-h-[50vh] flex items-center justify-center py-12 px-6 relative z-10 ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
+        <div className="max-w-4xl w-full text-center">
+          <h2 className={`text-4xl md:text-5xl font-black mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            Ready to get started?
+          </h2>
+          <p className={`text-xl mb-10 max-w-2xl mx-auto ${isDark ? 'text-white/70' : 'text-slate-600'}`}>
+            Join thousands of teams already using Qora-AI to be more productive.
           </p>
+          <div className="flex justify-center">
+            <Link to="/signup" className="inline-block">
+              <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-10 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                Get Started <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              </button>
+            </Link>
+          </div>
         </div>
-
-        {/* Right Image Section */}
-        <div className="relative">
-          {/* dotted background behind image */}
-          <div className="absolute -top-6 -left-6 w-32 h-32 bg-[radial-gradient(circle,_#9ca3af_2px,_transparent_8px)] bg-[length:10px_10px] opacity-50"></div>
-          <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-            alt="Team collaboration with laptop and coffee"
-            className="relative z-10 w-full h-100 object-cover"
-          />
-        </div>
-      </div>
+      </section>
+      <footer className={`py-5 px-6 relative z-10 border-t ${isDark ? 'bg-black border-white/5' : 'bg-white border-slate-100'}`}>
+        <ScrollReveal>
+          <div className="max-w-7xl mt-5 mx-auto grid md:grid-cols-4 gap-12">
+            <div>
+              <h2 className="text-2xl font-black mb-6 tracking-tighter">QORA-AI</h2>
+              <p className="opacity-60 text-sm leading-relaxed">Where ideas turn into achievements</p>
+            </div>
+            <div>
+              <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Services</h4>
+              <ul className="space-y-3 opacity-60 text-sm">
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">SEO Optimization</li>
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">Content Marketing</li>
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">Email Campaigns</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Products</h4>
+              <ul className="space-y-3 opacity-60 text-sm">
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">SEO Generator</li>
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">Content Basel-Checker</li>
+                <li className="hover:opacity-100 cursor-pointer transition-opacity">Email Automation</li>
+              </ul>
+            </div>
+            <div className="flex justify-end space-x-3 mt-8 lg:mt-22">
+              <a
+                href="#"
+                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
+              >
+                <Linkedin className="w-5 h-5 text-white" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
+              >
+                <Instagram className="w-5 h-5 text-white" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
+              >
+                <Facebook className="w-5 h-5 text-white" />
+              </a>
+            </div>
+          </div>
+          <div className="text-center mt-12 font-bold pt-8 border-t border-current border-opacity-10 opacity-40 text-xs">
+            &copy; 2025 QORA-AI. All rights reserved.
+          </div>
+        </ScrollReveal>
+      </footer>
     </section>
   );
 };

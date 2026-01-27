@@ -8,6 +8,9 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
+import SeeDemo from "../pages/SeeDemo.jsx";
+import Subscriptions from "../pages/Subscriptions.jsx";
+import Contact from "../pages/Contact.jsx";
 import { FormDashboard, FormEditor } from '../components/dashboardpages/Form.jsx';
 
 import Projects from "../pages/Projects.jsx";
@@ -131,8 +134,11 @@ const AppRouter = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="services" element={<Services />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/generic" element={<GenericPage title="Generic Page" />} />
+        <Route path="/seedemo" element={<SeeDemo />} />
+        <Route path="/subscriptions" element={<Subscriptions />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="/set-password" element={<SetPasswordPage />} />
 
