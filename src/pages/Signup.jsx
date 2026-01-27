@@ -1,17 +1,17 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import GridBackground from "../components/GridBackground";
 import * as Yup from "yup";
 import { IoPersonOutline, IoMailOutline, IoBusinessOutline, IoGlobeOutline } from "react-icons/io5";
 import { CiLock } from "react-icons/ci";
 import { useGoogleLogin } from '@react-oauth/google';
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 import PrimaryBackground from "../components/PrimaryBackground";
-
 function Signup() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const SignupSchema = Yup.object({
     first_name: Yup.string()
@@ -40,33 +40,33 @@ function Signup() {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const accessToken = tokenResponse.access_token;
-      
+     
       try {
         const response = await fetch(`${API_BASE_URL}/auth/google/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken }),
         });
- 
+
         if (!response.ok) {
           throw new Error("Google login failed on the server.");
         }
- 
+
         const data = await response.json();
         if (data.access && data.refresh && data.email && data.user_id) {
-        localStorage.setItem('authToken', data.access);
-        localStorage.setItem('refreshToken', data.refresh);
-        localStorage.setItem('userEmail', data.email);
-        localStorage.setItem('userId', data.user_id);
- 
-        alert(`Welcome! You are now logged in.`);
-        navigate('/projects');
-      } else {
-        throw new Error("Auth tokens or user info missing in response after Google login.");
-      }
-        
-       
- 
+          localStorage.setItem('authToken', data.access);
+          localStorage.setItem('refreshToken', data.refresh);
+          localStorage.setItem('userEmail', data.email);
+          localStorage.setItem('userId', data.user_id);
+
+          alert(`Welcome! You are now logged in.`);
+          navigate('/projects');
+        } else {
+          throw new Error("Auth tokens or user info missing in response after Google login.");
+        }
+
+
+
       } catch (error) {
         alert("Error during Google login: " + error.message);
       }
@@ -75,33 +75,25 @@ function Signup() {
       alert('Google login failed. Please try again.');
     },
   });
- 
+
 
   return (
-    <PrimaryBackground>
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-md bg-gradient-to-br from-blue-50 to-indigo-50 border border-gray-300 rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-indigo-700 mb-2">
-              Get more done, Faster
-            </h1>
-          </div>
+    <GridBackground>
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-md bg-gradient-to-br from-blue-50 to-indigo-50 border border-gray-300 rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow">
+          <div className="p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold text-indigo-700 mb-2">
+                Get more done, Faster
+              </h1>
+            </div>
 
           <Formik
-            initialValues={{ 
-              first_name: "", 
-              last_name: "", 
-              organization_name: "", 
-              organization_domain: "", 
-              email: "", 
-              password: "" 
-            }}
+            initialValues={{ first_name: "", last_name: "", email: "", password: "" }}
             validationSchema={SignupSchema}
             onSubmit={async (values, { resetForm, setFieldError }) => { 
               try {
-                
-                const response = await fetch(`${API_BASE_URL}/signup/owner/`, {
+                const response = await fetch(`${API_BASE_URL}/signup/admin/`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(values),
@@ -119,8 +111,12 @@ function Signup() {
                   return; 
                 }
 
+               
+                
                 alert(`Signup successful for ${values.first_name}! Please log in.`);
                 resetForm();
+
+               
                 navigate('/login');
                 
               } catch (error) {
@@ -150,32 +146,32 @@ function Signup() {
                   <div className="flex-grow border-t border-gray-300"></div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:gap-4">
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      htmlFor="first_name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      First name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
-                        <IoPersonOutline className="h-5 w-5 text-gray-400" />
+                  <div className="flex flex-col sm:flex-row sm:gap-4">
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        htmlFor="first_name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        First name
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
+                          <IoPersonOutline className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <Field
+                          id="first_name"
+                          name="first_name"
+                          type="text"
+                          className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="Enter first name"
+                        />
                       </div>
-                      <Field
-                        id="first_name"
+                      <ErrorMessage
                         name="first_name"
-                        type="text"
-                        className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter first name"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
                       />
                     </div>
-                    <ErrorMessage
-                      name="first_name"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </div>
 
                   <div className="w-full sm:w-1/2 mt-5 sm:mt-0">
                     <label
@@ -204,60 +200,6 @@ function Signup() {
                   </div>
                 </div>
                 
-                {/* Organization Name */}
-                <div> 
-                  <label
-                    htmlFor="organization_name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Organization Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
-                      <IoBusinessOutline className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Field
-                      id="organization_name"
-                      name="organization_name"
-                      type="text"
-                      className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="e.g. Dreamwave"
-                    />
-                  </div>
-                  <ErrorMessage
-                    name="organization_name"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
-
-                {/* Organization Domain */}
-                <div>
-                  <label
-                    htmlFor="organization_domain"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Organization Domain
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
-                      <IoGlobeOutline className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Field
-                      id="organization_domain"
-                      name="organization_domain"
-                      type="text"
-                      className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="e.g. dreamwave.com"
-                    />
-                  </div>
-                  <ErrorMessage
-                    name="organization_domain"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
-
                 <div>
                   <label
                     htmlFor="email"
@@ -284,64 +226,64 @@ function Signup() {
                   />
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Choose Password
-                    </label>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
-                      <CiLock className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Choose Password
+                      </label>
                     </div>
-                    <Field
-                      id="password"
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
+                        <CiLock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <Field
+                        id="password"
+                        name="password"
+                        type="password"
+                        className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Minimum 8 characters"
+                      />
+                    </div>
+                    <ErrorMessage
                       name="password"
-                      type="password"
-                      className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Minimum 8 characters"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
                     />
                   </div>
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors shadow-md hover:shadow-lg disabled:bg-indigo-400"
-                >
-                  {isSubmitting ? "Signing Up..." : "Sign Up free"}
-                </button>
-                <p className="text-center text-sm text-black">
-                  By clicking the button above you agree to our{" "}
-                  <a
-                    href="#"
-                    className="font-medium text-indigo-600 hover:underline hover:text-indigo-800"
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors shadow-md hover:shadow-lg disabled:bg-indigo-400"
                   >
-                    Terms of Service
-                  </a>
-                {/* </p>
+                    {isSubmitting ? "Signing Up..." : "Sign Up free"}
+                  </button>
+                  <p className="text-center text-sm text-black">
+                    By clicking the button above you agree to our{" "}
+                    <a
+                      href="#"
+                      className="font-medium text-indigo-600 hover:underline hover:text-indigo-800"
+                    >
+                      Terms of Service
+                    </a>
+                    {/* </p>
                 <p className="text-center text-sm text-black"> */}
-                <br></br>
-                  Already have an account?{' '}
-                  <Link to="/login" className="font-medium text-indigo-600 hover:underline hover:text-indigo-800">
-                    Log in
-                  </Link>
-                </p> 
-              </Form>
-            )}
-          </Formik>
+                    <br></br>
+                    Already have an account?{' '}
+                    <Link to="/login" className="font-medium text-indigo-600 hover:underline hover:text-indigo-800">
+                      Log in
+                    </Link>
+                  </p>
+                </Form>
+              )}
+            </Formik>
+          </div>
         </div>
       </div>
-    </div>
-    </PrimaryBackground>
+    </GridBackground>
   );
 }
 

@@ -6,7 +6,7 @@ import { CiLock } from "react-icons/ci";
 import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import PrimaryBackground from "../components/PrimaryBackground";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify"; // ✅ Toastify import
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper function to decode JWT
@@ -24,7 +24,7 @@ function Login() {
   const LoginSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email")
-      // .matches(/@gmail.com$/, "Email must contain @gmail.com")
+      .matches(/@gmail.com$/, "Email must contain @gmail.com")
       .required("Email is required"),
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
@@ -99,7 +99,7 @@ function Login() {
   });
 
   return (
-    <PrimaryBackground>
+    <GridBackground>
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md bg-gradient-to-br from-blue-50 to-indigo-50 border border-gray-300 rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow">
           <div className="p-8">
@@ -240,7 +240,8 @@ function Login() {
           </div>
         </div>
       </div>
-    </PrimaryBackground>
+    </GridBackground>
+
   );
 }
 
