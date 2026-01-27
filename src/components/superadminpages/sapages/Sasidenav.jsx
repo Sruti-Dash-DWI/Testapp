@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
+import { PlusCircle, Building2, BarChart3 } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
@@ -17,15 +18,16 @@ const BellIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heigh
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 
 const Sasidenav = ({ isOpen, openInviteModal }) => {
-    const [projects, setProjects] = useState([]);
-    const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+    // const [projects, setProjects] = useState([]); // Removed unused state
+    // const [isProjectsOpen, setIsProjectsOpen] = useState(false); // Removed unused state
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [isTeamsOpen, setIsTeamsOpen] = useState(false);
+    // const [isTeamsOpen, setIsTeamsOpen] = useState(false); // No longer needed
     const [isTestdevOpen, setIsTestdevOpen] = useState(false);
     const [error, setError] = useState(null);
     const { theme, colors } = useTheme();
 
-    useEffect(() => {
+    // Removed the projects useEffect as it is no longer used for the sidebar list.
+    /* useEffect(() => {
         const fetchProjects = async () => {
             try {
                 const authToken = localStorage.getItem('authToken');
@@ -51,15 +53,11 @@ const Sasidenav = ({ isOpen, openInviteModal }) => {
 
         fetchProjects();
     }, []);
-
-    const handleProjectClick = (project) => {
-        localStorage.setItem('activeProjectName', project.name);
-        localStorage.setItem('activeProjectId', project.id);
-    };
-    
+    */
 
     const staticNavItems = [
-        { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
+        { icon: <Building2 />, name: 'Organization', path: 'organization' },
+        { icon: <BarChart3 />, name: 'Report', path: 'report' },
         { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
         { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
@@ -75,80 +73,29 @@ const Sasidenav = ({ isOpen, openInviteModal }) => {
         >
             <ul className="flex flex-col gap-4 flex-grow">
                 
+                {/* MODIFIED: PROJECTS IS NOW A DIRECT LINK */}
                 <li>
-                    <button 
-                        onClick={() => setIsProjectsOpen(!isProjectsOpen)}
-                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
-                        style={{
-                            backgroundColor: theme === 'dark' ? 'transparent' : 'transparent',
-                            color: colors.text,
-                        }}
+                    <NavLink 
+                        to="/sa/projects"
+                        className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''} ${!isOpen && 'justify-center'}`}
+                        style={({ isActive }) => ({
+                            backgroundColor: isActive ? undefined : 'transparent',
+                            color: isActive ? undefined : colors.text,
+                        })}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                            }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
+                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                            }
                         }}
                     >
                         <ProjectsIcon />
-                        {isOpen && <span className="flex-grow text-left">Projects</span>}
-                        {isOpen && (
-                            <svg className={`w-4 h-4 transition-transform ${isProjectsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                        )}
-                    </button>
-                    {isOpen && isProjectsOpen && (
-                        <ul 
-                            className="mt-2 space-y-1 pl-8 ml-5 max-h-48 overflow-x-hidden overflow-y-hidden"
-                            style={{
-                                borderLeft: `1px solid ${colors.border}`,
-                            }}
-                        >
-                            <li>
-                                <NavLink 
-                                    to="/sa/projects"
-                                    className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
-                                    style={({ isActive }) => ({
-                                        backgroundColor: isActive ? undefined : 'transparent',
-                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
-                                    })}
-                                    onMouseEnter={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                        }
-                                    }}
-                                >
-                                    View All Projects
-                                </NavLink>
-                            </li>
-                            {projects.map((project) => (
-                                <li key={project.id}>
-                                    {/* CHANGED FROM NAVLINK TO DIV TO PREVENT REDIRECT */}
-                                    <div
-                                        title={project.name}
-                                        onClick={() => handleProjectClick(project)}
-                                        className="block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 cursor-pointer"
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            color: theme === 'dark' ? '#94a3b8' : '#4b5563',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                        }}
-                                    >
-                                        {project.name}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                        {isOpen && <span>Projects</span>}
+                    </NavLink>
                 </li>
 
                 
@@ -226,106 +173,29 @@ const Sasidenav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li> */}
 
-                {/* NEW TEAMS SECTION */}
+                {/* MODIFIED: TEAMS SECTION IS NOW A DIRECT LINK */}
                 <li>
-                    <button 
-                        onClick={() => setIsTeamsOpen(!isTeamsOpen)}
-                        className={`flex items-center w-full gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${!isOpen && 'justify-center'}`}
-                        style={{
-                            backgroundColor: 'transparent',
-                            color: colors.text,
-                        }}
+                    <NavLink 
+                        to="/sa/teams/for-you"
+                        className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''} ${!isOpen && 'justify-center'}`}
+                        style={({ isActive }) => ({
+                            backgroundColor: isActive ? undefined : 'transparent',
+                            color: isActive ? undefined : colors.text,
+                        })}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+                            }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
+                            if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                            }
                         }}
                     >
                         <TeamsIcon />
-                        {isOpen && <span className="flex-grow text-left">Teams</span>}
-                        {isOpen && (
-                            <svg className={`w-4 h-4 transition-transform ${isTeamsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                        )}
-                    </button>
-                    {isOpen && isTeamsOpen && (
-                        <ul 
-                            className="mt-2 space-y-1 pl-8 ml-5"
-                            style={{
-                                borderLeft: `1px solid ${colors.border}`,
-                            }}
-                        >
-                            <li>
-                                <NavLink 
-                                    to="/sa/teams/for-you"
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
-                                    style={({ isActive }) => ({
-                                        backgroundColor: isActive ? undefined : 'transparent',
-                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
-                                    })}
-                                    onMouseEnter={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                        }
-                                    }}
-                                >
-                                    <ForYouIcon />
-                                    <span>User Details</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/sa/teams/teams"
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
-                                    style={({ isActive }) => ({
-                                        backgroundColor: isActive ? undefined : 'transparent',
-                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
-                                    })}
-                                    onMouseEnter={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                        }
-                                    }}
-                                >
-                                    <TeamGroupIcon />
-                                    <span>Teams</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/sa/teams/people"
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
-                                    style={({ isActive }) => ({
-                                        backgroundColor: isActive ? undefined : 'transparent',
-                                        color: isActive ? undefined : theme === 'dark' ? '#94a3b8' : '#4b5563',
-                                    })}
-                                    onMouseEnter={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!e.currentTarget.classList.contains('bg-gradient-to-r')) {
-                                            e.currentTarget.style.backgroundColor = 'transparent';
-                                        }
-                                    }}
-                                >
-                                    <PeopleIcon />
-                                    <span>People</span>
-                                </NavLink>
-                            </li>
-                        </ul>
-                    )}
+                        {isOpen && <span>User Management</span>}
+                    </NavLink>
                 </li>
 
                 {/* Test cases */}

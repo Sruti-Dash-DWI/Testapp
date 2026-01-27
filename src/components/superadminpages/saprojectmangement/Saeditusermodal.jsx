@@ -105,13 +105,12 @@ const Saeditusermodal = ({ member, onClose, onUpdate, onDeleteSuccess }) => {
         try {
             const authToken = localStorage.getItem('authToken');
             
-            // FIXED: Changed endpoint from /user/${id}/delete/ to standard REST /users/${id}/
+            
             const response = await fetch(`${API_BASE_URL}/users/${member.id}/`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${authToken}` },
             });
 
-            // Check for success (200-299)
             if (response.ok) {
                onDeleteSuccess(member.id);
                await new Promise(resolve => setTimeout(resolve, 300)); 

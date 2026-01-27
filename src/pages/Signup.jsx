@@ -1,7 +1,7 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { IoPersonOutline, IoMailOutline } from "react-icons/io5";
+import { IoPersonOutline, IoMailOutline, IoBusinessOutline, IoGlobeOutline } from "react-icons/io5";
 import { CiLock } from "react-icons/ci";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom"; 
@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 import PrimaryBackground from "../components/PrimaryBackground";
+
 function Signup() {
   const navigate = useNavigate(); 
 
@@ -19,9 +20,13 @@ function Signup() {
     last_name: Yup.string()
       .required("Last name is required")
       .matches(/^[a-zA-Z]+$/, "Last name must contain only letters"),
+    organization_name: Yup.string()
+      .required("Organization name is required"),
+    organization_domain: Yup.string()
+      .required("Organization domain is required"),
     email: Yup.string()
       .email("Invalid email")
-      .matches(/@gmail\.com$/, "Email must be a @gmail.com address")
+      // Removed the @gmail.com restriction
       .required("Email is required"),
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
@@ -35,7 +40,7 @@ function Signup() {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const accessToken = tokenResponse.access_token;
-     
+      
       try {
         const response = await fetch(`${API_BASE_URL}/auth/google/`, {
           method: 'POST',
@@ -84,11 +89,19 @@ function Signup() {
           </div>
 
           <Formik
-            initialValues={{ first_name: "", last_name: "", email: "", password: "" }}
+            initialValues={{ 
+              first_name: "", 
+              last_name: "", 
+              organization_name: "", 
+              organization_domain: "", 
+              email: "", 
+              password: "" 
+            }}
             validationSchema={SignupSchema}
             onSubmit={async (values, { resetForm, setFieldError }) => { 
               try {
-                const response = await fetch(`${API_BASE_URL}/signup/admin/`, {
+                
+                const response = await fetch(`${API_BASE_URL}/signup/owner/`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(values),
@@ -106,12 +119,8 @@ function Signup() {
                   return; 
                 }
 
-               
-                
                 alert(`Signup successful for ${values.first_name}! Please log in.`);
                 resetForm();
-
-               
                 navigate('/login');
                 
               } catch (error) {
@@ -195,6 +204,60 @@ function Signup() {
                   </div>
                 </div>
                 
+                {/* Organization Name */}
+                <div> 
+                  <label
+                    htmlFor="organization_name"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Organization Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
+                      <IoBusinessOutline className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <Field
+                      id="organization_name"
+                      name="organization_name"
+                      type="text"
+                      className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="e.g. Dreamwave"
+                    />
+                  </div>
+                  <ErrorMessage
+                    name="organization_name"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                {/* Organization Domain */}
+                <div>
+                  <label
+                    htmlFor="organization_domain"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Organization Domain
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
+                      <IoGlobeOutline className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <Field
+                      id="organization_domain"
+                      name="organization_domain"
+                      type="text"
+                      className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="e.g. dreamwave.com"
+                    />
+                  </div>
+                  <ErrorMessage
+                    name="organization_domain"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="email"
