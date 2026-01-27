@@ -2,7 +2,7 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import GridBackground from "../components/GridBackground";
 import * as Yup from "yup";
-import { IoPersonOutline, IoMailOutline } from "react-icons/io5";
+import { IoPersonOutline, IoMailOutline, IoBusinessOutline, IoGlobeOutline } from "react-icons/io5";
 import { CiLock } from "react-icons/ci";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom";
