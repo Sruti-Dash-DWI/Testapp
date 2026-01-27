@@ -5,7 +5,7 @@ import { IoMailOutline } from "react-icons/io5";
 import { CiLock } from "react-icons/ci";
 import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
-import PrimaryBackground from "../components/PrimaryBackground";
+import GridBackground from "../components/GridBackground";
 import { toast } from "react-toastify"; // ✅ Toastify import
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,7 +27,7 @@ function Login() {
       // .matches(/@gmail.com$/, "Email must contain @gmail.com")
       .required("Email is required"),
     password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
+      //.min(8, "Password must be at least 8 characters")
       .required("Password is required"),
   });
 
