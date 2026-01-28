@@ -88,54 +88,110 @@ const AboutUs = ({ isDark }) => {
         </div>
       </section>
       <footer className={`py-5 px-6 relative z-10 border-t ${isDark ? 'bg-black border-white/5' : 'bg-white border-slate-100'}`}>
-        <ScrollReveal>
-          <div className="max-w-7xl mt-5 mx-auto grid md:grid-cols-4 gap-12">
-            <div>
-              <h2 className="text-2xl font-black mb-6 tracking-tighter">QORA-AI</h2>
-              <p className="opacity-60 text-sm leading-relaxed">Where ideas turn into achievements</p>
-            </div>
-            <div>
-              <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Services</h4>
-              <ul className="space-y-3 opacity-60 text-sm">
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">SEO Optimization</li>
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">Content Marketing</li>
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">Email Campaigns</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Products</h4>
-              <ul className="space-y-3 opacity-60 text-sm">
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">SEO Generator</li>
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">Content Basel-Checker</li>
-                <li className="hover:opacity-100 cursor-pointer transition-opacity">Email Automation</li>
-              </ul>
-            </div>
-            <div className="flex justify-end space-x-3 mt-8 lg:mt-22">
-              <a
-                href="#"
-                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
-              >
-                <Linkedin className="w-5 h-5 text-white" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
-              >
-                <Instagram className="w-5 h-5 text-white" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-blue-600 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors"
-              >
-                <Facebook className="w-5 h-5 text-white" />
-              </a>
-            </div>
-          </div>
-          <div className="text-center mt-12 font-bold pt-8 border-t border-current border-opacity-10 opacity-40 text-xs">
-            &copy; 2025 QORA-AI. All rights reserved.
-          </div>
-        </ScrollReveal>
-      </footer>
+                <ScrollReveal>
+                  <div className="max-w-7xl mt-2 mx-auto grid md:grid-cols-5 gap-5">
+                    <div>
+                      <h2 className="text-2xl font-black mb-6 tracking-tighter">QORA-AI</h2>
+                      <p className="opacity-60 text-sm leading-relaxed">Qora-AI is an intelligent workspace that helps teams plan, track, and deliver work with clarity-bringing projects, collaboration, and visibility into one unified platform.</p>
+                    </div>
+                    <div>
+                      <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Product</h4>
+                      <ul className="space-y-3 opacity-60 text-sm">
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">
+                            Home
+                          </a>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/about" className="hover:text-blue-600 transition-colors relative group py-2">
+                            About
+                          </a>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/services" className="hover:text-blue-600 transition-colors relative group py-2">
+                            Services
+                          </a>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          {/* <a href="/" className="hover:text-blue-600 transition-colors relative group py-2" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Product Demo</a> */}
+                          <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">
+                            Project Demo
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Resources</h4>
+                      <ul className="space-y-3 opacity-60 text-sm">
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/about" className="hover:text-blue-600 transition-colors relative group py-2">
+                            FAQ's
+                          </a>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/contact" className="hover:text-blue-600 transition-colors relative group py-2">
+                            Contact Us
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Company</h4>
+                      <ul className="space-y-3 opacity-60 text-sm">
+                        <li className="hover:opacity-100 transition-opacity">
+                          <a href="/about" className="hover:text-blue-600 transition-colors relative group py-2">
+                            About Qora-AI
+                          </a>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          <Link to="/privacy" className="hover:opacity-100" onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link>
+                        </li>
+                        <li className="hover:opacity-100 transition-opacity">
+                          <Link to="/terms" className="hover:opacity-100" onClick={() => window.scrollTo(0, 0)}>Terms of Service</Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className={`font-bold mb-6 text-sm uppercase tracking-widest ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Contact</h4>
+                      <div className="space-y-3 text-sm opacity-60">
+                        <div className="flex items-center gap-2">
+                          <span>support@qora-ai.com</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span> +91 9348229679</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span> Mon-Fri, 10 AM-6 PM IST</span>
+                        </div>
+      
+                        <div className="flex gap-3 mt-4">
+                          <a
+                            href="#"
+                            className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full flex items-center justify-center transition-colors"
+                          >
+                            <Linkedin className="w-5 h-5 text-white" />
+                          </a>
+                          <a
+                            href="#"
+                            className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full flex items-center justify-center transition-colors"
+                          >
+                            <Instagram className="w-5 h-5 text-white" />
+                          </a>
+                          <a
+                            href="#"
+                            className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full flex items-center justify-center transition-colors"
+                          >
+                            <Facebook className="w-5 h-5 text-white" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center mt-12 font-bold pt-8 border-t border-current border-opacity-10 opacity-40 text-xs">
+                    &copy; 2026 QORA-AI. All rights reserved.
+                  </div>
+                </ScrollReveal>
+              </footer>
     </section>
   );
 };

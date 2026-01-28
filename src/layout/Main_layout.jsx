@@ -5,7 +5,7 @@ import Footer from "../pages/Footer.jsx";
 const Main_layout = ({ children }) => {
   return (
     <>
-      <Navbar></Navbar>
+      {/* <Navbar></Navbar> */}
       <main>{children}</main>
       {/* <Footer></Footer> */}
     </>

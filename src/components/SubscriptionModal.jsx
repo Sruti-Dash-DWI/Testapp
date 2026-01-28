@@ -34,13 +34,13 @@ const SubscriptionModal = ({ isOpen, onClose }) => {
           {/* Close Button - Larger and more prominent as per your request */}
           <button
             onClick={onClose}
-            className="absolute top-10 right-10 p-2 rounded-full border-2 border-black hover:bg-black hover:text-white transition-all duration-300 z-[110]"
+            className="absolute bg-gray-200 top-10 right-10 p-2 rounded-full border-1 border-black hover:bg-gray-600 hover:text-white transition-all duration-300 z-[110]"
             aria-label="Close modal"
           >
-            <X size={32} />
+            <X size={25} />
           </button>
 
-          <div className="w-full h-full max-w-7xl mx-auto flex flex-col justify-center px-6 py-8">
+          <div className="w-[90%] h-full max-w-7xl mx-auto flex flex-col justify-center px-1 py-8">
             {/* Header */}
             <div className="text-center mb-6">
               <h2 className="text-5xl font-black mb-2 text-black tracking-tighter">

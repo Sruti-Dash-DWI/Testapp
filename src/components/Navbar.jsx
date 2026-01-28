@@ -133,9 +133,9 @@ const Navbar = () => {
     // </nav>
     <nav className={`fixed top-0 w-full z-50 px-8 py-4 flex justify-between items-center backdrop-blur-md border-b transition-all duration-500
             ${isDark ? 'bg-black/50 border-white/5' : 'bg-transparent border-white/40'}`}>
-            <div className="text-3xl font-black italic bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            <div className="text-3xl font-black italic">
               {/* Qora AI */}
-              <img src="QORA_AI Logo.svg" alt="Qora AI Logo" />
+              <img src="QORA_AI Logo.svg" alt="" />
             </div>
             <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
               {['Home'].map(item => (
