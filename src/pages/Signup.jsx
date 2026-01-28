@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 import PrimaryBackground from "../components/PrimaryBackground";
+
 function Signup() {
   const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ function Signup() {
       .required("Organization domain is required"),
     email: Yup.string()
       .email("Invalid email")
-      // Removed the @gmail.com restriction
+     
       .required("Email is required"),
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
@@ -65,8 +66,6 @@ function Signup() {
           throw new Error("Auth tokens or user info missing in response after Google login.");
         }
 
-
-
       } catch (error) {
         alert("Error during Google login: " + error.message);
       }
@@ -89,11 +88,20 @@ function Signup() {
             </div>
 
           <Formik
-            initialValues={{ first_name: "", last_name: "", email: "", password: "" }}
+           
+            initialValues={{ 
+              first_name: "", 
+              last_name: "", 
+              organization_name: "", 
+              organization_domain: "", 
+              email: "", 
+              password: "" 
+            }}
             validationSchema={SignupSchema}
             onSubmit={async (values, { resetForm, setFieldError }) => { 
               try {
-                const response = await fetch(`${API_BASE_URL}/signup/admin/`, {
+                
+                const response = await fetch(`${API_BASE_URL}/signup/owner/`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(values),
@@ -110,13 +118,10 @@ function Signup() {
                   }
                   return; 
                 }
-
-               
                 
                 alert(`Signup successful for ${values.first_name}! Please log in.`);
                 resetForm();
-
-               
+                
                 navigate('/login');
                 
               } catch (error) {
@@ -173,33 +178,34 @@ function Signup() {
                       />
                     </div>
 
-                  <div className="w-full sm:w-1/2 mt-5 sm:mt-0">
-                    <label
-                      htmlFor="last_name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Last name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
-                        <IoPersonOutline className="h-5 w-5 text-gray-400" />
+                    <div className="w-full sm:w-1/2 mt-5 sm:mt-0">
+                      <label
+                        htmlFor="last_name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Last name
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full">
+                          <IoPersonOutline className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <Field
+                          id="last_name"
+                          name="last_name"
+                          type="text"
+                          className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="Enter last name"
+                        />
                       </div>
-                      <Field
-                        id="last_name"
+                      <ErrorMessage
                         name="last_name"
-                        type="text"
-                        className="w-full pl-10 pr-4 py-2.5 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter last name"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
                       />
                     </div>
-                    <ErrorMessage
-                      name="last_name"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
                   </div>
-                </div>
-                <div>
+
+                  <div>
                     <label
                       htmlFor="organization_name"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -251,6 +257,7 @@ function Signup() {
                       className="text-red-500 text-sm mt-1"
                     />
                   </div>
+
                 <div>
                   <label
                     htmlFor="email"
