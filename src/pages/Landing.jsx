@@ -385,11 +385,11 @@ const ScrollReveal = ({ children, delay = 0, className = "" }) => (
   <motion.div
     initial={{ opacity: 0, y: 60, filter: "blur(10px)" }}
     whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-    viewport={{ once: true, margin: "-50px" }} // Changed to true for a cleaner, non-repetitive read
+    viewport={{ once: true, margin: "-50px" }} 
     transition={{
       duration: 1,
       delay: delay,
-      ease: [0.25, 0.4, 0.25, 1] // Professional Cubic Bezier (Smooth)
+      ease: [0.25, 0.4, 0.25, 1] 
     }}
     className={className}
   >
@@ -692,7 +692,7 @@ const QORA_Landing = () => {
         ${isDark ? 'bg-black/50 border-white/5' : 'bg-white/60 border-white/40'}`}>
           <div className="text-sm font-black italic bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
             {/* Qora AI */}
-            <img src="Qora_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
+            <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
           </div>
           <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
             <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">
