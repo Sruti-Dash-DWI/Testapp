@@ -1,10 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Linkedin, ArrowRight, Facebook, Instagram } from 'lucide-react';
+import { Linkedin, ArrowRight, Facebook, Instagram, Sun, Moon, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
+import SubscriptionModal from '../components/SubscriptionModal';
 
-const Contact = ({ isDark }) => {
+const StarBackground = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden -z-10 bg-[#050505]">
+      <div className="absolute inset-0">
+        {[...Array(100)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute bg-white rounded-full"
+            style={{
+              width: Math.random() * 3 + 'px',
+              height: Math.random() * 3 + 'px',
+              top: Math.random() * 100 + '%',
+              left: Math.random() * 100 + '%',
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const AnimatedBackground = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden -z-10 bg-slate-50">
+      <div
+        className="absolute inset-0 opacity-[0.4]"
+        style={{
+          backgroundImage: `radial-gradient(#94a3b8 1px, transparent 0)`,
+          backgroundSize: '30px 30px'
+        }}
+      />
+
+      <div className="absolute inset-0 filter blur-[100px] opacity-60">
+        <motion.div
+          animate={{
+            x: [0, 100, -50, 0],
+            y: [0, -100, 50, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute top-0 left-0 w-[50vw] h-[50vw] bg-purple-300 rounded-full mix-blend-multiply opacity-50"
+        />
+        <motion.div
+          animate={{
+            x: [0, -100, 50, 0],
+            y: [0, 100, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute top-[20%] right-0 w-[40vw] h-[40vw] bg-blue-300 rounded-full mix-blend-multiply opacity-50"
+        />
+        <motion.div
+          animate={{
+            x: [0, 50, -50, 0],
+            y: [0, -50, 50, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear", delay: 5 }}
+          className="absolute bottom-0 left-[20%] w-[60vw] h-[60vw] bg-pink-200 rounded-full mix-blend-multiply opacity-40"
+        />
+      </div>
+    </div>
+  );
+};
+
+const Contact = ({ isDark: initialIsDark }) => { 
+  const [isDark, setIsDark] = useState(initialIsDark || false); 
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -198,6 +275,55 @@ const Contact = ({ isDark }) => {
   }, []);
 
   return (
+    <>
+          <SubscriptionModal 
+        isOpen={isSubscriptionOpen} 
+        onClose={() => setIsSubscriptionOpen(false)} 
+      />
+      <div className={`min-h-screen relative font-sans transition-colors duration-700 overflow-x-hidden
+        ${isDark ? 'bg-[#050505] text-white' : 'bg-slate-50 text-slate-900'}`}>
+
+        <AnimatePresence mode='wait'>
+          {isDark ? <StarBackground key="stars" /> : <AnimatedBackground key="blobs" />}
+        </AnimatePresence>
+
+        <nav className={`fixed top-0 w-full z-50 px-8 py-4 flex justify-between items-center backdrop-blur-md border-b transition-all duration-500
+          ${isDark ? 'bg-black/50 border-white/5' : 'bg-white/60 border-white/40'}`}>
+          <div className="text-sm font-black italic">
+            <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
+          </div>
+          <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
+            <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">Home</a>
+            <a href="/About" className="hover:text-blue-600 transition-colors relative group py-2">About us</a>
+            <a href="/Services" className="hover:text-blue-600 transition-colors relative group py-2">Services</a>
+            <a href="/contact" className="hover:text-blue-600 transition-colors relative group py-2">Contact</a>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
+              {isDark ? <Sun className="text-yellow-400" /> : <Moon className="text-slate-600" />}
+            </button>
+            <button
+              onClick={() => setIsSubscriptionOpen(true)}
+              className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
+            >
+              <Crown className="text-purple-600 font-bold" />
+              Subscribe
+            </button>
+            <Link to="/signup">
+              <button className={`px-5 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
+                ${isDark ? 'bg-purple-600 text-white' : 'border border-purple bg-white text-purple'}`}>
+                Sign Up
+              </button>
+            </Link>
+            <Link to="/login">
+              <button className={`px-6 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
+                ${isDark ? 'bg-purple-600 text-white' : 'bg-slate-900 text-white'}`}>
+                Log In
+              </button>
+            </Link>
+          </div>
+        </nav>
+    </div>            
   <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-15 px-6 sm:px-6 lg:px-8">
     <div className="max-w-6xl mx-auto">
       {isSuccess ? (
@@ -419,6 +545,7 @@ const Contact = ({ isDark }) => {
                 </div>
               </div>
             </div>
+            
 
             {/* 7. FAQ's */}
             <section className={`py-25 px-6 relative z-10 ${isDark ? 'bg-black/10' : 'bg-transparent'}`}>
@@ -631,6 +758,7 @@ const Contact = ({ isDark }) => {
                 </ScrollReveal>
               </footer>
     </div>
+    </>
 
   );
 };

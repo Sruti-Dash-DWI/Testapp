@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate, useParams } from 'react-router-dom'; // Add this import
 import { useTheme } from '../../context/ThemeContext';
 
 import { Home, RefreshCw, Play, Settings, Plus, Search, Filter, MoreVertical, HelpCircle, User, Grid, List, Menu, X } from 'lucide-react';
 
 export default function TestScriptsUI() {
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const [loadingModule, setLoadingModule] = useState(false);
 const [loadingTestcase, setLoadingTestcase] = useState(false);
 
@@ -18,21 +19,74 @@ const [loadingTestcase, setLoadingTestcase] = useState(false);
   const [description, setDescription] = useState('');
   const { theme, toggleTheme, colors } = useTheme();
 
-  const handleCreateModule = async () => {
-  if (!moduleName.trim()) {
-    alert("Module name is required");
-    return;
-  }
-  setLoadingModule(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const authToken = localStorage.getItem('authToken');
+if (!authToken) {
+        navigate("/login");
+        return;
+      }
 
- 
-  
-  setLoadingModule(false);
-  setShowCreateModal(false);
-  setShowAddModule(false);
-  setModuleName('');
-  setDescription('');
-};
+  const handleCreateModule = async () => {
+    if (!moduleName.trim()) {
+      alert("Module name is required");
+      return;
+    }
+    // We prioritize the URL, then localStorage. 
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectIdFromURL = urlParams.get('projectId');
+    
+    // Determine the final projectId to use
+    const projectId = projectIdFromURL || localStorage.getItem('currentProjectId'); 
+    
+    if (!projectId) {
+      alert("Project ID is missing. Please ensure you are within a project context.");
+      return;
+    }
+
+    // Optional: Synchronize localStorage if it was only in the URL
+    if (projectIdFromURL && !localStorage.getItem('currentProjectId')) {
+        localStorage.setItem('currentProjectId', projectIdFromURL);
+    }
+
+    setLoadingModule(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/modules/${projectId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          name: moduleName.trim(),
+          projectId: projectId
+          //description: description.trim() 
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to create module');
+      }
+
+      console.log('Module created successfully:', result);
+      alert('Module created successfully!');
+      
+      setShowCreateModal(false);
+      setShowAddModule(false);
+      setModuleName('');
+      setDescription('');
+      
+      // fetchModules(); 
+      
+    } catch (error) {
+      console.error('Error creating module:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoadingModule(false);
+    }
+  };
 
 const handleCreateManualTestCase = async () => {
   if (!manualTestCaseData.name || !manualTestCaseData.type || !manualTestCaseData.parentModule) {
@@ -40,10 +94,6 @@ const handleCreateManualTestCase = async () => {
     return;
   }
   setLoadingTestcase(true);
-
-  
- 
- 
 
   setLoadingTestcase(false);
   setShowManualTestCaseModal(false);
