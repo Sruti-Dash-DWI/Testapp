@@ -138,6 +138,9 @@ import SmTeams from "../components/scrummaster/smteams/SmTeams.jsx";
 import SmPeople from "../components/scrummaster/smteams/Smpeople.jsx";
 import SmTeamDetails from "../components/scrummaster/smteams/SmTeamDetails.jsx";
 import Smgoals from "../components/smdashboardpages/Smgoals.jsx";
+// Billing page
+import Subscription from "../pages/billing/Subscription.jsx";
+import BillingDetails from "../pages/billing/BillingDetails.jsx";
 
 const AppRouter = () => {
   return (
@@ -334,6 +337,10 @@ const AppRouter = () => {
           {/* ------------------------------------------- */}
 
           <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
+
+          {/* Billing */}
+          <Route path="/billing/subscription/" element={<Subscription />} />
+          <Route path="/billing/details/" element={<BillingDetails />} />
         </Route>
              
           
