@@ -1,7 +1,9 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function QuotientFeatures() {
+  const { isDark } = useTheme();
   const features = [
     { name: 'Issue Tracking & Management', category: 'core' },
     { name: 'Customizable Workflows', category: 'core' },
@@ -14,20 +16,20 @@ export default function QuotientFeatures() {
     { name: 'Automation Rules & Triggers', category: 'automation' },
     { name: 'Reports & Analytics Dashboard', category: 'reporting' },
     { name: 'Email Notifications', category: 'communication' },
-    { name: 'Advanced Search (JQL)', category: 'core' },
-    { name: 'Release Management', category: 'deployment' },
+    { name: 'AI and Manual Test Cases execution', category: 'core' },
+    { name: 'Test Cases reporting', category: 'core' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+    <div className={`min-h-screen flex items-center justify-center p-8 ${isDark ? 'bg-[#050505]' : 'bg-gray-50'}`}>
       <div className="w-full max-w-2xl">
-        <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">
+        <h1 className={`text-4xl font-bold text-center mb-12 ${isDark ? 'text-white' : 'text-gray-900'}`}>
           Features
         </h1>
         
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className={`rounded-lg shadow-lg overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
           {/* Header */}
-          <div className="bg-blue-600 text-white px-6 py-4 flex items-center gap-3">
+          <div className="bg-blue-600 text-white px-70 py-4 flex items-center gap-3">
             <svg 
               className="w-5 h-5" 
               fill="none" 
@@ -45,18 +47,18 @@ export default function QuotientFeatures() {
           </div>
 
           {/* Features List */}
-          <div className="divide-y divide-gray-200">
+          <div className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`px-6 py-4 flex items-center gap-3 ${
-                  index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                className={`px-35 py-4 flex items-center gap-10 ${
+                  index % 2 === 0 ? (isDark ? 'bg-gray-800' : 'bg-gray-50') : (isDark ? 'bg-gray-900' : 'bg-white')
                 }`}
               >
                 <div className="shrink-0 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" strokeWidth={3} />
                 </div>
-                <span className="text-gray-900">
+                <span className={isDark ? 'text-white' : 'text-gray-900'}>
                   {feature.name}
                 </span>
               </div>
@@ -65,8 +67,8 @@ export default function QuotientFeatures() {
         </div>
 
         {/* Footer note */}
-        <p className="text-center text-gray-500 text-sm mt-6">
-          All features included in Qora-AI Standard and Premium plans.
+        <p className={`text-center text-sm mt-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          All features included in Qora-AI plans.
         </p>
       </div>
     </div>

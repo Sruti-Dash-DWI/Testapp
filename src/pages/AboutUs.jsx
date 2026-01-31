@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import { Link } from "react-router-dom";
+import { useTheme } from '../contexts/ThemeContext';
 import {
   Sun, Moon, Check, Zap, Shield, Cpu,
   Globe, Play, Users, Lock, Lightbulb,
@@ -85,8 +86,8 @@ const AnimatedBackground = () => {
   );
 };
 
-const AboutUs = ({ isDark: propIsDark }) => {
-  const [isDark, setIsDark] = useState(propIsDark || false);
+const AboutUs = () => {
+  const { isDark, toggleTheme } = useTheme();
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   
   return (
@@ -109,7 +110,7 @@ const AboutUs = ({ isDark: propIsDark }) => {
             <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
           </div>
           <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
-            <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">
+            <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -127,16 +128,17 @@ const AboutUs = ({ isDark: propIsDark }) => {
             </a>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 transition-colors">
               {isDark ? <Sun className="text-yellow-400" /> : <Moon className="text-slate-600" />}
             </button>
-            <button
-              onClick={() => setIsSubscriptionOpen(true)}
-              className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
-            >
-              <Crown className="text-purple-600 font-bold" />
-              Subscribe
-            </button>
+            <Link to ="/subscriptions">
+              <button
+                className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
+              >
+                <Crown className="text-purple-600 font-bold" />
+                Subscribe
+              </button>
+            </Link>
             <Link to="/signup">
               <button className={`px-5 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
                 ${isDark ? 'bg-purple-600 text-white' : 'border border-purple bg-white text-purple'}`}>
@@ -152,7 +154,7 @@ const AboutUs = ({ isDark: propIsDark }) => {
           </div>
         </nav>
 
-        <section className={`py-15 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
+        <section className={`py-15 pt-30 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
           <SectionHeader title="About Qora-AI" subtitle={["Qora-AI is built to help teams work with clarity", "bringing planning, execution, and collaboration into one unified workspace."]} isDark={isDark} />
 
           <div className="max-w-6xl mx-auto">

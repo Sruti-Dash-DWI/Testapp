@@ -4,6 +4,7 @@ import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import SubscriptionModal from '../components/SubscriptionModal';
+import { useTheme } from '../contexts/ThemeContext';
 
 const StarBackground = () => {
   return (
@@ -80,15 +81,12 @@ const AnimatedBackground = () => {
 };
 
 const Services = () => {
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
   return (
     <>
-      <SubscriptionModal 
-        isOpen={isSubscriptionOpen} 
-        onClose={() => setIsSubscriptionOpen(false)} 
-      />
+
       <div className={`min-h-screen relative font-sans transition-colors duration-700 overflow-x-hidden
         ${isDark ? 'bg-[#050505] text-white' : 'bg-slate-50 text-slate-900'}`}>
 
@@ -103,7 +101,7 @@ const Services = () => {
             <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
           </div>
           <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
-            <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">
+            <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -121,16 +119,17 @@ const Services = () => {
             </a>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 transition-colors">
               {isDark ? <Sun className="text-yellow-400" /> : <Moon className="text-slate-600" />}
             </button>
-            <button
-              onClick={() => setIsSubscriptionOpen(true)}
-              className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
-            >
-              <Crown className="text-purple-600 font-bold" />
-              Subscribe
-            </button>
+            <Link to ="/subscriptions">
+              <button
+                className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
+              >
+                <Crown className="text-purple-600 font-bold" />
+                Subscribe
+              </button>
+            </Link>
             <Link to="/signup">
               <button className={`px-5 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
                 ${isDark ? 'bg-purple-600 text-white' : 'border border-purple bg-white text-purple'}`}>
@@ -146,7 +145,7 @@ const Services = () => {
           </div>
         </nav>
 
-        <section className={`py-15 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
+        <section className={`pt-30 py-15 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
       <SectionHeader title="How Qora-AI Helps Teams Get Work Done" subtitle={["From planning to execution and long-term visibility", "Qora-AI supports every stage of team workflows with clarity and structure."]} isDark={isDark} />
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
         {[
@@ -232,7 +231,7 @@ const Services = () => {
             <ul className="opacity-60 text-sm leading-relaxed space-y-2">
               {service.points.map((point, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-black font-bold"><ArrowRight className="mr-2" /></span>
+                  <span className={isDark ? "text-white font-bold" : "text-black font-bold"}><ArrowRight className="mr-2" /></span>
                   <span>{point}</span>
                 </li>
               ))}

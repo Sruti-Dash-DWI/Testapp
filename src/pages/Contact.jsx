@@ -4,6 +4,7 @@ import { Linkedin, ArrowRight, Facebook, Instagram, Sun, Moon, Crown } from 'luc
 import { Link } from 'react-router-dom';
 import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import SubscriptionModal from '../components/SubscriptionModal';
+import { useTheme } from '../contexts/ThemeContext';
 
 const StarBackground = () => {
   return (
@@ -79,8 +80,8 @@ const AnimatedBackground = () => {
   );
 };
 
-const Contact = ({ isDark: initialIsDark }) => { 
-  const [isDark, setIsDark] = useState(initialIsDark || false); 
+const Contact = () => {
+  const { isDark, toggleTheme } = useTheme();
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -258,7 +259,7 @@ const Contact = ({ isDark: initialIsDark }) => {
         
         // Calculate when to make the contact card sticky
         const shouldBeSticky = scrollPosition > contentRect.top && 
-                             scrollPosition < (contentRect.bottom - contactRect.height);
+        scrollPosition < (contentRect.bottom - contactRect.height);
         
         setIsSticky(shouldBeSticky);
       }
@@ -293,22 +294,23 @@ const Contact = ({ isDark: initialIsDark }) => {
             <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
           </div>
           <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
-            <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">Home</a>
+            <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">Home</a>            
             <a href="/About" className="hover:text-blue-600 transition-colors relative group py-2">About us</a>
             <a href="/Services" className="hover:text-blue-600 transition-colors relative group py-2">Services</a>
             <a href="/contact" className="hover:text-blue-600 transition-colors relative group py-2">Contact</a>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 transition-colors">
               {isDark ? <Sun className="text-yellow-400" /> : <Moon className="text-slate-600" />}
             </button>
-            <button
-              onClick={() => setIsSubscriptionOpen(true)}
-              className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
-            >
-              <Crown className="text-purple-600 font-bold" />
-              Subscribe
-            </button>
+            <Link to ="/subscriptions">
+              <button
+                className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
+              >
+                <Crown className="text-purple-600 font-bold" />
+                Subscribe
+              </button>
+            </Link>
             <Link to="/signup">
               <button className={`px-5 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
                 ${isDark ? 'bg-purple-600 text-white' : 'border border-purple bg-white text-purple'}`}>
@@ -323,8 +325,9 @@ const Contact = ({ isDark: initialIsDark }) => {
             </Link>
           </div>
         </nav>
-    </div>            
-  <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-15 px-6 sm:px-6 lg:px-8">
+           
+  <div className={`min-h-screen pt-30 py-15 px-6 sm:px-6 lg:px-8
+    ${isDark ? 'bg-[#050505]' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
     <div className="max-w-6xl mx-auto">
       {isSuccess ? (
         <SuccessPopup />
@@ -332,11 +335,11 @@ const Contact = ({ isDark: initialIsDark }) => {
         <>
           {/* Header Section */}
           <div className="text-center mb-5">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Get In Touch</h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <h1 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Get In Touch</h1>
+              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                 Have questions, need support, or want to learn more about Qora-AI?
               </p>
-              <p className="text-gray-500 mt-2">
+              <p className={isDark ? 'text-gray-400 mt-2' : 'text-gray-500 mt-2'}>
                 Fill out the form below and our team will get back to you shortly.
               </p>
             </div>
@@ -347,7 +350,7 @@ const Contact = ({ isDark: initialIsDark }) => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-xl p-8 sm:p-10"
+                className={`rounded-2xl shadow-xl p-8 sm:p-10 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
               >
                   <div className="space-y-6">
                     <div className="flex items-start space-x-4">
@@ -358,8 +361,8 @@ const Contact = ({ isDark: initialIsDark }) => {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Our Location</h3>
-                        <p className="text-gray-600">123 Tech Park, Silicon Valley, CA 94025</p>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Our Location</h3>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>123 Tech Park, Silicon Valley, CA 94025</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-4">
@@ -369,8 +372,8 @@ const Contact = ({ isDark: initialIsDark }) => {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Phone Number</h3>
-                        <p className="text-gray-600">+1 (555) 123-4567</p>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Phone Number</h3>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>+1 (555) 123-4567</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-4">
@@ -380,22 +383,22 @@ const Contact = ({ isDark: initialIsDark }) => {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Email Address</h3>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Email Address</h3>
                         <p className="text-blue-600">contact@qora-ai.com</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Follow Us</h3>
+                    <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Follow Us</h3>
                     <div className="flex space-x-4">
-                      <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                      <a href="#" className={`${isDark ? 'text-gray-400' : 'text-gray-600'} hover:text-blue-600 transition-colors`}>
                         <Facebook size={24} />
                       </a>
-                      <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                      <a href="#" className={`${isDark ? 'text-gray-400' : 'text-gray-600'} hover:text-blue-600 transition-colors`}>
                         <Instagram size={24} />
                       </a>
-                      <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                      <a href="#" className={`${isDark ? 'text-gray-400' : 'text-gray-600'} hover:text-blue-600 transition-colors`}>
                         <Linkedin size={24} />
                       </a>
                     </div>
@@ -417,14 +420,14 @@ const Contact = ({ isDark: initialIsDark }) => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Get In Touch</h3>
-                      <p className="mt-1 text-gray-600">Fill out the form below and our team will get back to you shortly.</p>
+                      <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Get In Touch</h3>
+                      <p className={`mt-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Fill out the form below and our team will get back to you shortly.</p>
                     </div>
                   </div>
 
                   <form onSubmit={handleSubmit}>
                     <div className="space-y-2">
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="fullName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -433,14 +436,14 @@ const Contact = ({ isDark: initialIsDark }) => {
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-2 rounded-lg border ${errors.fullName ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200`}
+                        className={`block w-full px-4 py-2 rounded-lg border ${errors.fullName ? 'border-red-500' : (isDark ? 'border-gray-600' : 'border-gray-300')
+                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       />
                       {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Work Email <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -449,14 +452,14 @@ const Contact = ({ isDark: initialIsDark }) => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200`}
+                        className={`block w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500' : (isDark ? 'border-gray-600' : 'border-gray-300')
+                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       />
                       {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="company" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Company Name
                       </label>
                       <input
@@ -465,12 +468,12 @@ const Contact = ({ isDark: initialIsDark }) => {
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        className="block w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        className={`block w-full px-4 py-2 rounded-lg border ${isDark ? 'border-gray-600' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="teamSize" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="teamSize" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Team Size
                       </label>
                       <select
@@ -478,7 +481,7 @@ const Contact = ({ isDark: initialIsDark }) => {
                         name="teamSize"
                         value={formData.teamSize}
                         onChange={handleChange}
-                        className="block w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-gray-500"
+                        className={`block w-full px-4 py-2 rounded-lg border ${isDark ? 'border-gray-600' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       >
                         <option value="">Select your team size</option>
                         <option value="1-10">1–10</option>
@@ -489,7 +492,7 @@ const Contact = ({ isDark: initialIsDark }) => {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="subject" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Subject <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -498,14 +501,14 @@ const Contact = ({ isDark: initialIsDark }) => {
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-2 rounded-lg border ${errors.subject ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200`}
+                        className={`block w-full px-4 py-2 rounded-lg border ${errors.subject ? 'border-red-500' : (isDark ? 'border-gray-600' : 'border-gray-300')
+                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       />
                       {errors.subject && <p className="mt-1 text-sm text-red-600">{errors.subject}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="message" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Message <span className="text-red-500">*</span>
                       </label>
                       <textarea
@@ -514,8 +517,8 @@ const Contact = ({ isDark: initialIsDark }) => {
                         rows="4"
                         value={formData.message}
                         onChange={handleChange}
-                        className={`block w-full px-4 py-2 rounded-lg border ${errors.message ? 'border-red-500' : 'border-gray-300'
-                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200`}
+                        className={`block w-full px-4 py-2 rounded-lg border ${errors.message ? 'border-red-500' : (isDark ? 'border-gray-600' : 'border-gray-300')
+                          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
                       ></textarea>
                       {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message}</p>}
                     </div>
@@ -757,6 +760,7 @@ const Contact = ({ isDark: initialIsDark }) => {
                   </div>
                 </ScrollReveal>
               </footer>
+    </div>
     </div>
     </>
 
