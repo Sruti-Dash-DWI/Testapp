@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Features from "../components/Billing/Features";
 import PlansAndPricing from "../components/Billing/Plans&Pricing";
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 const StarBackground = () => {
   return (

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import 'animate.css';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 const ScrollReveal = ({ children, delay = 0, className = "" }) => (
   <motion.div

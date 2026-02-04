@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import { Link } from "react-router-dom";
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   Sun, Moon, Check, Zap, Shield, Cpu,
   Globe, Play, Users, Lock, Lightbulb,

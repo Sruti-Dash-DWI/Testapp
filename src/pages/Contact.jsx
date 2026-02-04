@@ -4,7 +4,7 @@ import { Linkedin, ArrowRight, Facebook, Instagram, Sun, Moon, Crown } from 'luc
 import { Link } from 'react-router-dom';
 import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import SubscriptionModal from '../components/SubscriptionModal';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 const StarBackground = () => {
   return (

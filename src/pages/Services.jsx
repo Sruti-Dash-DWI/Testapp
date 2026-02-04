@@ -4,7 +4,7 @@ import { SectionHeader, TiltCard, ScrollReveal } from "./Landing";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import SubscriptionModal from '../components/SubscriptionModal';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 const StarBackground = () => {
   return (
