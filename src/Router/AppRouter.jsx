@@ -14,6 +14,7 @@ import Satestdev from "../components/superadminpages/satestcase/Satestdev.jsx";
 import Satestsuite from "../components/superadminpages/satestcase/Satestsuite.jsx";
 import Saorganization from "../pages/sasidenavpages/Saorganization.jsx";
 import Sareports from "../components/superadminpages/sapages/Sareports.jsx";
+import Sasubscriptions from "../pages/sasidenavpages/Sasubscription.jsx";
 
 import HomePage from "../pages/HomePage.jsx";
 import GenericPage from "../pages/GenericPage.jsx";
@@ -210,6 +211,7 @@ const AppRouter = () => {
           <Route path="/sa/projects" element={<Saprojects />} />
           <Route path="/sa/organization" element={<Saorganization />} />
           <Route path="/sa/report" element={<Sareports />} />
+          <Route path="/sa/subscription" element={<Sasubscriptions />} />
           <Route path="/sa/notifications" element={<Sanotifications />} />
           <Route path="/sa/settings" element={<Sasettings />} />
 

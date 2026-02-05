@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
-import { PlusCircle, Building2, BarChart3 } from 'lucide-react';
+import { PlusCircle, Building2, BarChart3,BadgeCheck } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
@@ -58,6 +58,7 @@ const Sasidenav = ({ isOpen, openInviteModal }) => {
     const staticNavItems = [
         { icon: <Building2 />, name: 'Organization', path: 'organization' },
         { icon: <BarChart3 />, name: 'Report', path: 'report' },
+        { icon: <BadgeCheck />, name: 'Subscription', path: 'subscription' },
         { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
         { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
     ];
