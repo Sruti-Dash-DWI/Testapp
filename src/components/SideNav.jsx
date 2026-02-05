@@ -363,7 +363,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         >
                             <li>
                                 <NavLink 
-                                    to="/testcases/testdev"
+                                    to="/testdev"
                                     className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
                                     style={({ isActive }) => ({
                                         backgroundColor: isActive ? undefined : 'transparent',
@@ -386,7 +386,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                             </li>
                             <li>
                                 <NavLink 
-                                    to="/testcases/testsuite"
+                                    to="/testsuite"
                                     className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
                                     style={({ isActive }) => ({
                                         backgroundColor: isActive ? undefined : 'transparent',

@@ -180,8 +180,8 @@ const AppRouter = () => {
           <Route path="/teams/:teamId" element={<TeamDetails />} />
 
           {/* Testcase */}
-          <Route path="/testcases/testdev/" element={<Testdev />} />
-          <Route path="/testcases/testsuite/" element={<Testsuite />} />
+          <Route path="/testdev/:projectId" element={<Testdev />} />
+          <Route path="/testsuite/:projectId" element={<Testsuite />} />
           
           {/* Task management */}
           <Route path='/backlog/:projectId' element={<BacklogPage />} />
