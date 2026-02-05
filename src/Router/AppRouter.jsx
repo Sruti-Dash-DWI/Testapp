@@ -23,8 +23,9 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
-import SeeDemo from "../pages/SeeDemo.jsx";
-import Subscriptions from "../pages/Subscriptions.jsx";
+// import SeeDemo from "../pages/SeeDemo.jsx";
+import Subscriptions from "../pages/Subscriptions_landing.jsx";
+import Billing from "../pages/Billing_landing.jsx";
 import Contact from "../pages/Contact.jsx";
 import { FormDashboard, FormEditor } from '../components/dashboardpages/Form.jsx';
 
@@ -139,6 +140,9 @@ import SmTeams from "../components/scrummaster/smteams/SmTeams.jsx";
 import SmPeople from "../components/scrummaster/smteams/Smpeople.jsx";
 import SmTeamDetails from "../components/scrummaster/smteams/SmTeamDetails.jsx";
 import Smgoals from "../components/smdashboardpages/Smgoals.jsx";
+// Billing page
+import Subscription from "../pages/billing/Subscription.jsx";
+import BillingDetails from "../pages/billing/BillingDetails.jsx";
 
 const AppRouter = () => {
   return (
@@ -151,8 +155,8 @@ const AppRouter = () => {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/generic" element={<GenericPage title="Generic Page" />} />
-        <Route path="/seedemo" element={<SeeDemo />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
+        <Route path="/billing" element={<Billing />} />
         <Route path="/contact" element={<Contact />} />
 
         <Route path="/set-password" element={<SetPasswordPage />} />
@@ -337,6 +341,10 @@ const AppRouter = () => {
           {/* ------------------------------------------- */}
 
           <Route path="/sm/user-details/:memberId" element={<SmEditUserModal />} />
+
+          {/* Billing */}
+          <Route path="/billing/subscription/" element={<Subscription />} />
+          <Route path="/billing/details/" element={<BillingDetails />} />
         </Route>
              
           

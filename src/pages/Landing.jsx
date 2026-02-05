@@ -1,374 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   Search,
-//   ChevronDown,
-//   MapPin,
-//   Calendar,
-//   ExternalLink,
-//   Menu,
-//   X,
-// } from "lucide-react";
-// import Navbar from "../components/Navbar";
-
-// const QuotientLanding = () => {
-//   const [dimensions, setDimensions] = useState({
-//     // width: window.innerWidth,
-//     // height: window.innerHeight,
-//     width: typeof window !== "undefined" ? window.innerWidth : 1920,
-//     height: typeof window !== "undefined" ? window.innerHeight : 1080,
-//   });
-//   const [activeColorIndex, setActiveColorIndex] = useState(0);
-
-//   useEffect(() => {
-//     const handleResize = () => {
-//       setDimensions({ width: window.innerWidth, height: window.innerHeight });
-//     };
-//     window.addEventListener("resize", handleResize);
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
-//   useEffect(() => {
-//     // Initial color is purple (index 0)
-//     // Change to pink at 3s, blue at 6s, orange at 9s, green at 12s
-//     // Change color when circle animation reaches center (15% of 3s = 0.45s after start)
-//     const delays = [0, 3000, 6000, 9000, 12000]; // Start times for each color
-//     const showDelay = 500; // When circle is visible at center
-//     const timeouts = delays.map((delay, index) =>
-//       setTimeout(() => setActiveColorIndex(index), delay + showDelay)
-//     );
-
-//     const mainInterval = setInterval(() => {
-//       delays.forEach((delay, index) => {
-//         setTimeout(() => setActiveColorIndex(index), delay + showDelay);
-//       });
-//     }, 15000);
-
-//     return () => {
-//       timeouts.forEach(t => clearTimeout(t));
-//       clearInterval(mainInterval);
-//     };
-//   }, []);
-
-
-
-//   // Adjust grid gap based on screen size
-//   const gridSize =
-//     dimensions.width < 640 ? 20 : dimensions.width < 1024 ? 30 : 40;
-//   const colors = [
-//     {
-//       bg: "bg-purple-400",
-//       blur: "bg-purple-300/20",
-//       gradient: "from-purple-300 via-pink-50 to-purple-300",
-//     },
-//     {
-//       bg: "bg-pink-400",
-//       blur: "bg-pink-300/20",
-//       gradient: "from-pink-300 via-pink-50 to-pink-300",
-//     },
-//     {
-//       bg: "bg-blue-400",
-//       blur: "bg-blue-300/20",
-//       gradient: "from-blue-300 via-pink-50 to-blue-300",
-//     },
-//     {
-//       bg: "bg-orange-400",
-//       blur: "bg-orange-300/20",
-//       gradient: "from-orange-300 via-pink-50 to-orange-300",
-//     },
-//     {
-//       bg: "bg-green-400",
-//       blur: "bg-green-300/20",
-//       gradient: "from-green-300 via-pink-50 to-green-300",
-//     },
-//   ];
-
-//   return (
-//     // <div className="min-h-screen bg-gradient-to-br from-purple-300 via-pink-50 to-purple-300 relative overflow-hidden">
-//     <div
-//       className={`min-h-screen bg-gradient-to-br ${colors[activeColorIndex].gradient} relative overflow-hidden transition-all duration-1000`}
-//     >
-//       {/* ✅ Responsive Grid Overlay */}
-//       <svg
-//         className="absolute inset-0"
-//         width={dimensions.width}
-//         height={dimensions.height}
-//       >
-//         {/* Vertical lines */}
-//         {Array.from(
-//           { length: Math.ceil(dimensions.width / gridSize) },
-//           (_, i) => (
-//             <line
-//               key={`v-${i}`}
-//               x1={i * gridSize}
-//               y1="0"
-//               x2={i * gridSize}
-//               y2={dimensions.height}
-//               stroke="#cacfdaff"
-//               strokeOpacity="0.5"
-//               strokeWidth="1"
-//             />
-//           )
-//         )}
-
-//         {/* Horizontal lines */}
-//         {Array.from(
-//           { length: Math.ceil(dimensions.height / gridSize) },
-//           (_, i) => (
-//             <line
-//               key={`h-${i}`}
-//               x1="0"
-//               y1={i * gridSize}
-//               x2={dimensions.width}
-//               y2={i * gridSize}
-//               stroke="#cacfdaff"
-//               strokeOpacity="0.5"
-//               strokeWidth="1"
-//             />
-//           )
-//         )}
-//       </svg>
-
-//       {/* 🌸 Background decorative elements */}
-//       {/* Top Right Corner - Color changing blur */}
-//       <div
-//         className={`absolute top-20 right-32 w-96 h-96 ${colors[activeColorIndex].blur} rounded-full blur-3xl transition-all duration-1000`}
-//       />
-
-//       {/* Bottom Left Corner - Color changing blur */}
-//       <div
-//         className={`absolute bottom-32 left-16 w-80 h-80 ${colors[activeColorIndex].blur} rounded-full blur-2xl transition-all duration-1000`}
-//       />
-
-//       <div className="absolute top-1/3 left-1/5 w-32 h-32 bg-pink-200/15 rounded-full blur-xl" />
-
-//       {/* <div className="absolute top-20 right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-//       <div className="absolute bottom-32 left-16 w-80 h-80 bg-purple-300/10 rounded-full blur-2xl" />
-//       <div className="absolute top-1/3 left-1/5 w-32 h-32 bg-pink-200/15 rounded-full blur-xl" /> */}
-
-//       <style
-//         dangerouslySetInnerHTML={{
-//           __html: `
-//         @keyframes slideLeftRight0 {
-//           0% { transform: translateX(150%); opacity: 0; }
-//           15% { transform: translateX(0); opacity: 1; }
-//           35% { transform: translateX(0); opacity: 1; }
-//           50% { transform: translateX(-150%); opacity: 0; }
-//           100% { transform: translateX(-150%); opacity: 0; }
-//         }
-//         @keyframes slideLeftRight1 {
-//           0% { transform: translateX(150%); opacity: 0; }
-//           15% { transform: translateX(0); opacity: 1; }
-//           35% { transform: translateX(0); opacity: 1; }
-//           50% { transform: translateX(-150%); opacity: 0; }
-//           100% { transform: translateX(-150%); opacity: 0; }
-//         }
-//         @keyframes slideLeftRight2 {
-//           0% { transform: translateX(150%); opacity: 0; }
-//           15% { transform: translateX(0); opacity: 1; }
-//           35% { transform: translateX(0); opacity: 1; }
-//           50% { transform: translateX(-150%); opacity: 0; }
-//           100% { transform: translateX(-150%); opacity: 0; }
-//         }
-//         @keyframes slideLeftRight3 {
-//           0% { transform: translateX(150%); opacity: 0; }
-//           15% { transform: translateX(0); opacity: 1; }
-//           35% { transform: translateX(0); opacity: 1; }
-//           50% { transform: translateX(-150%); opacity: 0; }
-//           100% { transform: translateX(-150%); opacity: 0; }
-//         }
-//         @keyframes slideLeftRight4 {
-//           0% { transform: translateX(150%); opacity: 0; }
-//           15% { transform: translateX(0); opacity: 1; }
-//           35% { transform: translateX(0); opacity: 1; }
-//           50% { transform: translateX(-150%); opacity: 0; }
-//           100% { transform: translateX(-150%); opacity: 0; }
-//         }
-//       `,
-//         }}
-//       />
-
-//       {/* 🌸 Main Content */}
-//       <div className="container mx-auto px-6 pt-12 relative z-10">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-//           {/* Left Content */}
-//           <div className="space-y-8 text-center lg:text-left">
-//             <div>
-//               <p className="text-purple-600 font-semibold tracking-widest uppercase mb-6">
-//                 TRANSFORM THE WAY YOU MANAGE PROJECTS
-//               </p>
-//               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8">
-//                 Accelerate your
-//                 <br />
-//                 workflow.
-//               </h1>
-//             </div>
-
-//             <div className="flex flex-col sm:flex-row gap-4 mb-50 justify-center lg:justify-start mt-25">
-//               <button
-//                 className="bg-gradient-to-r from-purple-300 to-purple-700 text-white px-8 py-3 rounded-full border border-purple-600
-
-//        font-semibold flex items-center justify-center gap-2 shadow-lg
-//        hover:opacity-90 transition w-auto mx-auto sm:mx-0"
-//               >
-//                 Get Started
-//                 <ExternalLink className="w-4 h-4" />
-//               </button>
-//               <button className="text-purple-600 hover:text-purple-700 font-semibold px-8 py-4 transition-colors">
-//                 Get a Live Demo
-//               </button>
-//             </div>
-
-//             {/* Search Section */}
-//             <div className="bg-white p-7 rounded-3xl shadow-lg">
-//               <div className="flex flex-col md:flex-row gap-6 items-center">
-//                 {/* Destination */}
-//                 <div className="flex-1 w-full">
-//                   <label className="block text-sm font-semibold text-pink-400 mb-2">
-//                     Destination
-//                   </label>
-//                   <div className="flex items-center space-x-3">
-//                     <MapPin className="w-5 h-5 text-purple-400" />
-//                     <span className="text-gray-900 font-medium">
-//                       Paris, France
-//                     </span>
-//                     <ChevronDown className="w-4 h-4 text-gray-600" />
-//                   </div>
-//                 </div>
-
-//                 {/* Date */}
-//                 <div className="flex-1 w-full">
-//                   <label className="block text-sm font-semibold text-pink-400 mb-2">
-//                     Date
-//                   </label>
-//                   <div className="flex items-center space-x-3">
-//                     <Calendar className="w-5 h-5 text-purple-400" />
-//                     <span className="text-gray-900 font-medium">
-//                       17 July 2021
-//                     </span>
-//                     <ChevronDown className="w-4 h-4 text-gray-600" />
-//                   </div>
-//                 </div>
-
-//                 {/* Search Button */}
-//                 <div className="flex items-end w-full md:w-auto">
-//                   <button className="bg-purple-400 text-white px-8 py-3 rounded-2xl font-semibold shadow-md w-full">
-//                     Search
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Right Content (Profile Circle + Cards) */}
-//           <div className="relative flex justify-center lg:justify-end mt-12 lg:mt-0">
-//             <div className="relative w-[280px] sm:w-[400px] lg:w-[500px] h-[280px] sm:h-[400px] lg:h-[500px]">
-//               <div
-//                 className="absolute inset-0 w-full h-full rounded-full bg-purple-400"
-//                 style={{ animation: "slideLeftRight0 15s infinite" }}
-//               ></div>
-//               <div
-//                 className="absolute inset-0 w-full h-full rounded-full bg-pink-400"
-//                 style={{
-//                   animation: "slideLeftRight1 15s infinite",
-//                   animationDelay: "3s",
-//                 }}
-//               ></div>
-//               <div
-//                 className="absolute inset-0 w-full h-full rounded-full bg-blue-400"
-//                 style={{
-//                   animation: "slideLeftRight2 15s infinite",
-//                   animationDelay: "6s",
-//                 }}
-//               ></div>
-//               <div
-//                 className="absolute inset-0 w-full h-full rounded-full bg-orange-400"
-//                 style={{
-//                   animation: "slideLeftRight3 15s infinite",
-//                   animationDelay: "9s",
-//                 }}
-//               ></div>
-//               <div
-//                 className="absolute inset-0 w-full h-full rounded-full bg-green-400"
-//                 style={{
-//                   animation: "slideLeftRight4 15s infinite",
-//                   animationDelay: "12s",
-//                 }}
-//               ></div>
-//               <div className="absolute inset-0 bg-gradient-to-br from-purple-400/50 to-purple-600/30 rounded-full shadow-2xl z-10">
-//                 <div className="absolute inset-4 rounded-full overflow-hidden bg-white/10 backdrop-blur-sm border-2 border-white/20 shadow-xl">
-//                   <img
-//                     src="/herogif.gif"
-//                     alt="profile"
-//                     className="w-full  object-cover"
-//                   />
-//                 </div>
-//               </div>
-
-//               {/* Floating Cards */}
-//               <div className="absolute top-5 right-2 bg-white/95 backdrop-blur-sm rounded-2xl px-6 py-2 shadow-xl border border-white/40 z-20">
-//                 <div className="flex items-center space-x-2">
-//                   <span className="text-yellow-400 text-lg">⭐</span>
-//                   <span className="font-bold text-gray-900 text-lg">4.8</span>
-//                 </div>
-//                 <p className="text-sm text-gray-500 font-medium">
-//                   Satisfaction
-//                 </p>
-//               </div>
-
-//               <div className="absolute top-40 -left-10 sm:left-[-20px] bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-4 shadow-xl border border-white/40 z-20">
-//                 <div className="flex items-center space-x-3">
-//                   <div className="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center shadow-md">
-//                     <svg
-//                       className="w-6 h-6 text-white"
-//                       fill="none"
-//                       stroke="currentColor"
-//                       viewBox="0 0 24 24"
-//                     >
-//                       <path
-//                         strokeLinecap="round"
-//                         strokeLinejoin="round"
-//                         strokeWidth={2}
-//                         d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-//                       />
-//                     </svg>
-//                   </div>
-//                   <div>
-//                     <p className="text-lg font-bold text-gray-900">2K+</p>
-//                     <p className="text-sm text-gray-500 font-medium">
-//                       Projects
-//                     </p>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               <div className="absolute bottom-2 right-6 bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-xl border border-white/40 z-20">
-//                 <div className="flex items-center space-x-3">
-//                   <div className="w-10 h-10 bg-green-400 rounded-full flex items-center justify-center shadow-md">
-//                     <svg
-//                       className="w-6 h-6 text-white"
-//                       fill="currentColor"
-//                       viewBox="0 0 24 24"
-//                     >
-//                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-//                     </svg>
-//                   </div>
-//                   <div>
-//                     <p className="text-sm font-bold text-gray-900">
-//                       Product Designer
-//                     </p>
-//                     <p className="text-sm text-gray-500 font-medium">5 Years</p>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default QuotientLanding;
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -379,17 +8,17 @@ import {
 } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import 'animate.css';
-import SubscriptionModal from '../components/SubscriptionModal';
+import { useTheme } from '../context/ThemeContext';
 
 const ScrollReveal = ({ children, delay = 0, className = "" }) => (
   <motion.div
     initial={{ opacity: 0, y: 60, filter: "blur(10px)" }}
     whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-    viewport={{ once: true, margin: "-50px" }} // Changed to true for a cleaner, non-repetitive read
+    viewport={{ once: true, margin: "-50px" }} 
     transition={{
       duration: 1,
       delay: delay,
-      ease: [0.25, 0.4, 0.25, 1] // Professional Cubic Bezier (Smooth)
+      ease: [0.25, 0.4, 0.25, 1] 
     }}
     className={className}
   >
@@ -567,135 +196,28 @@ const SectionHeader = ({ title, subtitle, isDark }) => (
 
 
 const QORA_Landing = () => {
-  const [isDark, setIsDark] = useState(false);
-  const [openFAQ, setOpenFAQ] = useState(null);
-  const [isContactOpen, setIsContactOpen] = useState(false);
-  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
-
-  const toggleFAQ = (id) => {
-    setOpenFAQ(openFAQ === id ? null : id);
-  };
-
-
-  const faqData = [
-    {
-      id: "left-1",
-      question: "What is Qora-AI?",
-      answer:
-        "Qora-AI is an intelligent work management platform that helps teams plan, track, and deliver work in one unified workspace."
-    },
-    {
-      id: "left-2",
-      question: "Who should use Qora-AI?",
-      answer:
-        "Qora-AI is built for product teams, engineering teams, operations teams, startups, and organizations managing complex work across teams."
-    },
-    {
-      id: "left-3",
-      question: "Can Qora-AI replace multiple tools?",
-      answer:
-        "Yes. Qora-AI can replace tools for task tracking, sprint planning, documentation, timelines, and basic reporting."
-    },
-    {
-      id: "left-4",
-      question: "Is Qora-AI a project management tool?",
-      answer:
-        "Yes, but it goes beyond traditional project management by combining planning, execution, documentation, and multiple work views in one system."
-    },
-    {
-      id: "left-5",
-      question: "Does Qora-AI support Agile and Scrum workflows?",
-      answer:
-        "Yes. Qora-AI supports backlogs, sprints, epics, tasks, and subtasks, making it suitable for Agile, Scrum, and hybrid workflows."
-    },
-  ];
-
-  const faqrightData = [
-    {
-      id: "right-1",
-      question: "What views does Qora-AI offer?",
-      answer:
-        "Qora-AI offers Kanban Boards, Timeline (Gantt), Calendar, List, and Summary views—all powered by the same data."
-    },
-    {
-      id: "right-2",
-      question: "Can teams switch between views without duplicating work?",
-      answer:
-        "Yes. Tasks and projects stay synchronized across all views, so updates in one view reflect everywhere."
-    },
-    {
-      id: "right-3",
-      question: "Is Qora-AI suitable for remote teams?",
-      answer:
-        "Yes. Qora-AI is built for distributed teams, offering shared visibility and collaboration across locations."
-    },
-    {
-      id: "right-4",
-      question: "How can we see Qora-AI in action?",
-      answer:
-        "You can watch the full product demo or contact our team for a walkthrough tailored to your needs."
-    },
-    {
-      id: "right-5",
-      question: "Does Qora-AI support forms and work requests?",
-      answer:
-        "Yes. Qora-AI includes a form builder for feature requests, bug reports, incidents, and custom workflows."
-    },
-  ];
-
-  const pricingPlans = [
-    {
-      name: "Starter",
-      price: "$29",
-      period: "/mo",
-      desc: "Perfect for individuals and small projects.",
-      features: ["5 Projects", "Basic Analytics", "Community Support", "1GB Storage"],
-      cta: "Get Started",
-      popular: false
-    },
-    {
-      name: "Professional",
-      price: "$99",
-      period: "/mo",
-      desc: "Ideal for growing teams and startups.",
-      features: ["Unlimited Projects", "Neural Analytics", "Priority Support", "100GB Storage", "API Access"],
-      cta: "Try Free",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "",
-      desc: "For large organizations with specific needs.",
-      features: ["Dedicated Infrastructure", "Custom AI Models", "24/7 Dedicated Support", "Unlimited Storage", "SSO & Security"],
-      cta: "Contact Sales",
-      popular: false
-    }
-  ];
+  const { isDark, toggleTheme } = useTheme();
+  // const [openFAQ, setOpenFAQ] = useState(null);
+  // const [isContactOpen, setIsContactOpen] = useState(false);
+  // const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
   return (
     <>
-      <SubscriptionModal
-        isOpen={isSubscriptionOpen}
-        onClose={() => setIsSubscriptionOpen(false)}
-      />
       <div className={`min-h-screen relative font-sans transition-colors duration-700 overflow-x-hidden
       ${isDark ? 'bg-[#050505] text-white' : 'bg-slate-50 text-slate-900'}`}>
-
 
         <AnimatePresence mode='wait'>
           {isDark ? <StarBackground key="stars" /> : <AnimatedBackground key="blobs" />}
         </AnimatePresence>
 
-
         <nav className={`fixed top-0 w-full z-50 px-8 py-4 flex justify-between items-center backdrop-blur-md border-b transition-all duration-500
         ${isDark ? 'bg-black/50 border-white/5' : 'bg-white/60 border-white/40'}`}>
           <div className="text-sm font-black italic bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
             {/* Qora AI */}
-            <img src="Qora_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
+            <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-45 h-auto" />
           </div>
           <div className="hidden md:flex gap-18 font-bold text-sm tracking-widest uppercase opacity-70">
-            <a href="#" className="hover:text-blue-600 transition-colors relative group py-2">
+            <a href="/" className="hover:text-blue-600 transition-colors relative group py-2">
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -713,16 +235,17 @@ const QORA_Landing = () => {
             </a>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 transition-colors">
               {isDark ? <Sun className="text-yellow-400" /> : <Moon className="text-slate-600" />}
             </button>
+            <Link to ="/subscriptions">
             <button
-              onClick={() => setIsSubscriptionOpen(true)}
               className="px-5 py-2 font-bold transition-transform hover:scale-105 active:scale-95 flex item-center gap-2"
             >
               <Crown className="text-purple-600 font-bold" />
               Subscribe
             </button>
+            </Link>
             <Link to="/signup">
               <button className={`px-5 py-2 rounded-full font-bold transition-transform hover:scale-105 active:scale-95
             ${isDark ? 'bg-purple-600 text-white' : 'border border-purple bg-white text-purple'}`}>
@@ -820,56 +343,6 @@ const QORA_Landing = () => {
           </div>
         </section>
 
-        {/* 2. ABOUT US */}
-        {/* <section className={`py-32 px-6 relative z-10 ${isDark ? 'bg-black/20' : 'bg-white/20'}`}>
-        <SectionHeader title="About Us" subtitle="The Quotient Story" isDark={isDark} />
-
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-20 items-center mb-24">
-            <ScrollReveal>
-              <h3 className={`text-4xl font-bold mb-8 leading-tight ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>
-                Reimagining the <br />
-                Future of Work.
-              </h3>
-              <p className="text-lg opacity-70 leading-relaxed mb-6">
-                At Quotient, we believe productivity isn't about doing more—it's about working smarter.
-                Our mission is to empower teams with intelligent tools that simplify work, foster collaboration,
-                and turn ideas into impact.
-              </p>
-              <div className="flex items-center gap-4 text-sm font-bold uppercase tracking-widest opacity-60">
-                <span>Since 2024</span>
-                <span className="w-1 h-1 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <span>Global Team</span>
-              </div>
-            </ScrollReveal>
-            <TiltCard isDark={isDark} delay={0.2}>
-              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" className="rounded-2xl shadow-lg grayscale hover:grayscale-0 transition-all duration-700" alt="Team" />
-            </TiltCard>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12">
-            <TiltCard isDark={isDark} delay={0.3}>
-              <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Our Story</h3>
-              <p className="opacity-70 leading-relaxed text-sm">
-                Quotient was born from a simple idea: managing projects shouldn't be chaotic.
-                We set out to create an intuitive, AI-driven workspace where teams can plan, collaborate,
-                and execute seamlessly.
-              </p>
-            </TiltCard>
-            <TiltCard isDark={isDark} delay={0.4}>
-              <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-purple-400' : 'text-blue-600'}`}>Our Mission</h3>
-              <p className="opacity-70 leading-relaxed text-sm">
-                To maximize teamwork by combining innovation, automation, and simplicity.
-                Helping organizations achieve more with clarity and focus.
-              </p>
-            </TiltCard>
-          </div>
-        </div>
-      </section> */}
-
         {/* 3. VIDEO DEMO SECTION */}
         <section className="py-32 px-6 relative z-10">
           <SectionHeader title="See It In Action" subtitle="Command Center Demo" isDark={isDark} />
@@ -952,175 +425,7 @@ const QORA_Landing = () => {
           </div>
         </section>
 
-        {/* 5. OUR SERVICES 
-       <section className="py-32 px-6 relative z-10">
-        <SectionHeader title="Our Services" subtitle="Capabilities" isDark={isDark} />
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          {[
-            { title: "AI-Driven Workflows", icon: <Cpu />, bg: "from-purple-500 to-indigo-500" },
-            { title: "Smart Dashboards", icon: <BarChart />, bg: "from-blue-400 to-cyan-400" },
-            { title: "Task Management", icon: <Layers />, bg: "from-pink-500 to-rose-500" },
-            { title: "Team Synergy", icon: <Users />, bg: "from-orange-400 to-amber-400" },
-            { title: "Cloud Security", icon: <Shield />, bg: "from-emerald-400 to-green-400" },
-            { title: "Global Scale", icon: <Globe />, bg: "from-fuchsia-500 to-purple-500" },
-          ].map((service, i) => (
-            <TiltCard key={i} isDark={isDark} delay={i * 0.1} className="group overflow-hidden">
-              <div className={`absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br ${service.bg} opacity-5 rounded-full blur-2xl group-hover:opacity-10 transition-opacity duration-500`}></div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.bg} flex items-center justify-center text-white mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-500`}>
-                {service.icon}
-              </div>
-              <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-              <p className="opacity-60 text-sm leading-relaxed">
-                Automate super-tasks and prevent bottlenecks with our advanced neural engine.
-              </p>
-            </TiltCard>
-          ))}
-        </div>
-      </section> */}
-
-        {/* 6. SUBSCRIPTION/PRICING SECTION */}
-        {/* <section className={`py-32 px-6 relative z-10 ${isDark ? 'bg-black/40' : 'bg-white/40'}`}>
-        <SectionHeader title="Plans & Pricing" subtitle="Scale with your team" isDark={isDark} />
-
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          {pricingPlans.map((plan, i) => (
-            <ScrollReveal key={i} delay={i * 0.1}>
-              <motion.div
-                whileHover={{ y: -15 }}
-                className={`relative p-10 rounded-[2.5rem] border backdrop-blur-2xl flex flex-col h-full transition-all duration-500
-                        ${isDark
-                    ? 'bg-slate-900/60 border-slate-700 hover:border-purple-500/50'
-                    : 'bg-white/70 border-white hover:border-blue-400/50 shadow-xl hover:shadow-2xl'}
-                        ${plan.popular ? (isDark ? 'border-purple-500/50 shadow-purple-900/20' : 'border-blue-500/50 shadow-blue-500/20') : ''}
-                        `}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg uppercase tracking-wider">
-                    Most Popular
-                  </div>
-                )}
-
-                <div className="mb-8">
-                  <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
-                  <p className="text-sm opacity-60 min-h-[40px] leading-relaxed">{plan.desc}</p>
-                </div>
-
-                <div className="mb-10">
-                  <div className="flex items-baseline gap-1">
-                    <span className={`text-5xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{plan.price}</span>
-                    <span className="text-sm opacity-50 font-medium">{plan.period}</span>
-                  </div>
-                </div>
-
-                <div className="flex-grow space-y-4 mb-10">
-                  {plan.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-sm font-medium opacity-80">
-                      <div className={`p-0.5 rounded-full ${isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-100 text-blue-600'}`}>
-                        <Check size={12} strokeWidth={4} />
-                      </div>
-                      {feat}
-                    </div>
-                  ))}
-                </div>
-
-                <button className={`w-full py-4 rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm uppercase tracking-wide
-                            ${plan.popular
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30'
-                    : (isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')}
-                        `}>
-                  {plan.cta} {plan.popular && <Rocket size={14} />}
-                </button>
-              </motion.div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </section> */}
-
-        {/* 7. FAQ's */}
-        {/* <section className={`py-12 px-6 relative z-10 ${isDark ? 'bg-black/10' : 'bg-transparent'}`}>
-        <div className="max-w-4xl mx-auto text-center mb-16">
-          <h2 className={`text-4xl md:text-5xl font-black mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Frequently asked questions
-          </h2>
-          <p className={`text-lg ${isDark ? 'text-white/70' : 'text-slate-600'}`}>
-            Quick answers to common questions about Qora-AI.
-          </p>
-        </div>
-        
-          <div className="max-w-7xl h-full mx-auto gap-4 space-y-4 flex flex-row">
-            <div className="w-[50%] h-full flex flex-col">
-               {faqData.map((faq) => (
-                <div key={faq.id} className="mb-4 break-inside-avoid">
-                  <div className={`p-6 rounded-2xl min-h-[90px] ${isDark ? 'bg-white/10' : 'bg-white'} shadow-lg`}>
-                    <button
-                      onClick={() => toggleFAQ(faq.id)}
-                      className="w-full flex justify-between items-center text-left"
-                    >
-                      <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        {faq.question}
-                      </h3>
-
-                      <div className={`transition-transform ${openFAQ === faq.id ? 'rotate-180' : ''}`}>
-                        ▼
-                      </div>
-                    </button>
-
-                    <AnimatePresence>
-                      {openFAQ === faq.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="mt-4 text-sm">{faq.answer}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="w-[50%] h-full flex flex-col">
-              {faqrightData.map((faq) => (
-                <div key={faq.id} className="mb-4 break-inside-avoid">
-                  <div className={`p-6 rounded-2xl min-h-[90px] ${isDark ? 'bg-white/10' : 'bg-white'} shadow-lg`}>
-                    <button
-                      onClick={() => toggleFAQ(faq.id)}
-                      className="w-full flex justify-between items-center text-left"
-                    >
-                      <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        {faq.question}
-                      </h3>
-
-                      <div className={`transition-transform ${openFAQ === faq.id ? 'rotate-180' : ''}`}>
-                        ▼
-                      </div>
-                    </button>
-
-                    <AnimatePresence>
-                      {openFAQ === faq.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="mt-4 text-sm">{faq.answer}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              ))}
-            </div>
-        </div>
-      </section> */}
-
-        {/* 7.5 GET STARTED SECTION */}
+        {/* 7. GET STARTED SECTION */}
         <section className={`min-h-[50vh] flex items-center justify-center py-12 px-6 relative z-10 ${isDark ? 'bg-transparent' : 'bg-transparent'}`}>
           <div className="max-w-4xl w-full text-center">
             <h2 className={`text-4xl md:text-5xl font-black mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>

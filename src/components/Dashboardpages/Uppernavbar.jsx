@@ -152,12 +152,10 @@ export default function UpperNavbar() {
       }}
     >
       <div className="flex items-center gap-3">
-         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all group-hover:scale-105">
-            <span className="text-white">T</span>
+         <div className="text-sm font-black italic bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            {/* Qora AI */}
+            <img src="QORA_AI Logo.svg" alt="Qora AI" className="w-35 h-auto" />
           </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-semibold ">TestApp</span>
-        </div>
       </div>
 
       <div className="relative flex items-center flex-grow max-w-xl mx-6">
