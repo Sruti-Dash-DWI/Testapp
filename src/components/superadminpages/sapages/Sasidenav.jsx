@@ -174,7 +174,7 @@ const Sasidenav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li> */}
 
-                {/* MODIFIED: TEAMS SECTION IS NOW A DIRECT LINK */}
+                
                 <li>
                     <NavLink 
                         to="/sa/teams/for-you"

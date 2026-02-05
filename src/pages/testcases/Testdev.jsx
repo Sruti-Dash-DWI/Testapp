@@ -27,58 +27,53 @@ if (!authToken) {
       }
 
   const handleCreateModule = async () => {
+    
     if (!moduleName.trim()) {
       alert("Module name is required");
       return;
     }
-    // We prioritize the URL, then localStorage. 
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectIdFromURL = urlParams.get('projectId');
-    
-    // Determine the final projectId to use
-    const projectId = projectIdFromURL || localStorage.getItem('currentProjectId'); 
-    
+
     if (!projectId) {
       alert("Project ID is missing. Please ensure you are within a project context.");
       return;
     }
 
-    // Optional: Synchronize localStorage if it was only in the URL
-    if (projectIdFromURL && !localStorage.getItem('currentProjectId')) {
-        localStorage.setItem('currentProjectId', projectIdFromURL);
-    }
-
     setLoadingModule(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/modules/${projectId}`, {
+      
+      const response = await fetch(`${API_BASE_URL}/testcase/modules/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
+       
         body: JSON.stringify({
           name: moduleName.trim(),
-          projectId: projectId
-          //description: description.trim() 
+          description: description.trim(), 
+          project: parseInt(projectId),    
+          parent: null                     
         })
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to create module');
+       
+        throw new Error(result.detail || result.message || 'Failed to create module');
       }
 
       console.log('Module created successfully:', result);
       alert('Module created successfully!');
+      
       
       setShowCreateModal(false);
       setShowAddModule(false);
       setModuleName('');
       setDescription('');
       
-      // fetchModules(); 
+      
       
     } catch (error) {
       console.error('Error creating module:', error);
@@ -109,7 +104,7 @@ const handleCreateManualTestCase = async () => {
 };
 
   
-  // Manual Test Case form state
+ 
   const [manualTestCaseData, setManualTestCaseData] = useState({
     creationType: 'new',
     name: '',
@@ -376,7 +371,7 @@ const handleCreateManualTestCase = async () => {
               <button
                 onClick={handleCreateModule}
 
-                //   // Handle create module logic here
+               
                 //   console.log('Creating module:', { moduleName, description });
                 //   setShowCreateModal(false);
                 //   setShowAddModule(false);
