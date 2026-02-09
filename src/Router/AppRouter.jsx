@@ -141,6 +141,7 @@ import Smgoals from "../components/smdashboardpages/Smgoals.jsx";
 // Billing page
 import Subscription from "../pages/billing/Subscription.jsx";
 import BillingDetails from "../pages/billing/BillingDetails.jsx";
+import MyCurrentPlan from "../pages/billing/MyCurrentPlan.jsx";
 
 const AppRouter = () => {
   return (
@@ -342,6 +343,8 @@ const AppRouter = () => {
           {/* Billing */}
           <Route path="/billing/subscription/" element={<Subscription />} />
           <Route path="/billing/details/" element={<BillingDetails />} />
+          <Route path="/billing/my-plan" element={<MyCurrentPlan />} />
+
         </Route>
              
           

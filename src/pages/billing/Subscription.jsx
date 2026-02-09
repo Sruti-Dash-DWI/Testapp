@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Features from "../../components/Billing/Features";
 import PlansAndPricing from "../../components/Billing/Plans&Pricing";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export default function CostCalculator() {
+export default function SubscriptionPage() {
   const [country, setCountry] = useState('India');
   const [utilityMessages, setUtilityMessages] = useState(5);
   const [maxUtilityMessages, setMaxUtilityMessages] = useState(5);
@@ -15,6 +17,7 @@ export default function CostCalculator() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const navigate = useNavigate();   
   // console.log("isSubmitting =", isSubmitting);
   
 
@@ -89,6 +92,14 @@ export default function CostCalculator() {
   }
 
   try {
+    const payload = {
+      billing_cycle: 'FREE_TRIAL',
+      selected_users: 5,
+      selected_storage_gb: 10,
+      selected_testcases: 500
+    };
+
+    console.log('FREE TRIAL PAYLOAD →', payload);
     
     const response = await fetch(
     `${API_BASE_URL}/billing/subscriptions/`,
@@ -98,12 +109,8 @@ export default function CostCalculator() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          billing_cycle: 'FREE_TRIAL',
-          selected_users: 5,
-          selected_storage_gb: 10,
-          selected_testcases: 500,
-        }),
+        body: JSON.stringify(payload),
+         
       }
     );
     
@@ -114,7 +121,9 @@ export default function CostCalculator() {
     if (response.ok) {
       
       setApiResponse(data);
-      alert('Subscription activated successfully!');
+      navigate('/billing/my-plan'); // 👈 redirect
+
+      // alert('Subscription activated successfully!');
     } else {
        
       setApiError(
@@ -128,7 +137,6 @@ export default function CostCalculator() {
     setApiError('Network error: ' + err.message);
   } finally {
     setIsSubmitting(false);
-    console.log("isSubmitting AFTER = false");
   }
 };
 
@@ -249,10 +257,8 @@ export default function CostCalculator() {
 
                 <div className="flex gap-2 mb-2">
                   <button
-                    onClick={()=>{console.log("🔥 Button clicked");
-                          handleActivateSubscription();
-
-                    }}
+                    
+                    onClick={handleActivateSubscription}
                     
 
                     disabled={isSubmitting}
