@@ -14,6 +14,7 @@ import Satestdev from "../components/superadminpages/satestcase/Satestdev.jsx";
 import Satestsuite from "../components/superadminpages/satestcase/Satestsuite.jsx";
 import Saorganization from "../pages/sasidenavpages/Saorganization.jsx";
 import Sareports from "../components/superadminpages/sapages/Sareports.jsx";
+import Sasubscriptions from "../pages/sasidenavpages/Sasubscription.jsx";
 
 import HomePage from "../pages/HomePage.jsx";
 import GenericPage from "../pages/GenericPage.jsx";
@@ -22,8 +23,9 @@ import SignupPage from "../pages/Signup.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
 import AboutPage from "../pages/AboutUs.jsx";
 import Services from "../pages/Services.jsx";
-import SeeDemo from "../pages/SeeDemo.jsx";
-import Subscriptions from "../pages/Subscriptions.jsx";
+// import SeeDemo from "../pages/SeeDemo.jsx";
+import Subscriptions from "../pages/Subscriptions_landing.jsx";
+import Billing from "../pages/Billing_landing.jsx";
 import Contact from "../pages/Contact.jsx";
 import { FormDashboard, FormEditor } from '../components/dashboardpages/Form.jsx';
 
@@ -154,8 +156,8 @@ const AppRouter = () => {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/generic" element={<GenericPage title="Generic Page" />} />
-        <Route path="/seedemo" element={<SeeDemo />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
+        <Route path="/billing" element={<Billing />} />
         <Route path="/contact" element={<Contact />} />
 
         <Route path="/set-password" element={<SetPasswordPage />} />
@@ -179,8 +181,8 @@ const AppRouter = () => {
           <Route path="/teams/:teamId" element={<TeamDetails />} />
 
           {/* Testcase */}
-          <Route path="/testcases/testdev/" element={<Testdev />} />
-          <Route path="/testcases/testsuite/" element={<Testsuite />} />
+          <Route path="/testdev/:projectId" element={<Testdev />} />
+          <Route path="/testsuite/:projectId" element={<Testsuite />} />
           
           {/* Task management */}
           <Route path='/backlog/:projectId' element={<BacklogPage />} />
@@ -214,6 +216,7 @@ const AppRouter = () => {
           <Route path="/sa/projects" element={<Saprojects />} />
           <Route path="/sa/organization" element={<Saorganization />} />
           <Route path="/sa/report" element={<Sareports />} />
+          <Route path="/sa/subscription" element={<Sasubscriptions />} />
           <Route path="/sa/notifications" element={<Sanotifications />} />
           <Route path="/sa/settings" element={<Sasettings />} />
 

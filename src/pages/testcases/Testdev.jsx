@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate, useParams } from 'react-router-dom'; // Add this import
 import { useTheme } from '../../context/ThemeContext';
 
 import { Home, RefreshCw, Play, Settings, Plus, Search, Filter, MoreVertical, HelpCircle, User, Grid, List, Menu, X } from 'lucide-react';
 
 export default function TestScriptsUI() {
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const [loadingModule, setLoadingModule] = useState(false);
 const [loadingTestcase, setLoadingTestcase] = useState(false);
 
@@ -18,21 +19,69 @@ const [loadingTestcase, setLoadingTestcase] = useState(false);
   const [description, setDescription] = useState('');
   const { theme, toggleTheme, colors } = useTheme();
 
-  const handleCreateModule = async () => {
-  if (!moduleName.trim()) {
-    alert("Module name is required");
-    return;
-  }
-  setLoadingModule(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const authToken = localStorage.getItem('authToken');
+if (!authToken) {
+        navigate("/login");
+        return;
+      }
 
- 
-  
-  setLoadingModule(false);
-  setShowCreateModal(false);
-  setShowAddModule(false);
-  setModuleName('');
-  setDescription('');
-};
+  const handleCreateModule = async () => {
+    
+    if (!moduleName.trim()) {
+      alert("Module name is required");
+      return;
+    }
+
+    if (!projectId) {
+      alert("Project ID is missing. Please ensure you are within a project context.");
+      return;
+    }
+
+    setLoadingModule(true);
+
+    try {
+      
+      const response = await fetch(`${API_BASE_URL}/testcase/modules/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+       
+        body: JSON.stringify({
+          name: moduleName.trim(),
+          description: description.trim(), 
+          project: parseInt(projectId),    
+          parent: null                     
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+       
+        throw new Error(result.detail || result.message || 'Failed to create module');
+      }
+
+      console.log('Module created successfully:', result);
+      alert('Module created successfully!');
+      
+      
+      setShowCreateModal(false);
+      setShowAddModule(false);
+      setModuleName('');
+      setDescription('');
+      
+      
+      
+    } catch (error) {
+      console.error('Error creating module:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoadingModule(false);
+    }
+  };
 
 const handleCreateManualTestCase = async () => {
   if (!manualTestCaseData.name || !manualTestCaseData.type || !manualTestCaseData.parentModule) {
@@ -40,10 +89,6 @@ const handleCreateManualTestCase = async () => {
     return;
   }
   setLoadingTestcase(true);
-
-  
- 
- 
 
   setLoadingTestcase(false);
   setShowManualTestCaseModal(false);
@@ -59,7 +104,7 @@ const handleCreateManualTestCase = async () => {
 };
 
   
-  // Manual Test Case form state
+ 
   const [manualTestCaseData, setManualTestCaseData] = useState({
     creationType: 'new',
     name: '',
@@ -326,7 +371,7 @@ const handleCreateManualTestCase = async () => {
               <button
                 onClick={handleCreateModule}
 
-                //   // Handle create module logic here
+               
                 //   console.log('Creating module:', { moduleName, description });
                 //   setShowCreateModal(false);
                 //   setShowAddModule(false);

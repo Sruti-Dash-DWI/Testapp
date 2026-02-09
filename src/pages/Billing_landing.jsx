@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Database, Shield, Lock, CreditCard, TestTubeDiagonal } from 'lucide-react';
 import { GrGroup } from "react-icons/gr";
 import { MdOutlineSecurity } from "react-icons/md";
-import Security_icon from "../../../public/Security_icon.svg";
+import Security_icon from "../../public/Security_icon.svg";
 
 
 export default function SubscriptionCheckout() {
