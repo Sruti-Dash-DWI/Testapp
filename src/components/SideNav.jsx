@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useParams } from 'react-router-dom'; // 1. Import useParams
+import { NavLink, useParams } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ... (Keep all your Icon components exactly as they were) ...
+// --- ICONS ---
 const ProjectsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>);
 const TestdevIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
 const ForYouIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
@@ -14,17 +15,16 @@ const DocsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heigh
 const BellIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 
-const SideNav = ({ isOpen, openInviteModal }) => {
+const SideNav = ({ isOpen }) => {
     const [projects, setProjects] = useState([]);
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isTeamsOpen, setIsTeamsOpen] = useState(false);
     const [isTestdevOpen, setIsTestdevOpen] = useState(false);
-    const [error, setError] = useState(null);
     const { theme, colors } = useTheme();
 
-   
-    const { projectId } = useParams();
+    // 1. Get projectId from URL (if available), fallback to localStorage
+    const { projectId: urlProjectId } = useParams();
+    const activeProjectId = urlProjectId || localStorage.getItem('activeProjectId');
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -45,8 +45,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                 const allProjects = Object.values(data).flat();
                 setProjects(allProjects);
             } catch (error) {
-                console.error("Error fetching projects for sidenav:", error);
-                setError(error.message);
+                console.error("Error fetching projects:", error);
             }
         };
 
@@ -54,20 +53,20 @@ const SideNav = ({ isOpen, openInviteModal }) => {
     }, []);
 
     const handleProjectClick = (project) => {
-        
         localStorage.setItem('activeProjectName', project.name);
         localStorage.setItem('activeProjectId', project.id);
     };
 
+    // 2. Static paths are absolute
     const staticNavItems = [
-        { icon: <DocsIcon />, name: 'Documents', path: 'documents' },
-        { icon: <BellIcon />, name: 'Notifications', path: 'notifications' },
-        { icon: <SettingsIcon />, name: 'Settings', path: 'settings' },
+        { icon: <DocsIcon />, name: 'Documents', path: '/documents' },
+        { icon: <BellIcon />, name: 'Notifications', path: '/notifications' },
+        { icon: <SettingsIcon />, name: 'Settings', path: '/settings' },
     ];
 
     return (
         <div 
-            className={`transition-all duration-300 border-r h-full flex flex-col p-5 overflow-y-auto scrollbar-thin ${isOpen ? 'w-70' : 'w-20 items-center'}`}
+            className={`transition-all duration-300 border-r h-full flex flex-col p-5 overflow-y-auto scrollbar-thin ${isOpen ? 'w-64' : 'w-20 items-center'}`}
             style={{
                 backgroundColor: colors.background,
                 color: colors.text,
@@ -76,7 +75,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
         >
             <ul className="flex flex-col gap-4 flex-grow">
                 
-                
+                {/* --- PROJECTS DROPDOWN --- */}
                 <li>
                     <button 
                         onClick={() => setIsProjectsOpen(!isProjectsOpen)}
@@ -92,9 +91,9 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         )}
                     </button>
                     {isOpen && isProjectsOpen && (
-                        <ul className="mt-2 space-y-1 pl-8 ml-5 max-h-48 overflow-x-hidden overflow-y-hidden" style={{ borderLeft: `1px solid ${colors.border}` }}>
+                        <ul className="mt-2 space-y-1 pl-8 ml-5 max-h-48 overflow-x-hidden overflow-y-auto" style={{ borderLeft: `1px solid ${colors.border}` }}>
                             <li>
-                                <NavLink to="/projects" className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}>
+                                <NavLink to="/projects" className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}>
                                     View All Projects
                                 </NavLink>
                             </li>
@@ -104,7 +103,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                                         to={`/backlog/${project.id}`}
                                         title={project.name}
                                         onClick={() => handleProjectClick(project)}
-                                        className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                        className={({ isActive }) => `block px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}
                                     >
                                         {project.name}
                                     </NavLink>
@@ -114,7 +113,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li>
 
-                {/* TEAMS SECTION */}
+                {/* --- TEAMS DROPDOWN --- */}
                 <li>
                     <button 
                         onClick={() => setIsTeamsOpen(!isTeamsOpen)}
@@ -126,23 +125,23 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         <TeamsIcon />
                         {isOpen && <span className="flex-grow text-left">Teams</span>}
                         {isOpen && (
-                            <svg className={`w-4 h-4 transition-transform ${isTeamsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                             <svg className={`w-4 h-4 transition-transform ${isTeamsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                         )}
                     </button>
                     {isOpen && isTeamsOpen && (
                         <ul className="mt-2 space-y-1 pl-8 ml-5" style={{ borderLeft: `1px solid ${colors.border}` }}>
                             <li>
-                                <NavLink to="/teams/for-you" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' : ''}`}>
+                                <NavLink to="/teams/for-you" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}>
                                     <ForYouIcon /> <span>User Details</span>
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to="/teams/teams" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' : ''}`}>
+                                <NavLink to="/teams/teams" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}>
                                     <TeamGroupIcon /> <span>Teams</span>
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to="/teams/people" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' : ''}`}>
+                                <NavLink to="/teams/people" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}>
                                     <PeopleIcon /> <span>People</span>
                                 </NavLink>
                             </li>
@@ -150,6 +149,7 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li>
 
+                {/* --- TEST CASES DROPDOWN --- */}
                 <li>
                     <button 
                         onClick={() => setIsTestdevOpen(!isTestdevOpen)}
@@ -161,25 +161,26 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                         <TestdevIcon />
                         {isOpen && <span className="flex-grow text-left">Test Cases</span>}
                         {isOpen && (
-                            <svg className={`w-4 h-4 transition-transform ${isTestdevOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                             <svg className={`w-4 h-4 transition-transform ${isTestdevOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                         )}
                     </button>
                     {isOpen && isTestdevOpen && (
                         <ul className="mt-2 space-y-1 pl-8 ml-5" style={{ borderLeft: `1px solid ${colors.border}` }}>
                             <li>
-                               
+                                {/* UPDATED: Matches Route "/project/:projectId/test-scripts" */}
                                 <NavLink 
-                                    to={projectId ? `/testdev/${projectId}` : '/projects'}
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    to={activeProjectId ? `/project/${activeProjectId}/test-scripts` : '/projects'}
+                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}
                                 >
                                     <ForYouIcon />
                                     <span>Test Development</span>
                                 </NavLink>
                             </li>
                             <li>
+                                {/* Matches Route "/testsuite/:projectId" */}
                                 <NavLink 
-                                    to={projectId ? `/testsuite/${projectId}` : '/projects'}
-                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''}`}
+                                    to={activeProjectId ? `/testsuite/${activeProjectId}` : '/projects'}
+                                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''}`}
                                 >
                                     <TeamGroupIcon />
                                     <span>Test Execution</span>
@@ -189,14 +190,14 @@ const SideNav = ({ isOpen, openInviteModal }) => {
                     )}
                 </li>
 
-               
+                {/* --- STATIC NAV ITEMS --- */}
                 {staticNavItems.map((item) => (
                     <li key={item.name}>
                         <NavLink 
-                            to={`/${item.path}`} 
+                            to={item.path} 
                             title={item.name} 
-                            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : ''} ${!isOpen && 'justify-center'}`}
-                            style={({ isActive }) => ({ color: isActive ? undefined : colors.text })}
+                            className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : ''} ${!isOpen && 'justify-center'}`}
+                            style={({ isActive }) => ({ color: isActive ? '#fff' : colors.text })}
                             onMouseEnter={(e) => { if (!e.currentTarget.classList.contains('bg-gradient-to-r')) e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#f3f4f6'; }}
                             onMouseLeave={(e) => { if (!e.currentTarget.classList.contains('bg-gradient-to-r')) e.currentTarget.style.backgroundColor = 'transparent'; }}
                         >

@@ -43,6 +43,8 @@ import Teams from "../pages/teams/Teams.jsx";
 import TeamDetails from "../pages/teams/TeamDetails.jsx";
 import Testdev from "../pages/testcases/Testdev.jsx";
 import Testsuite from "../pages/testcases/Testsuite.jsx";
+import TestCaseDetailUI from "../pages/testcases/TestCaseDetailUI.jsx";
+import AIReviewImport from "../pages/testcases/AIReviewImport.jsx";
 
 import Documents from "../pages/sidenav_pages/Documents.jsx";
 import Notifications from "../pages/sidenav_pages/Notification.jsx";
@@ -180,7 +182,10 @@ const AppRouter = () => {
           <Route path="/teams/:teamId" element={<TeamDetails />} />
 
           {/* Testcase */}
-          <Route path="/testdev/:projectId" element={<Testdev />} />
+         
+<Route path="/project/:projectId/test-scripts" element={<Testdev />} />
+<Route path="/project/:projectId/test-case/:testCaseId" element={<TestCaseDetailUI />} />
+<Route path="/project/:projectId/ai-review" element={<AIReviewImport />} />
           <Route path="/testsuite/:projectId" element={<Testsuite />} />
           
           {/* Task management */}
